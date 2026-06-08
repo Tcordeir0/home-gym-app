@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d0f12" />
+  <meta name="theme-color" content="#0B0C0F" />
   <title>Home Gym Tracker — Ficha de Treino Full-Body</title>
   <meta name="description" content="Fichas de treino full-body A/B por perfil, mobile-first, com timer de descanso e histórico." />
 
@@ -22,21 +22,30 @@
 
   <style>
     :root {
-      --bg: #0d0f12;
-      --surface: #15181d;
-      --surface-2: #1c2027;
-      --line: #272c34;
-      --text: #eef1f5;
-      --muted: #8a93a0;
+      --bg: #0B0C0F;
+      --surface: #15181D;
+      --surface-2: #1C2027;
+      --elevated: #232831;
+      --line: rgba(255,255,255,0.08);
+      --line-strong: #2A3039;
+      --text: #F2F5F8;
+      --muted: #9098A4;
+      --faint: #6B7280;
       --accent: #c6ff3a;
       --accent-dim: #97c916;
+      --accent-press: #AEE82E;
       --a-color: #c6ff3a;
       --b-color: #3ad1ff;
       --c-color: #a78bfa;
       --warm-color: #ff8a3a;
+      --good: #34D399;
       --done: #2f8f3a;
-      --on-accent: #0d0f12;
+      --warn: #FBBF24;
+      --bad: #FF6B6B;
+      --on-accent: #0B0C0F;
       --radius: 16px;
+      --font-ui: -apple-system, system-ui, "SF Pro Text", "Manrope", "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Anton', -apple-system, system-ui, sans-serif;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -44,7 +53,7 @@
     html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 
     body {
-      font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+      font-family: var(--font-ui);
       background: var(--bg);
       color: var(--text);
       line-height: 1.45;
@@ -78,7 +87,7 @@
       gap: 10px; max-width: 640px; margin: 0 auto;
     }
     .brand h1 {
-      font-family: 'Anton', sans-serif;
+      font-family: var(--font-display);
       font-size: clamp(28px, 8.5vw, 42px);
       letter-spacing: 0.5px; text-transform: uppercase; line-height: 0.95;
     }
@@ -86,7 +95,7 @@
     .hist-btn {
       flex-shrink: 0;
       appearance: none; border: 1px solid var(--line); background: var(--surface);
-      color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 700;
+      color: var(--text); font-family: var(--font-ui); font-weight: 700;
       font-size: 13px; padding: 9px; border-radius: 99px; cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
     }
@@ -109,30 +118,30 @@
     .field label { display: block; font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 5px; }
     .field input, .field select {
       width: 100%; appearance: none; border: 1px solid var(--line); background: var(--surface-2);
-      color: var(--text); font-family: 'Manrope', sans-serif; font-size: 15px; padding: 12px 14px; border-radius: 12px;
+      color: var(--text); font-family: var(--font-ui); font-size: 15px; padding: 12px 14px; border-radius: 12px;
     }
     .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
     .cloud-primary {
       width: 100%; appearance: none; border: none; cursor: pointer; margin-top: 6px;
-      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 15px;
+      font-family: var(--font-ui); font-weight: 800; font-size: 15px;
       padding: 14px; border-radius: 12px; color: var(--on-accent); background: var(--accent);
     }
     .cloud-primary:active { filter: brightness(0.9); }
     .cloud-secondary {
       width: 100%; appearance: none; cursor: pointer; margin-top: 8px;
       border: 1px solid var(--line); background: var(--surface); color: var(--text);
-      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 14px; padding: 12px; border-radius: 12px;
+      font-family: var(--font-ui); font-weight: 800; font-size: 14px; padding: 12px; border-radius: 12px;
     }
     .cloud-note { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
     .snd-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; font-weight: 700; font-size: 14px; }
-    .snd-btn { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 99px; min-width: 92px; }
+    .snd-btn { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-family: var(--font-ui); font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 99px; min-width: 92px; }
     .snd-btn.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
     /* Porta de login */
     .gate { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 24px; }
     .gate[hidden] { display: none; }
     .gate-inner { width: 100%; max-width: 380px; }
-    .gate-logo { font-family: 'Anton', sans-serif; font-size: clamp(40px, 14vw, 64px); text-transform: uppercase; letter-spacing: 0.5px; line-height: 0.95; margin-bottom: 6px; }
+    .gate-logo { font-family: var(--font-display); font-size: clamp(40px, 14vw, 64px); text-transform: uppercase; letter-spacing: 0.5px; line-height: 0.95; margin-bottom: 6px; }
     .gate-logo .hl { color: var(--accent); }
     .gate-sub { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
     .gate-note { font-size: 12px; color: var(--muted); margin-top: 14px; text-align: center; line-height: 1.5; }
@@ -153,7 +162,7 @@
     .checklist { display: flex; flex-wrap: wrap; gap: 8px; }
     .check-item {
       appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2);
-      color: var(--muted); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px;
+      color: var(--muted); font-family: var(--font-ui); font-weight: 700; font-size: 13px;
       padding: 9px 13px; border-radius: 99px; transition: all 0.15s ease;
     }
     .check-item.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
@@ -170,14 +179,14 @@
     .gen-chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .gen-chip {
       appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2);
-      color: var(--muted); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px;
+      color: var(--muted); font-family: var(--font-ui); font-weight: 700; font-size: 13px;
       padding: 9px 14px; border-radius: 99px; transition: all 0.15s ease;
     }
     .gen-chip.sel { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
     .seg { display: flex; gap: 8px; }
     .seg button {
       flex: 1; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2);
-      color: var(--muted); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 15px;
+      color: var(--muted); font-family: var(--font-ui); font-weight: 800; font-size: 15px;
       padding: 12px; border-radius: 12px; transition: all 0.15s ease;
     }
     .seg button.sel { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
@@ -195,7 +204,7 @@
     .user-pill {
       flex-shrink: 0;
       appearance: none; border: 1px solid var(--line); background: var(--surface);
-      color: var(--muted); font-family: 'Manrope', sans-serif; font-weight: 800;
+      color: var(--muted); font-family: var(--font-ui); font-weight: 800;
       font-size: 14px; padding: 10px 16px; border-radius: 99px; cursor: pointer;
       display: inline-flex; align-items: center; gap: 7px;
       transition: all 0.15s ease; max-width: 60vw;
@@ -217,10 +226,10 @@
     }
     .focus-cap b { color: var(--accent); font-weight: 800; }
     .info-cap { margin-top: 6px; font-size: 12px; font-weight: 600; line-height: 1.5; color: var(--muted); }
-    .points-badge { display: inline-block; margin: 12px auto 0; background: var(--surface); border: 1px solid var(--line); color: var(--accent); font-family: 'Anton', sans-serif; font-size: 16px; letter-spacing: 0.5px; padding: 6px 14px; border-radius: 99px; cursor: pointer; }
+    .points-badge { display: inline-block; margin: 12px auto 0; background: var(--surface); border: 1px solid var(--line); color: var(--accent); font-family: var(--font-display); font-size: 16px; letter-spacing: 0.5px; padding: 6px 14px; border-radius: 99px; cursor: pointer; }
     .points-badge:active { border-color: var(--accent); }
 
-    .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background-size: cover; background-position: center; font-family: 'Manrope', sans-serif; font-weight: 800; flex-shrink: 0; vertical-align: middle; overflow: hidden; }
+    .avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background-size: cover; background-position: center; font-family: var(--font-ui); font-weight: 800; flex-shrink: 0; vertical-align: middle; overflow: hidden; }
     .avatar-wrap { position: relative; display: inline-flex; vertical-align: middle; flex-shrink: 0; }
     .avatar-wrap .avatar { position: absolute; inset: 0; }
     .deco { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 142%; height: 142%; pointer-events: none; }
@@ -237,7 +246,7 @@
     .spin-row { display: flex; gap: 8px; }
     .spin-row button { flex: 1; margin: 0; }
     .cosmo-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
-    .cosmo { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; padding: 9px 13px; border-radius: 99px; display: inline-flex; align-items: center; gap: 7px; }
+    .cosmo { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-family: var(--font-ui); font-weight: 700; font-size: 13px; padding: 9px 13px; border-radius: 99px; display: inline-flex; align-items: center; gap: 7px; }
     .cosmo.eq { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
     .hat-mini { width: 26px; height: 26px; display: inline-block; }
     .hat-mini svg { width: 100%; height: 100%; overflow: visible; }
@@ -245,11 +254,11 @@
 
     .rank-item { display: flex; align-items: center; gap: 11px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px; margin-bottom: 8px; }
     .rank-item.me { border-color: var(--accent); }
-    .rank-pos { font-family: 'Anton', sans-serif; font-size: 19px; min-width: 28px; text-align: center; }
+    .rank-pos { font-family: var(--font-display); font-size: 19px; min-width: 28px; text-align: center; }
     .rank-info { flex: 1; min-width: 0; }
     .rank-name { font-weight: 800; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .rank-week { font-size: 11px; color: var(--muted); }
-    .rank-pts { font-family: 'Anton', sans-serif; font-size: 20px; color: var(--accent); }
+    .rank-pts { font-family: var(--font-display); font-size: 20px; color: var(--accent); }
     .poke-btn { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); font-weight: 700; font-size: 12px; padding: 8px 11px; border-radius: 99px; white-space: nowrap; flex-shrink: 0; }
     .poke-btn:active { border-color: var(--accent); }
 
@@ -262,7 +271,7 @@
     .cardio-btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer;
       border: 1px solid var(--warm-color); background: transparent; color: var(--warm-color);
-      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 13px;
+      font-family: var(--font-ui); font-weight: 800; font-size: 13px;
       padding: 10px 16px; border-radius: 99px; transition: all 0.15s ease;
     }
     .cardio-btn:active { background: var(--warm-color); color: var(--on-accent); }
@@ -278,7 +287,7 @@
     }
     .tab {
       flex: 1; min-width: 0; appearance: none; border: 1px solid var(--line); background: var(--surface);
-      color: var(--muted); font-family: 'Manrope', sans-serif; font-weight: 800;
+      color: var(--muted); font-family: var(--font-ui); font-weight: 800;
       font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
       padding: 11px 4px; border-radius: 12px; cursor: pointer; transition: all 0.18s ease;
     }
@@ -319,7 +328,7 @@
     .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
     .card-head .name { font-size: 17px; font-weight: 800; letter-spacing: 0.2px; }
     .card-head .muscle { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
-    .scheme { font-family: 'Anton', sans-serif; font-size: 19px; letter-spacing: 0.5px; color: var(--accent); white-space: nowrap; }
+    .scheme { font-family: var(--font-display); font-size: 19px; letter-spacing: 0.5px; color: var(--accent); white-space: nowrap; }
     .panel[data-panel="A"] .scheme { color: var(--a-color); }
     .panel[data-panel="B"] .scheme { color: var(--b-color); }
     .panel[data-panel="C"] .scheme { color: var(--c-color); }
@@ -344,7 +353,7 @@
     .set-in {
       width: 100%; min-width: 0; height: 38px; text-align: center; appearance: none;
       border: 1.5px solid var(--line); background: var(--surface-2); color: var(--text);
-      border-radius: 10px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px;
+      border-radius: 10px; font-family: var(--font-ui); font-weight: 700; font-size: 14px;
     }
     .set-in::-webkit-outer-spin-button, .set-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .set-in:focus { outline: none; border-color: var(--accent); }
@@ -360,7 +369,7 @@
     .m-photo-row img { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; border: 1px solid var(--line); }
     .meas-current { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
     .meas-cur { background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; }
-    .meas-cur .v { font-family: 'Anton', sans-serif; font-size: 21px; color: var(--accent); line-height: 1; }
+    .meas-cur .v { font-family: var(--font-display); font-size: 21px; color: var(--accent); line-height: 1; }
     .meas-cur .l { font-size: 9.5px; text-transform: uppercase; color: var(--muted); margin-top: 4px; letter-spacing: .4px; }
     .meas-cur .d { font-size: 10px; font-weight: 800; margin-top: 3px; }
     .meas-cur .d.up { color: var(--done); } .meas-cur .d.down { color: #ff6b6b; }
@@ -384,7 +393,7 @@
     .foot-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
     .demo-btn {
       appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2);
-      color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 12.5px;
+      color: var(--text); font-family: var(--font-ui); font-weight: 700; font-size: 12.5px;
       padding: 8px 12px; border-radius: 99px; white-space: nowrap;
     }
     .demo-btn:active { border-color: var(--accent); }
@@ -399,7 +408,7 @@
     /* ---------- Concluir treino ---------- */
     .conclude {
       width: 100%; appearance: none; border: none; cursor: pointer;
-      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 15px;
+      font-family: var(--font-ui); font-weight: 800; font-size: 15px;
       padding: 16px; border-radius: var(--radius); margin: 6px 0 4px;
       color: var(--on-accent); letter-spacing: 0.3px;
     }
@@ -417,14 +426,14 @@
     }
     .timer-inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
     .timer .clock {
-      font-family: 'Anton', sans-serif; font-size: 34px; letter-spacing: 1px; min-width: 92px;
+      font-family: var(--font-display); font-size: 34px; letter-spacing: 1px; min-width: 92px;
       text-align: center; color: var(--text); font-variant-numeric: tabular-nums;
     }
     .timer .clock.running { color: var(--accent); }
     .timer .presets { display: flex; gap: 7px; flex: 1; }
     .preset {
       flex: 1; appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
-      font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 14px; padding: 12px 4px;
+      font-family: var(--font-ui); font-weight: 800; font-size: 14px; padding: 12px 4px;
       border-radius: 12px; cursor: pointer; transition: all 0.12s ease;
     }
     .preset:active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
@@ -462,12 +471,12 @@
     .sheet-head h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     @keyframes slideup { from { transform: translateY(40px); opacity: 0.6; } to { transform: none; opacity: 1; } }
     .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .sheet-head h2 { font-family: 'Anton', sans-serif; font-size: 24px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sheet-head h2 { font-family: var(--font-display); font-size: 24px; text-transform: uppercase; letter-spacing: 0.5px; }
     .sheet-head button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--text); width: 38px; height: 38px; border-radius: 50%; font-size: 16px; cursor: pointer; }
 
     .stats { display: flex; gap: 10px; margin-bottom: 18px; }
     .stat { flex: 1; min-width: 0; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 8px; text-align: center; }
-    .stat .num { font-family: 'Anton', sans-serif; font-size: 30px; color: var(--accent); line-height: 1; }
+    .stat .num { font-family: var(--font-display); font-size: 30px; color: var(--accent); line-height: 1; }
     .stat .lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 18px; }
@@ -493,7 +502,7 @@
 
     .log h3, .sheet h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin: 4px 0 10px; }
     .log-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; }
-    .log-badge { font-family: 'Anton', sans-serif; font-size: 16px; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: var(--on-accent); flex-shrink: 0; }
+    .log-badge { font-family: var(--font-display); font-size: 16px; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: var(--on-accent); flex-shrink: 0; }
     .log-badge.A { background: var(--a-color); }
     .log-badge.B { background: var(--b-color); }
     .log-badge.C { background: var(--c-color); }
@@ -513,8 +522,8 @@
 
     .streak-num { display: inline-flex; align-items: center; justify-content: center; gap: 3px; }
     .streak-num .ico { color: var(--warm-color); }
-    .pts-banner { text-align: center; font-family: 'Anton', sans-serif; font-size: 46px; color: var(--accent); line-height: 1; margin-bottom: 16px; }
-    .pts-banner small { display: block; font-family: 'Manrope', sans-serif; font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 6px; }
+    .pts-banner { text-align: center; font-family: var(--font-display); font-size: 46px; color: var(--accent); line-height: 1; margin-bottom: 16px; }
+    .pts-banner small { display: block; font-family: var(--font-ui); font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 6px; }
     .ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
     .ach { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; opacity: 0.4; transition: opacity 0.2s ease; }
     .ach.on { opacity: 1; border-color: var(--accent); }
@@ -530,8 +539,8 @@
     .ch-line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
     .ch-area { fill: var(--accent); opacity: 0.10; }
     .ch-dot { fill: var(--accent); stroke: var(--surface-2); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: dotin 0.4s ease forwards; }
-    .ch-lbl { font-size: 9px; fill: var(--muted); font-family: 'Manrope', sans-serif; }
-    .ch-val { font-size: 11px; font-weight: 800; fill: var(--accent); font-family: 'Manrope', sans-serif; }
+    .ch-lbl { font-size: 9px; fill: var(--muted); font-family: var(--font-ui); }
+    .ch-val { font-size: 11px; font-weight: 800; fill: var(--accent); font-family: var(--font-ui); }
     @keyframes dotin { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
     .chart-empty, .chart-single { color: var(--muted); text-align: center; padding: 22px 10px; font-size: 13px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; line-height: 1.5; }
     .chart-single b { color: var(--accent); font-size: 18px; }
@@ -543,7 +552,7 @@
     .level-card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; }
     .level-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
     .level-badge { display: inline-flex; align-items: center; gap: 7px; font-weight: 800; font-size: 14px; }
-    .level-badge .lv-num { background: var(--accent); color: var(--on-accent, #0d0f12); font-family: 'Anton', sans-serif; padding: 1px 9px; border-radius: 8px; font-size: 15px; letter-spacing: .5px; }
+    .level-badge .lv-num { background: var(--accent); color: var(--on-accent, #0d0f12); font-family: var(--font-display); padding: 1px 9px; border-radius: 8px; font-size: 15px; letter-spacing: .5px; }
     .level-xp { font-size: 11px; color: var(--muted); flex-shrink: 0; }
     .level-bar { height: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
     .level-bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); border-radius: 99px; transition: width .6s ease; }
@@ -562,14 +571,14 @@
     #levelup-overlay { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.72); overflow: hidden; }
     #levelup-overlay[hidden] { display: none; }
     .lvup-card { text-align: center; position: relative; z-index: 2; animation: lvpop .5s cubic-bezier(.2,1.4,.4,1); }
-    .lvup-card .big { font-family: 'Anton', sans-serif; font-size: 64px; color: var(--accent); text-shadow: 0 0 34px color-mix(in srgb, var(--accent) 65%, transparent); line-height: 1; }
+    .lvup-card .big { font-family: var(--font-display); font-size: 64px; color: var(--accent); text-shadow: 0 0 34px color-mix(in srgb, var(--accent) 65%, transparent); line-height: 1; }
     .lvup-card .sub { font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--text); margin-top: 8px; font-size: 14px; }
     .lvup-spark { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); animation: spark .9s ease forwards; }
     @keyframes lvpop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes spark { from { transform: translate(0,0) scale(1); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
     @media (prefers-reduced-motion: reduce) { .lvup-card { animation: none; } .lvup-spark { display: none; } }
     /* Agenda + banner de hoje (PR6) */
-    .today-banner { display: block; width: 100%; text-align: left; margin-top: 12px; cursor: pointer; appearance: none; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13.5px; padding: 11px 14px; border-radius: 12px; }
+    .today-banner { display: block; width: 100%; text-align: left; margin-top: 12px; cursor: pointer; appearance: none; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--text); font-family: var(--font-ui); font-weight: 700; font-size: 13.5px; padding: 11px 14px; border-radius: 12px; }
     .today-banner.done { background: color-mix(in srgb, var(--done) 14%, var(--surface)); border-color: color-mix(in srgb, var(--done) 45%, var(--line)); }
     .today-banner b { color: var(--accent); }
     .today-banner.done b { color: var(--done); }
@@ -577,7 +586,7 @@
     .day-chip { flex: 1; min-width: 38px; text-align: center; padding: 10px 4px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 800; font-size: 13px; cursor: pointer; transition: transform .12s ease; }
     .day-chip.on { background: var(--accent); color: var(--on-accent, #0d0f12); border-color: var(--accent); }
     .day-chip:active { transform: scale(.92); }
-    .backup-btn { flex: 1; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 14px; padding: 12px; border-radius: 12px; transition: border-color 0.15s ease; }
+    .backup-btn { flex: 1; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-family: var(--font-ui); font-weight: 800; font-size: 14px; padding: 12px; border-radius: 12px; transition: border-color 0.15s ease; }
     .backup-btn:active { border-color: var(--accent); }
     .backup-note { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
   
@@ -679,7 +688,7 @@
       border: 0; background: transparent; color: var(--muted);
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
       padding: 6px 2px; border-radius: 14px;
-      font-family: 'Manrope', sans-serif; font-weight: 700;
+      font-family: var(--font-ui); font-weight: 700;
       transition: color .18s ease, transform .12s ease;
       -webkit-tap-highlight-color: transparent;
     }
@@ -717,7 +726,7 @@
       flex: 1; min-width: 0; overflow: hidden; text-align: center;
       background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 8px;
     }
-    .dstat-v { font-family: 'Anton', sans-serif; font-size: 26px; line-height: 1; color: var(--accent); }
+    .dstat-v { font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--accent); }
     .dstat-l { margin-top: 5px; font-size: 10.5px; font-weight: 700; letter-spacing: .2px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #page-dieta .field select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px; background-size: 5px 5px; background-repeat: no-repeat; }
     #page-dieta details summary { list-style: none; }
@@ -728,18 +737,18 @@
     .food-row:last-child { border-bottom: 0; }
     .food-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .food-g { flex: 0 0 60px; width: 60px; height: 36px; font-size: 13px; }
-    .food-kcal { flex: 0 0 auto; min-width: 46px; text-align: right; font-family: 'Anton', sans-serif; font-size: 16px; color: var(--accent); line-height: 1; }
-    .food-kcal small { font-size: 9px; color: var(--muted); display: block; font-family: 'Manrope', sans-serif; }
+    .food-kcal { flex: 0 0 auto; min-width: 46px; text-align: right; font-family: var(--font-display); font-size: 16px; color: var(--accent); line-height: 1; }
+    .food-kcal small { font-size: 9px; color: var(--muted); display: block; font-family: var(--font-ui); }
     .food-del { flex: 0 0 auto; appearance: none; border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 4px; display: inline-flex; }
     .food-results-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-    .food-hit { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 12px; padding: 10px 12px; font-family: 'Manrope', sans-serif; }
+    .food-hit { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 12px; padding: 10px 12px; font-family: var(--font-ui); }
     .food-hit-n { flex: 1; min-width: 0; font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .food-hit-k { flex: 0 0 auto; font-size: 11px; color: var(--muted); }
     .food-hit-add { flex: 0 0 auto; color: var(--accent); display: inline-flex; }
     .plate-q-title { margin: 16px 0 8px; font-size: 13px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
     #plate-overlay .food-name { white-space: normal; }
     .ai-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-    .ai-chip { appearance: none; cursor: pointer; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--text); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 99px; }
+    .ai-chip { appearance: none; cursor: pointer; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--text); font-family: var(--font-ui); font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 99px; }
     .ai-chip small { color: var(--muted); font-weight: 700; }
     .ai-chip:active { transform: scale(.94); }
   </style>
