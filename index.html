@@ -101,6 +101,22 @@
     }
     .hist-btn:active { border-color: var(--accent); }
     .head-actions { display: flex; gap: 8px; align-items: center; }
+    /* Badge de nível premium (canto do header) com barra de XP embutida */
+    .level-chip {
+      flex-shrink: 0; appearance: none; cursor: pointer;
+      border: 1px solid var(--line-strong); background: var(--surface);
+      color: var(--accent); font-family: var(--font-display); font-size: 13px; letter-spacing: .3px;
+      padding: 8px 14px; border-radius: 99px;
+      position: relative; overflow: hidden; isolation: isolate;
+      transition: transform .12s ease, border-color .18s ease;
+    }
+    .level-chip:active { transform: scale(.93); border-color: var(--accent); }
+    .lc-num { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 5px; }
+    .lc-ring { position: absolute; inset: 0; z-index: 0; border-radius: 99px;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 20%, transparent) var(--pct, 0%), transparent var(--pct, 0%)); }
+    .prof-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .prof-actions .hist-btn { flex: 1; padding: 12px; }
+    .points-badge { display: block; width: fit-content; }
     .notif-btn { position: relative; }
     .notif-dot { position: absolute; top: 1px; right: 1px; background: var(--warm-color); color: #fff; font-size: 9px; font-weight: 800; min-width: 15px; height: 15px; border-radius: 99px; display: inline-flex; align-items: center; justify-content: center; padding: 0 3px; }
     .notif-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 8px; background: var(--surface); }
@@ -758,22 +774,17 @@
   <header>
     <div class="brand">
       <h1>HOME <span class="hl">GYM</span></h1>
-      <div class="head-actions">
-        <button class="hist-btn" id="open-cloud" hidden data-icon="cloud" title="Sincronização"></button>
-        <button class="hist-btn notif-btn" id="open-notifs" title="Notificações"></button>
-        <button class="hist-btn" id="open-settings" data-icon="settings" title="Configurações"></button>
-        <button class="hist-btn" id="open-hist" data-icon="calendar-days" title="Histórico"></button>
-      </div>
+      <button class="level-chip" id="level-chip" aria-label="Nível e recompensas"></button>
     </div>
     <div class="users" id="users"></div>
-    <div class="focus-cap" id="focus-cap"></div>
-    <button class="today-banner" id="today-banner" hidden></button>
-    <div class="focus-cap info-cap"></div>
-    <div class="points-badge" id="points-badge"></div>
-    <div class="cardio-actions"></div>
   </header>
 
   <div id="page-treino">
+  <div class="focus-cap" id="focus-cap"></div>
+  <button class="today-banner" id="today-banner" hidden></button>
+  <div class="focus-cap info-cap"></div>
+  <div class="points-badge" id="points-badge"></div>
+  <div class="cardio-actions"></div>
   <nav class="tabs" id="tabs">
     <button class="tab active" data-tab="A">Treino A<small></small></button>
     <button class="tab" data-tab="B">Treino B<small></small></button>
@@ -952,6 +963,13 @@
       <button class="cloud-secondary" id="prof-gen" style="margin-top:12px;"><span data-icon="wrench"></span> Montar treino com este equipamento</button>
       <button class="cloud-secondary" id="prof-rewards" style="margin-top:10px;"><span data-icon="sparkles"></span> Recompensas e temas</button>
       <button class="cloud-secondary" id="prof-agenda" style="margin-top:10px;"><span data-icon="calendar-check"></span> Agenda e lembretes</button>
+      <h3>Conta e ajustes</h3>
+      <div class="head-actions prof-actions">
+        <button class="hist-btn" id="open-cloud" hidden data-icon="cloud" title="Sincronização"></button>
+        <button class="hist-btn notif-btn" id="open-notifs" title="Notificações"></button>
+        <button class="hist-btn" id="open-settings" data-icon="settings" title="Configurações"></button>
+        <button class="hist-btn" id="open-hist" data-icon="calendar-days" title="Histórico"></button>
+      </div>
       <h3>Tipos de cardio</h3>
       <div class="chiplist" id="prof-cardios"></div>
       <button class="cloud-secondary" id="prof-add-cardio">+ Adicionar tipo de cardio</button>
@@ -1723,6 +1741,8 @@
       const pts = totalPoints(state.active);
       const el = document.getElementById("points-badge");
       if (el) el.innerHTML = icon("star", 15) + " Nv." + levelFor(pts) + " · " + pts + " pts";
+      const lc = document.getElementById("level-chip");
+      if (lc) { const li = levelInfo(pts); lc.innerHTML = '<span class="lc-ring" style="--pct:' + li.pct + '%"></span><span class="lc-num">' + icon("star", 12) + " Nv." + li.level + '</span>'; }
       const u = activeUser();
       const lv = levelFor(pts);
       if (u.level == null) u.level = lv;
@@ -2571,6 +2591,7 @@
     document.getElementById("close-rank").addEventListener("click", function () { rankOverlay.hidden = true; });
     rankOverlay.addEventListener("click", function (e) { if (e.target === rankOverlay) rankOverlay.hidden = true; });
     document.getElementById("points-badge").addEventListener("click", openRanking);
+    (function () { const lc = document.getElementById("level-chip"); if (lc) lc.addEventListener("click", function () { haptic(8); openRewards(); }); })();
 
     /* ---------- Card de compartilhar (canvas estilo Wrapped) ---------- */
     const shareOverlay = document.getElementById("share-overlay");
