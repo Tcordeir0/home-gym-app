@@ -715,12 +715,15 @@
     .tabbar-btn.active svg { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent)); }
     /* Reservar espaço pra barra não cobrir conteúdo */
     body { padding-bottom: calc(64px + var(--safe-bottom)); }
-    #page-dieta { display: block; }
-    #page-dieta[hidden] { display: none; }
+    #page-dieta, #page-progresso { display: block; }
+    #page-dieta[hidden], #page-progresso[hidden] { display: none; }
+    .page-sub { padding-top: 6px; }
+    .page-title { margin-bottom: 14px; }
+    .page-title h2 { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; letter-spacing: .5px; }
 
     /* Transição de página estilo iOS (View Transitions API) — só o conteúdo desliza,
        header e barra ficam parados. Direção depende de avançar/voltar entre abas. */
-    #page-treino, #page-dieta { view-transition-name: pagebody; }
+    #page-treino, #page-dieta, #page-progresso { view-transition-name: pagebody; }
     ::view-transition-group(pagebody) { animation-duration: .3s; }
     @keyframes vt-in-fwd  { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
     @keyframes vt-out-fwd { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-16px); } }
@@ -809,11 +812,6 @@
     <div id="dieta-content"></div>
   </section>
 
-  <footer class="credit">
-    Feito por <a href="https://github.com/Tcordeir0" target="_blank" rel="noopener">Talys Cordeiro</a> · treine seguro 💪
-    <div class="ver" id="app-ver"></div>
-  </footer>
-
   <!-- Rest Timer -->
   <div class="timer">
     <div class="timer-inner">
@@ -841,12 +839,8 @@
   <canvas id="matrix-canvas" hidden></canvas>
 
   <!-- History overlay -->
-  <div class="overlay" id="overlay" hidden>
-    <div class="sheet">
-      <div class="sheet-head">
-        <h2 id="hist-title">Histórico</h2>
-        <button id="close-hist" aria-label="Fechar" data-icon="x"></button>
-      </div>
+  <section class="wrap page-sub" id="page-progresso" hidden>
+      <div class="page-title"><h2 id="hist-title">Histórico</h2></div>
       <div class="pts-banner" id="hist-pts"></div>
       <div class="stats" id="hist-stats"></div>
       <div class="cal" id="hist-cal"></div>
@@ -867,8 +861,7 @@
         <input type="file" id="import-file" accept="application/json,.json" hidden />
       </div>
       <p class="backup-note">Exporta tudo (perfis, marcações e histórico dos dois) num arquivo. Guarde no iCloud/Arquivos ou mande pro outro celular. Importar substitui os dados deste aparelho.</p>
-    </div>
-  </div>
+  </section>
 
   <!-- Cloud / login overlay -->
   <div class="overlay" id="cloud-overlay" hidden>
@@ -1177,6 +1170,11 @@
       <p class="cloud-note">Gera 3 treinos com base no equipamento e no foco. Substitui a ficha atual deste perfil — pode regenerar quando quiser, sempre vem uma combinação diferente.</p>
     </div>
   </div>
+
+  <footer class="credit">
+    Feito por <a href="https://github.com/Tcordeir0" target="_blank" rel="noopener">Talys Cordeiro</a> · treine seguro 💪
+    <div class="ver" id="app-ver"></div>
+  </footer>
 
   <script src="./supabase.min.js"></script>
   <script>
@@ -2238,7 +2236,7 @@
       ensureTesterUnlocks(activeUser());
       applyTheme(); renderUsers(); buildPanels(); applyChecks(); setFillColor();
       renderCardioButtons(); renderInfoCap(); renderPoints();
-      if (!document.getElementById("overlay").hidden) renderHistory();
+      if (!document.getElementById("page-progresso").hidden) renderHistory();
       if (typeof prefetchDemos === "function") prefetchDemos();
       if (typeof checkPoke === "function") checkPoke();
       if (typeof ensureCelebrated === "function") ensureCelebrated(state.active);
@@ -3000,7 +2998,7 @@
       manualOverlay.hidden = true;
       renderPoints();
       celebrateAchievements();
-      if (!document.getElementById("overlay").hidden) renderHistory();
+      if (!document.getElementById("page-progresso").hidden) renderHistory();
       showToast("Registrado em " + fmtDate(date) + " · +" + entry.pts + " pts");
     });
     document.getElementById("open-manual").addEventListener("click", openManual);
@@ -3400,38 +3398,36 @@
       toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2600);
     }
 
-    const overlay = document.getElementById("overlay");
-    document.getElementById("open-hist").addEventListener("click", openHistory);
-    document.getElementById("close-hist").addEventListener("click", closeHistory);
-    overlay.addEventListener("click", function (e) { if (e.target === overlay) closeHistory(); });
-    function openHistory() { renderHistory(); overlay.hidden = false; }
-    function closeHistory() { overlay.hidden = true; }
+    (function () { const b = document.getElementById("open-hist"); if (b) b.addEventListener("click", function () { const po = document.getElementById("profile-overlay"); if (po) po.hidden = true; showNav("progresso"); }); })();
+    function openHistory() { showNav("progresso"); }
+    function closeHistory() { showNav("treino"); }
 
-    /* ===== Navegação inferior (estilo iOS) ===== */
+    /* ===== Navegação inferior (estilo iOS) — páginas reais ===== */
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const NAV_ORDER = ["treino", "dieta", "progresso", "recompensas", "perfil"];
+    const NAV_PAGES = ["treino", "dieta", "progresso"]; // já são páginas reais (resto migra nos próximos PRs)
     function applyNav(name) {
-      const pt = document.getElementById("page-treino");
-      const pd = document.getElementById("page-dieta");
-      if (pt) pt.hidden = name !== "treino";
-      if (pd) pd.hidden = name !== "dieta";
+      [["page-treino", "treino"], ["page-dieta", "dieta"], ["page-progresso", "progresso"]].forEach(function (p) {
+        const el = document.getElementById(p[0]); if (el) el.hidden = name !== p[1];
+      });
       document.querySelectorAll(".tabbar-btn").forEach(function (b) {
         b.classList.toggle("active", b.dataset.nav === name);
       });
       try { window.scrollTo(0, 0); } catch (e) {}
       if (name === "dieta") renderDieta();
+      if (name === "progresso") renderHistory();
     }
     function showNav(name) {
-      if (name === "treino" || name === "dieta") {
+      if (NAV_PAGES.indexOf(name) >= 0) {
         const cur = document.querySelector(".tabbar-btn.active");
         if (cur && cur.dataset.nav === name) return;
-        document.documentElement.dataset.navdir = name === "dieta" ? "fwd" : "back";
+        const from = cur ? NAV_ORDER.indexOf(cur.dataset.nav) : 0;
+        document.documentElement.dataset.navdir = NAV_ORDER.indexOf(name) >= from ? "fwd" : "back";
         if (document.startViewTransition && !reduceMotion) {
           document.startViewTransition(function () { applyNav(name); });
         } else {
           applyNav(name);
         }
-      } else if (name === "progresso") {
-        openHistory();
       } else if (name === "recompensas") {
         openRewards();
       } else if (name === "perfil") {
