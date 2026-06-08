@@ -715,15 +715,15 @@
     .tabbar-btn.active svg { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent)); }
     /* Reservar espaço pra barra não cobrir conteúdo */
     body { padding-bottom: calc(64px + var(--safe-bottom)); }
-    #page-dieta, #page-progresso { display: block; }
-    #page-dieta[hidden], #page-progresso[hidden] { display: none; }
+    #page-dieta, #page-progresso, #page-recompensas { display: block; }
+    #page-dieta[hidden], #page-progresso[hidden], #page-recompensas[hidden] { display: none; }
     .page-sub { padding-top: 6px; }
     .page-title { margin-bottom: 14px; }
     .page-title h2 { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; letter-spacing: .5px; }
 
     /* Transição de página estilo iOS (View Transitions API) — só o conteúdo desliza,
        header e barra ficam parados. Direção depende de avançar/voltar entre abas. */
-    #page-treino, #page-dieta, #page-progresso { view-transition-name: pagebody; }
+    #page-treino, #page-dieta, #page-progresso, #page-recompensas { view-transition-name: pagebody; }
     ::view-transition-group(pagebody) { animation-duration: .3s; }
     @keyframes vt-in-fwd  { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
     @keyframes vt-out-fwd { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(-16px); } }
@@ -912,9 +912,8 @@
   </div>
 
   <!-- Recompensas (roletas) -->
-  <div class="overlay" id="rewards-overlay" hidden>
-    <div class="sheet">
-      <div class="sheet-head"><h2><span data-icon="sparkles"></span> Recompensas</h2><button id="close-rewards" aria-label="Fechar" data-icon="x"></button></div>
+  <section class="wrap page-sub" id="page-recompensas" hidden>
+      <div class="page-title"><h2><span data-icon="sparkles"></span> Recompensas</h2></div>
       <div id="level-card"></div>
       <h3>Desafios da semana</h3>
       <div id="quests-list"></div>
@@ -929,8 +928,7 @@
       <div class="cosmo-grid" id="rewards-themes"></div>
       <h3>Decorações do avatar</h3>
       <div class="cosmo-grid" id="rewards-hats"></div>
-    </div>
-  </div>
+  </section>
 
   <!-- Editor de perfil -->
   <div class="overlay" id="profile-overlay" hidden>
@@ -2701,7 +2699,6 @@
     shareOverlay.addEventListener("click", function (e) { if (e.target === shareOverlay) shareOverlay.hidden = true; });
 
     /* ---------- Recompensas / roletas ---------- */
-    const rewardsOverlay = document.getElementById("rewards-overlay");
     function earnedAchCount(id, milestoneOnly) {
       const st = statsFor(id);
       return ACHIEVEMENTS.filter(function (a) { return a.test(st) && (!milestoneOnly || a.milestone); }).length;
@@ -2709,11 +2706,12 @@
     function availableSpins(id) { const u = state.users.find(function (x) { return x.id === id; }); if (isTester(u)) return 0; return Math.max(0, earnedAchCount(id, false) - (u.spinsUsed || 0)); }
     function availableLifeSpins(id) { const u = state.users.find(function (x) { return x.id === id; }); if (isTester(u)) return 0; return Math.max(0, earnedAchCount(id, true) - (u.lifeSpinsUsed || 0)); }
 
-    function openRewards() {
+    function renderRewardsPage() {
       renderRewards();
-      document.getElementById("reward-reel").innerHTML = '<span class="reel-empty">Gire para ganhar temas, chapéus e recompensas!</span>';
-      rewardsOverlay.hidden = false;
+      const r = document.getElementById("reward-reel");
+      if (r) r.innerHTML = '<span class="reel-empty">Gire para ganhar temas, chapéus e recompensas!</span>';
     }
+    function openRewards() { showNav("recompensas"); }
     function renderRewards() {
       const u = activeUser();
       renderQuests();
@@ -2774,9 +2772,7 @@
       const win = LIFE_REWARDS[Math.floor(Math.random() * LIFE_REWARDS.length)];
       spinReel(LIFE_REWARDS, win, lifeCard, function () { pushNotif("life", win.ic + " " + win.t); saveState(); renderRewards(); showToast(win.ic + " " + win.t); });
     }
-    document.getElementById("prof-rewards").addEventListener("click", function () { profOverlay.hidden = true; openRewards(); });
-    document.getElementById("close-rewards").addEventListener("click", function () { rewardsOverlay.hidden = true; });
-    rewardsOverlay.addEventListener("click", function (e) { if (e.target === rewardsOverlay) rewardsOverlay.hidden = true; });
+    document.getElementById("prof-rewards").addEventListener("click", function () { profOverlay.hidden = true; showNav("recompensas"); });
     document.getElementById("spin-btn").addEventListener("click", doCosmeticSpin);
     document.getElementById("lifespin-btn").addEventListener("click", doLifeSpin);
 
@@ -3405,9 +3401,9 @@
     /* ===== Navegação inferior (estilo iOS) — páginas reais ===== */
     const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const NAV_ORDER = ["treino", "dieta", "progresso", "recompensas", "perfil"];
-    const NAV_PAGES = ["treino", "dieta", "progresso"]; // já são páginas reais (resto migra nos próximos PRs)
+    const NAV_PAGES = ["treino", "dieta", "progresso", "recompensas"]; // páginas reais (perfil migra no próximo PR)
     function applyNav(name) {
-      [["page-treino", "treino"], ["page-dieta", "dieta"], ["page-progresso", "progresso"]].forEach(function (p) {
+      [["page-treino", "treino"], ["page-dieta", "dieta"], ["page-progresso", "progresso"], ["page-recompensas", "recompensas"]].forEach(function (p) {
         const el = document.getElementById(p[0]); if (el) el.hidden = name !== p[1];
       });
       document.querySelectorAll(".tabbar-btn").forEach(function (b) {
@@ -3416,6 +3412,7 @@
       try { window.scrollTo(0, 0); } catch (e) {}
       if (name === "dieta") renderDieta();
       if (name === "progresso") renderHistory();
+      if (name === "recompensas") renderRewardsPage();
     }
     function showNav(name) {
       if (NAV_PAGES.indexOf(name) >= 0) {
@@ -3428,8 +3425,6 @@
         } else {
           applyNav(name);
         }
-      } else if (name === "recompensas") {
-        openRewards();
       } else if (name === "perfil") {
         openProfileEditor();
       }
