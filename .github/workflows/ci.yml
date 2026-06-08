@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Checagem de sintaxe do script inline
+        run: |
+          node -e "const f=require('fs').readFileSync('index.html','utf8'); const js=f.split(/<script>/)[1].split('</scr'+'ipt>')[0]; new Function(js); console.log('Sintaxe JS ok')"
+
+      - name: Instalar Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm i -D playwright >/dev/null 2>&1
+          npx playwright install --with-deps chromium
+
+      - name: Teste em browser real (runtime + mobile)
+        run: node ci/runtime-check.cjs

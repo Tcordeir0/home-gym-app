@@ -1,0 +1,21 @@
+{
+  "id": "/home-gym-tracker/",
+  "name": "Home Gym Tracker",
+  "short_name": "Home Gym",
+  "description": "Treino em casa com perfis, gerador de fichas, demonstrações offline, pontos, conquistas, ranking e recompensas.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0d0f12",
+  "theme_color": "#0d0f12",
+  "categories": ["health", "fitness", "lifestyle", "sports"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

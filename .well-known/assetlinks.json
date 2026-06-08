@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.tcordeir0.twa",
+    "sha256_cert_fingerprints": ["92:13:70:D6:94:27:9E:17:12:EE:4F:20:D1:62:10:19:2E:8C:F1:10:17:B6:61:C3:36:8C:63:86:0B:D4:F7:E7"]
+  }
+}]
