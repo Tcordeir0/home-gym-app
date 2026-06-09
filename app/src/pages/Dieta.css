@@ -101,7 +101,7 @@
   text-align: center;
 }
 .diet-base {
-  margin: 16px 0 0;
+  margin: 22px 0 2px;
   font-size: 13px;
   line-height: 1.6;
   color: var(--app-muted);
