@@ -10,6 +10,10 @@ import { offSearch, offBarcode, type OffHit } from '../lib/off';
 
 const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
+// Aproximação: 1 colher de sopa cheia ≈ 15g (referência de cozinha).
+const GRAMS_PER_SPOON = 15;
+const spoons = (g: number) => Math.max(1, Math.round(g / GRAMS_PER_SPOON));
+
 const Diary: React.FC = () => {
   const profile = useActiveProfile();
   const daily = useStore((s) => s.daily);
@@ -97,14 +101,21 @@ const Diary: React.FC = () => {
           {food.length ? (
             food.map((it, i) => (
               <div className="food-row" key={i}>
-                <div className="food-name">{it.n}</div>
-                <input
-                  className="food-g"
-                  type="number"
-                  inputMode="numeric"
-                  value={it.g}
-                  onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGrams(i, g); }}
-                />
+                <div className="food-main">
+                  <div className="food-name">{it.n}</div>
+                  <div className="food-spoons">≈ {spoons(it.g)} {spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa</div>
+                </div>
+                <div className="food-g-wrap">
+                  <input
+                    className="food-g"
+                    type="number"
+                    inputMode="numeric"
+                    aria-label="Gramas"
+                    value={it.g}
+                    onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGrams(i, g); }}
+                  />
+                  <span className="food-g-unit">g</span>
+                </div>
                 <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
                 <button className="food-del" onClick={() => removeFood(i)} aria-label="Remover">
                   <IonIcon icon={trashOutline} />
