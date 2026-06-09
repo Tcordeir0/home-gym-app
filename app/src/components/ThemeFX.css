@@ -1,0 +1,48 @@
+.theme-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+}
+.fx-matrix-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+/* Matrix: chuva de código (canvas) */
+.theme-fx.fx-matrix .fx-matrix-canvas {
+  opacity: 0.4;
+}
+
+/* Cyber: scanlines descendo */
+.theme-fx.fx-cyber {
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(55, 230, 255, 0.05) 2px 3px);
+  animation: fx-scan 6s linear infinite;
+}
+@keyframes fx-scan {
+  to { background-position-y: 60px; }
+}
+
+/* Sunset: brasas subindo na base */
+.theme-fx.fx-sunset {
+  background: radial-gradient(circle at 50% 112%, rgba(255, 122, 77, 0.18), transparent 55%);
+  animation: fx-ember 3.6s ease-in-out infinite;
+}
+@keyframes fx-ember {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.95; }
+}
+
+/* Grafite: brilho frio sutil no topo */
+.theme-fx.fx-grafite {
+  background: radial-gradient(circle at 50% -10%, rgba(232, 234, 238, 0.06), transparent 45%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-fx { animation: none !important; }
+  .theme-fx.fx-matrix .fx-matrix-canvas { opacity: 0; }
+}
