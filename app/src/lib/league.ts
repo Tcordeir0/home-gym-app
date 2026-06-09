@@ -1,5 +1,6 @@
-// Liga da família — ranking semanal por pontos (local, multi-perfil).
+// Liga da família — ranking por NÍVEL (pontos totais), com contribuição da semana.
 import type { AppState } from './../store/types';
+import { levelFor } from './stats';
 
 function iso(d: Date) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -24,20 +25,23 @@ export interface LeagueRow {
   id: string;
   name: string;
   color: string;
-  pts: number;
+  pts: number; // pontos TOTAIS
+  level: number;
+  weekPts: number; // contribuição desta semana
   photo?: string;
 }
 
 type LeagueInput = Pick<AppState, 'users' | 'scores'>;
 
-/** Pontos de cada perfil NA SEMANA atual, ordenado do maior pro menor. */
+/** Ranking por NÍVEL (pontos totais), com a contribuição da semana. Maior → menor. */
 export function familyLeague(state: LeagueInput, base = new Date()): LeagueRow[] {
   const days = weekDates(base);
   return state.users
     .map((u) => {
       const byDay = state.scores[u.id]?.byDay || {};
-      const pts = days.reduce((a, d) => a + (byDay[d] || 0), 0);
-      return { id: u.id, name: u.name, color: u.color, photo: u.photo, pts };
+      const total = Object.keys(byDay).reduce((a, k) => a + byDay[k], 0);
+      const weekPts = days.reduce((a, d) => a + (byDay[d] || 0), 0);
+      return { id: u.id, name: u.name, color: u.color, photo: u.photo, pts: total, level: levelFor(total), weekPts };
     })
     .sort((a, b) => b.pts - a.pts || a.name.localeCompare(b.name));
 }

@@ -84,10 +84,10 @@ const Premios: React.FC = () => {
           {champ ? (
             <div className="champ">
               <span className="champ-crown">👑</span>
-              <span><b>{champ.name}</b> lidera a semana com {champ.pts} pts</span>
+              <span><b>{champ.name}</b> é o topo da casa · Nível {champ.level}</span>
             </div>
           ) : (
-            <p className="card-sub">Treinem essa semana pra liga esquentar 🔥</p>
+            <p className="card-sub">Treinem pra subir de nível e disputar o topo 🔥</p>
           )}
 
           <div className="liga-list">
@@ -106,11 +106,12 @@ const Premios: React.FC = () => {
                 <div className="liga-main">
                   <div className="liga-top">
                     <span className="liga-name">{r.name}</span>
-                    <span className="liga-pts">{r.pts}<small> pts</small></span>
+                    <span className="liga-pts">Nível {r.level}</span>
                   </div>
                   <div className="liga-bar">
                     <span style={{ width: (r.pts / max) * 100 + '%' }} />
                   </div>
+                  <span className="liga-week">{r.weekPts > 0 ? `+${r.weekPts} pts esta semana` : 'sem pontos esta semana'} · {r.pts} total</span>
                 </div>
               </motion.div>
             ))}
