@@ -1,0 +1,21 @@
+/* Barra do topo (header pequeno): TRANSPARENTE no topo da página — sem aquela
+   faixa/pedaço de wallpaper que aparecia parada — e vira uma barra frosted com
+   o nome da página só quando o usuário rola (large title colapsado). */
+.app-topbar {
+  box-shadow: none;
+}
+.app-topbar ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --border-color: transparent;
+  --min-height: 44px;
+}
+
+.app-topbar.is-scrolled ion-toolbar {
+  --background: var(--ion-toolbar-background);
+}
+.app-topbar.is-scrolled {
+  -webkit-backdrop-filter: saturate(170%) blur(18px);
+  backdrop-filter: saturate(170%) blur(18px);
+  border-bottom: 1px solid var(--app-line);
+}
