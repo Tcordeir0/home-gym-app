@@ -51,6 +51,83 @@
   --ion-color-step-950: #f2f5f8;
 }
 
+/* ===================== TEMAS ===================== */
+/* dark = :root (padrão). Os outros sobrescrevem os tokens. */
+
+html[data-theme='light'] {
+  --ion-color-primary: #4f9a00;
+  --ion-color-primary-contrast: #ffffff;
+  --brand-lime: #4f9a00;
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #14171c;
+  --ion-text-color-rgb: 20, 23, 28;
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: #14171c;
+  --ion-tab-bar-background: rgba(255, 255, 255, 0.88);
+  --ion-tab-bar-color: #6b7280;
+  --ion-item-background: #f3f5f8;
+  --ion-card-background: #f3f5f8;
+  --ion-border-color: rgba(0, 0, 0, 0.1);
+  --app-muted: #5b6472;
+  --app-line: rgba(0, 0, 0, 0.1);
+  --app-surface-2: #eef1f5;
+}
+
+html[data-theme='cyber'] {
+  --ion-color-primary: #37e6ff;
+  --ion-color-primary-contrast: #04121a;
+  --brand-lime: #37e6ff;
+  --ion-background-color: #0a0e16;
+  --ion-background-color-rgb: 10, 14, 22;
+  --ion-toolbar-background: #0a0e16;
+  --ion-tab-bar-background: rgba(10, 14, 22, 0.86);
+  --ion-item-background: #11182a;
+  --ion-card-background: #11182a;
+  --app-surface-2: #141b2b;
+  --app-line: rgba(55, 230, 255, 0.12);
+}
+
+html[data-theme='matrix'] {
+  --ion-color-primary: #39ff88;
+  --ion-color-primary-contrast: #02160a;
+  --brand-lime: #39ff88;
+  --ion-background-color: #04080a;
+  --ion-background-color-rgb: 4, 8, 10;
+  --ion-toolbar-background: #04080a;
+  --ion-tab-bar-background: rgba(4, 8, 10, 0.86);
+  --ion-item-background: #0a1610;
+  --ion-card-background: #0a1610;
+  --app-surface-2: #0c1a0e;
+  --app-line: rgba(57, 255, 136, 0.14);
+}
+
+html[data-theme='sunset'] {
+  --ion-color-primary: #ff7a4d;
+  --ion-color-primary-contrast: #1a0d08;
+  --brand-lime: #ff7a4d;
+  --ion-background-color: #140d12;
+  --ion-background-color-rgb: 20, 13, 18;
+  --ion-toolbar-background: #140d12;
+  --ion-tab-bar-background: rgba(20, 13, 18, 0.86);
+  --ion-item-background: #20141d;
+  --ion-card-background: #20141d;
+  --app-surface-2: #251621;
+  --app-line: rgba(255, 122, 77, 0.14);
+}
+
+html[data-theme='grafite'] {
+  --ion-color-primary: #e8eaee;
+  --ion-color-primary-contrast: #0f1013;
+  --brand-lime: #e8eaee;
+  --ion-background-color: #0f1013;
+  --ion-background-color-rgb: 15, 16, 19;
+  --ion-toolbar-background: #0f1013;
+  --ion-item-background: #181a1f;
+  --ion-card-background: #181a1f;
+  --app-surface-2: #1e2128;
+}
+
 /* Tipografia de marca (Anton só em display) */
 .brand {
   font-family: var(--font-display);
@@ -69,6 +146,14 @@ ion-title.ion-text-center {
 ion-toolbar ion-title[size='large'] {
   font-family: var(--font-display);
   letter-spacing: 0.4px;
+}
+
+/* Segment: o selecionado segue o accent do tema (não o cinza padrão) */
+ion-segment-button {
+  --indicator-color: var(--brand-lime);
+  --color: var(--app-muted);
+  --color-checked: var(--ion-color-primary-contrast);
+  --indicator-box-shadow: none;
 }
 
 /* Corpo de página */

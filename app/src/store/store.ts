@@ -3,6 +3,7 @@ import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
 import { pickPrize, type Prize } from '../data/roulette';
+import { themeUnlocked } from '../data/themes';
 
 export interface SetRow {
   kg: string;
@@ -39,7 +40,7 @@ const STATE_KEYS: (keyof AppState)[] = [
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
-export const COLORS = ['#c6ff3a', '#ff5fa8', '#3ad1ff', '#a78bfa', '#ffd166', '#ff8a3a', '#34d399', '#ff6b6b', '#7c9cff', '#c084fc'];
+export const COLORS = ['#c6ff3a', '#5cc000', '#ff5fa8', '#3ad1ff', '#a78bfa', '#ffd166', '#ff8a3a', '#34d399', '#ff6b6b', '#7c9cff', '#c084fc'];
 
 export function todayISO(): string {
   const d = new Date();
@@ -128,6 +129,7 @@ export interface Store extends AppState {
   addProfile: () => string;
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
+  setTheme: (t: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
@@ -179,6 +181,14 @@ export const useStore = create<Store>((set, get) => {
     ...initial,
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
+    setTheme: (t) =>
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!themeUnlocked(t, u.cosmetics.themes || [], u.name)) return; // só aplica se desbloqueado
+        u.cosmetics.theme = t;
+      })),
     addProfile: () => {
       const id = 'u' + Date.now();
       const color = COLORS[get().users.length % COLORS.length];
