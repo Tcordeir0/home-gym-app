@@ -1,0 +1,102 @@
+.prem-card {
+  margin: 12px 0;
+  border-radius: 18px;
+  border: 1px solid var(--app-line);
+  box-shadow: none;
+}
+.prem-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.prem-week {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--app-muted);
+}
+
+.champ {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(198, 255, 58, 0.1);
+  border: 1px solid rgba(198, 255, 58, 0.35);
+  font-size: 14px;
+}
+.champ b { color: var(--brand-lime); }
+.champ-crown { font-size: 20px; }
+
+.liga-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.liga-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.liga-pos {
+  flex: 0 0 auto;
+  width: 26px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--app-muted);
+}
+.liga-av {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: #0b0c0f;
+}
+.liga-av img { width: 100%; height: 100%; object-fit: cover; }
+.liga-main { flex: 1; min-width: 0; }
+.liga-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.liga-name {
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.liga-pts {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--brand-lime);
+}
+.liga-pts small { font-size: 11px; color: var(--app-muted); }
+.liga-bar {
+  height: 7px;
+  margin-top: 5px;
+  background: var(--app-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.liga-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #9be000, var(--brand-lime));
+  transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.prem-card.soon .card-sub b { color: var(--ion-text-color); }
