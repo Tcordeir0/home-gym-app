@@ -14,6 +14,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore } from './store/store';
 import { setFeedbackMode } from './lib/feedback';
+import { THEMES } from './data/themes';
 import Treino from './pages/Treino';
 import Dieta from './pages/Dieta';
 import Progresso from './pages/Progresso';
@@ -63,6 +64,9 @@ const App: React.FC = () => {
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
+    // temas com wallpaper → cards em liquid glass
+    if (THEMES.find((t) => t.id === theme)?.image) root.setAttribute('data-glass', '1');
+    else root.removeAttribute('data-glass');
     // a cor do perfil vira o accent em TODOS os temas (no Branco escurece pra ler bem);
     // a textura/animação do tema mantém a cor-assinatura própria.
     const accent = theme === 'light' ? darken(color, 0.62) : color;
