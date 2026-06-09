@@ -38,7 +38,6 @@ import './theme/variables.css';
 
 setupIonicReact({ mode: 'ios' });
 
-const FREE_THEMES = ['dark', 'light'];
 function rgbOf(hex: string) {
   const c = hex.replace('#', '');
   return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
@@ -64,18 +63,12 @@ const App: React.FC = () => {
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
-    if (FREE_THEMES.includes(theme)) {
-      // Preto: cor como está. Branco: escurece pra ler bem no fundo claro.
-      const accent = theme === 'light' ? darken(color, 0.62) : color;
-      root.style.setProperty('--brand-lime', accent);
-      root.style.setProperty('--ion-color-primary', accent);
-      root.style.setProperty('--ion-color-primary-contrast', contrastOf(accent));
-    } else {
-      // premium: usa o accent assinatura do tema (do CSS)
-      root.style.removeProperty('--brand-lime');
-      root.style.removeProperty('--ion-color-primary');
-      root.style.removeProperty('--ion-color-primary-contrast');
-    }
+    // a cor do perfil vira o accent em TODOS os temas (no Branco escurece pra ler bem);
+    // a textura/animação do tema mantém a cor-assinatura própria.
+    const accent = theme === 'light' ? darken(color, 0.62) : color;
+    root.style.setProperty('--brand-lime', accent);
+    root.style.setProperty('--ion-color-primary', accent);
+    root.style.setProperty('--ion-color-primary-contrast', contrastOf(accent));
   }, [theme, color]);
 
   // Esconde a tab bar quando o teclado abre (não deve subir junto).

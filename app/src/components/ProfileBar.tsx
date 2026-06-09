@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { useStore } from '../store/store';
+import { decoEmoji } from '../data/decos';
 import './ProfileBar.css';
 
 /** Pílulas de perfil (trocáveis) + adicionar. Perfil ativo é por aparelho. */
@@ -20,13 +21,16 @@ const ProfileBar: React.FC = () => {
           className={'profile-pill' + (u.id === active ? ' active' : '')}
           onClick={() => setActive(u.id)}
         >
-          {u.photo ? (
-            <img className="profile-av" src={u.photo} alt="" />
-          ) : (
-            <span className="profile-av" style={{ background: u.color }}>
-              {(u.name.trim()[0] || '?').toUpperCase()}
-            </span>
-          )}
+          <span className="profile-av-wrap">
+            {u.photo ? (
+              <img className="profile-av" src={u.photo} alt="" />
+            ) : (
+              <span className="profile-av" style={{ background: u.color }}>
+                {(u.name.trim()[0] || '?').toUpperCase()}
+              </span>
+            )}
+            {decoEmoji(u.cosmetics?.hat) && <span className="av-deco">{decoEmoji(u.cosmetics?.hat)}</span>}
+          </span>
           <span className="profile-name">{u.name}</span>
         </motion.button>
       ))}
