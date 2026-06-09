@@ -41,6 +41,11 @@ export function bmi(weight: number, heightCm: number): number {
   return weight / Math.pow(heightCm / 100, 2);
 }
 
+/** Meta diária de água (ml) por peso (~35ml/kg), piso de 2L. Fonte única de verdade. */
+export function waterGoal(weight: number | null | undefined): number {
+  return weight ? Math.max(2000, Math.round((weight * 35) / 50) * 50) : 2000;
+}
+
 export function bmiClass(b: number): { l: string; c: string } {
   if (b < 18.5) return { l: 'abaixo do peso', c: '#5fa8ff' };
   if (b < 25) return { l: 'saudável', c: 'var(--brand-lime)' };

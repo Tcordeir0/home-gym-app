@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IonCard, IonCardContent, IonAlert } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
+import { waterGoal } from '../lib/diet';
 
 const COPO = 250;
 
@@ -17,7 +18,7 @@ const Hidratacao: React.FC = () => {
 
   const bottle = profile.bottleMl || 500;
   const weight = latestMeasure('weight');
-  const goal = weight ? Math.max(2000, Math.round((weight * 35) / 50) * 50) : 2000;
+  const goal = waterGoal(weight);
   const ml = daily?.[active]?.[todayISO()]?.waterMl || 0;
   const pct = Math.min(100, Math.round((ml / goal) * 100));
   const over = ml > goal;
