@@ -12,10 +12,6 @@
   border-color: rgba(52, 211, 153, 0.35);
   background: rgba(52, 211, 153, 0.1);
 }
-.tbn.rest {
-  border-color: rgba(95, 168, 255, 0.35);
-  background: rgba(95, 168, 255, 0.1);
-}
 .tbn-ico {
   flex: 0 0 auto;
   font-size: 26px;
@@ -23,9 +19,6 @@
 }
 .tbn.done .tbn-ico {
   color: #34d399;
-}
-.tbn.rest .tbn-ico {
-  color: #5fa8ff;
 }
 .tbn-txt {
   display: flex;
