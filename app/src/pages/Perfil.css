@@ -365,10 +365,13 @@
 }
 .perfil-av-deco {
   position: absolute;
-  top: -4px;
-  left: -4px;
-  font-size: 20px;
-  line-height: 1;
+  top: -5px;
+  left: -5px;
+  line-height: 0;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
@@ -391,9 +394,19 @@
   cursor: pointer;
 }
 .deco-emoji { font-size: 24px; line-height: 1; }
+.deco-icon { display: inline-flex; line-height: 0; }
 .deco-card.sel { border-color: var(--brand-lime); background: rgba(198, 255, 58, 0.1); }
 .deco-card.locked { opacity: 0.55; }
-.deco-card.locked .deco-emoji { filter: grayscale(0.7) brightness(0.7); }
+.deco-card.locked .deco-emoji,
+.deco-card.locked .deco-icon { filter: grayscale(0.7) brightness(0.7); }
+.pers-pack {
+  margin: 14px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--brand-lime);
+  opacity: 0.9;
+}
 .deco-lock,
 .deco-check {
   position: absolute;

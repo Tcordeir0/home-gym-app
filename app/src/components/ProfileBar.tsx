@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { useStore } from '../store/store';
-import { decoEmoji } from '../data/decos';
+import PixelIcon from './PixelIcon';
 import './ProfileBar.css';
 
 /** Pílulas de perfil (trocáveis) + adicionar. Perfil ativo é por aparelho. */
@@ -29,7 +29,7 @@ const ProfileBar: React.FC = () => {
                 {(u.name.trim()[0] || '?').toUpperCase()}
               </span>
             )}
-            {decoEmoji(u.cosmetics?.hat) && <span className="av-deco">{decoEmoji(u.cosmetics?.hat)}</span>}
+            {u.cosmetics?.hat && <span className="av-deco"><PixelIcon id={u.cosmetics.hat} size={14} /></span>}
           </span>
           <span className="profile-name">{u.name}</span>
         </motion.button>
