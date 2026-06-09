@@ -8,6 +8,7 @@ import Cardio from '../components/Cardio';
 import GeneratorSheet from '../components/GeneratorSheet';
 import LevelBadge from '../components/LevelBadge';
 import TreinoBanner from '../components/TreinoBanner';
+import { fxSuccess } from '../lib/feedback';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
@@ -54,7 +55,7 @@ const Treino: React.FC = () => {
     const r = completeWorkout(seg, exercises);
     if (r === 'dup') setToast('Você já registrou este treino hoje 💪');
     else if (r === 'empty') setToast('Marque ao menos uma série feita');
-    else setToast('Treino concluído! Pontos creditados 🎉');
+    else { fxSuccess(); setToast('Treino concluído! Pontos creditados 🎉'); }
   };
 
   return (
