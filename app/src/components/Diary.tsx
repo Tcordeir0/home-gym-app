@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { trashOutline, addOutline } from 'ionicons/icons';
-import { cloudOutline } from 'ionicons/icons';
+import { cloudOutline, cameraOutline } from 'ionicons/icons';
+import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor } from '../lib/diet';
 import { FOODS } from '../data/foods';
@@ -21,6 +22,7 @@ const Diary: React.FC = () => {
   const [bc, setBc] = useState('');
   const [online, setOnline] = useState<OffHit[]>([]);
   const [onlineMsg, setOnlineMsg] = useState('');
+  const [plateOpen, setPlateOpen] = useState(false);
 
   const doOnline = async () => {
     setOnline([]);
@@ -114,6 +116,9 @@ const Diary: React.FC = () => {
           )}
         </div>
 
+        <button className="food-online-go diary-photo" onClick={() => setPlateOpen(true)}>
+          <IonIcon icon={cameraOutline} /> Foto do prato
+        </button>
         <input
           className="bal-in diary-search"
           placeholder="Buscar alimento (frango, arroz, fiambre)"
@@ -160,6 +165,8 @@ const Diary: React.FC = () => {
             ))}
           </div>
         )}
+
+        <PlateSheet open={plateOpen} onClose={() => setPlateOpen(false)} />
       </IonCardContent>
     </IonCard>
   );
