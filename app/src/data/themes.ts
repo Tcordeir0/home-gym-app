@@ -18,6 +18,8 @@ export const THEMES: Theme[] = [
   { id: 'synth', name: 'Synthwave', emoji: '🌆', free: false, swatch: ['#0d0420', '#1a0b33', '#ff2fd0'] },
   { id: 'cosmos', name: 'Cosmos', emoji: '🌌', free: false, swatch: ['#060414', '#0e0a22', '#8b6bff'] },
   { id: 'ouro', name: 'Ouro', emoji: '👑', free: false, swatch: ['#0c0a06', '#16120a', '#ffd24d'] },
+  { id: 'checker', name: 'Checker', emoji: '🏁', free: false, swatch: ['#06121f', '#0c1c2e', '#2ad1ff'] },
+  { id: 'arcade', name: 'Arcade', emoji: '👾', free: false, swatch: ['#0a0710', '#150f1e', '#ffe14d'] },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);

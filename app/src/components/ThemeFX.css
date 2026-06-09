@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 6;
+  z-index: 0; /* atrás do conteúdo (cards opacos por cima) */
   overflow: hidden;
 }
 .fx-matrix-canvas {
@@ -13,9 +13,9 @@
   opacity: 0;
 }
 
-/* Matrix: chuva de código (canvas) */
+/* Matrix: chuva de código (canvas) — forte, fica atrás dos cards */
 .theme-fx.fx-matrix .fx-matrix-canvas {
-  opacity: 0.4;
+  opacity: 0.85;
 }
 
 /* Cyber: scanlines descendo */
@@ -103,6 +103,28 @@
 }
 @keyframes fx-shimmer {
   to { background-position: -220% 0; }
+}
+
+/* Checker (Sonic): tabuleiro xadrez rolando */
+.theme-fx.fx-checker {
+  background-image: repeating-conic-gradient(rgba(42, 209, 255, 0.08) 0 25%, transparent 0 50%);
+  background-size: 44px 44px;
+  animation: fx-checker 4s linear infinite;
+}
+@keyframes fx-checker {
+  to { background-position: 88px 0; }
+}
+
+/* Arcade (Pac-Man): pellets descendo + scanline CRT */
+.theme-fx.fx-arcade {
+  background-image:
+    radial-gradient(2px 2px at 50% 50%, rgba(255, 225, 77, 0.3), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255, 46, 136, 0.05) 0 2px, transparent 2px 4px);
+  background-size: 38px 38px, 100% 4px;
+  animation: fx-arcade 5s linear infinite;
+}
+@keyframes fx-arcade {
+  to { background-position: 0 38px, 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
