@@ -5,6 +5,7 @@ import { weekDates } from '../lib/league';
 import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
+import { frameUnlocked, FRAMES } from '../data/frames';
 
 export interface SetRow {
   kg: string;
@@ -92,6 +93,7 @@ function migrate(raw: Partial<AppState>): AppState {
     if (!Array.isArray(u.equipment)) u.equipment = ['bodyweight', 'dumbbell'];
     if (!Array.isArray(u.cardios) || !u.cardios.length) u.cardios = defaultCardios();
     if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+    if (!Array.isArray(u.cosmetics.frames)) u.cosmetics.frames = [];
     if (typeof u.spinsUsed !== 'number') u.spinsUsed = 0;
     if (typeof u.lifeSpinsUsed !== 'number') u.lifeSpinsUsed = 0;
     if (typeof u.freezes !== 'number') u.freezes = 0;
@@ -132,6 +134,7 @@ export interface Store extends AppState {
   setFeedback: (f: AppState['feedback']) => void;
   setTheme: (t: string) => void;
   setHat: (id: string) => void;
+  setFrame: (id: string) => void;
   setThemePhoto: (on: boolean) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
@@ -199,6 +202,14 @@ export const useStore = create<Store>((set, get) => {
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
         if (!decoUnlocked(id, u.cosmetics.hats || [], u.name)) return;
         u.cosmetics.hat = id === 'none' ? null : id;
+      })),
+    setFrame: (id) =>
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!frameUnlocked(id, u.cosmetics.frames || [], u.name)) return;
+        u.cosmetics.frame = id === 'none' ? null : id;
       })),
     setThemePhoto: (on) =>
       set(produce((s: Store) => {
@@ -459,9 +470,17 @@ export const useStore = create<Store>((set, get) => {
         const t = todayISO();
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
 
-        if (prize.kind === 'theme' || prize.kind === 'deco') {
+        if (prize.kind === 'theme' || prize.kind === 'deco' || prize.kind === 'frame') {
           if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
-          if (prize.kind === 'theme') {
+          if (prize.kind === 'frame') {
+            const owned = u.cosmetics.frames || [];
+            const locked = FRAMES.filter((fr) => !fr.free && !owned.includes(fr.id));
+            if (locked.length) {
+              const won = locked[Math.floor(Math.random() * locked.length)];
+              u.cosmetics.frames = [...owned, won.id];
+              result = { ...prize, label: `Aro ${won.name}`, emoji: '⭕' };
+            } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
+          } else if (prize.kind === 'theme') {
             const owned = u.cosmetics.themes || [];
             const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
             if (locked.length) {

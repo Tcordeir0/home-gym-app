@@ -23,8 +23,10 @@ export interface Cardio {
 export interface Cosmetics {
   themes: string[];
   hats: string[];
+  frames?: string[]; // aros de avatar desbloqueados (estilo Discord)
   theme: string | null;
   hat: string | null;
+  frame?: string | null; // aro selecionado
   photoOff?: boolean; // esconde o wallpaper do tema (mantém cores + partículas)
 }
 

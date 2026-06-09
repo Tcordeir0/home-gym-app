@@ -50,6 +50,106 @@
   font-size: 12px;
   color: var(--brand-lime);
 }
+/* ===== Aros de avatar (estilo Discord) ===== */
+.perfil-av-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 4px;
+  display: inline-flex;
+  isolation: isolate;
+}
+/* o anel: gradiente recortado em máscara (só a borda aparece) */
+.perfil-av-wrap::before,
+.frame-prev::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 3px;
+  background: var(--ring, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  z-index: -1;
+}
+.av-frame-none::before { display: none; }
+.perfil-av-wrap.av-frame-none { padding: 0; }
+
+@keyframes av-ringspin { to { transform: rotate(1turn); } }
+@keyframes av-glowpulse {
+  0%, 100% { box-shadow: 0 0 10px 0 var(--glow, transparent); }
+  50% { box-shadow: 0 0 20px 3px var(--glow, transparent); }
+}
+:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none)::before { animation: av-ringspin 5s linear infinite; }
+
+.av-frame-neon { --ring: conic-gradient(from 0deg, #00e5ff, #7a5cff, #c800ff, #00e5ff); box-shadow: 0 0 14px rgba(0, 200, 255, 0.45); }
+.av-frame-gold { --ring: conic-gradient(from 0deg, #fff1b8, #ffd166, #b8860b, #ffe27a, #fff1b8); box-shadow: 0 0 12px rgba(255, 200, 80, 0.4); }
+.av-frame-gold::before { animation-duration: 7s; }
+.av-frame-rainbow { --ring: conic-gradient(from 0deg, #ff4d4d, #ffb04d, #ffe24d, #4dff7a, #3ad1ff, #7a5cff, #ff4dd2, #ff4d4d); }
+.av-frame-rainbow::before { animation-duration: 4.5s; }
+.av-frame-fire { --ring: conic-gradient(from 0deg, #ffd166, #ff8a3a, #ff3b30, #ffd166); --glow: rgba(255, 80, 30, 0.5); animation: av-glowpulse 1.8s ease-in-out infinite; }
+.av-frame-ice { --ring: conic-gradient(from 0deg, #eaffff, #bdecff, #3aa0ff, #bdecff); box-shadow: 0 0 13px rgba(80, 170, 255, 0.45); }
+.av-frame-ice::before { animation-duration: 7s; }
+.av-frame-toxic { --ring: conic-gradient(from 0deg, #eaff8a, #c6ff3a, #1f9e2e, #c6ff3a); --glow: rgba(120, 230, 60, 0.5); animation: av-glowpulse 2s ease-in-out infinite; }
+.av-frame-royal { --ring: conic-gradient(from 0deg, #c084fc, #ffd166, #7a3cff, #ffe27a, #c084fc); box-shadow: 0 0 13px rgba(170, 120, 255, 0.45); }
+.av-frame-ocean { --ring: conic-gradient(from 0deg, #aef2ff, #3ad1ff, #1d4ed8, #3ad1ff); box-shadow: 0 0 13px rgba(60, 160, 255, 0.45); }
+.av-frame-ember { --ring: conic-gradient(from 0deg, #ffb04d, #ff8a3a, #7a1010, #ff8a3a); --glow: rgba(220, 90, 20, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .perfil-av-wrap::before, .frame-prev::before { animation: none !important; }
+  .perfil-av-wrap, .frame-prev { animation: none !important; }
+}
+
+/* grade de seleção de aros */
+.frame-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+.frame-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px 8px;
+  border-radius: 14px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2);
+  cursor: pointer;
+}
+.frame-card.sel { border-color: var(--brand-lime); }
+.frame-card.locked { opacity: 0.55; }
+.frame-prev {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  padding: 4px;
+  display: inline-flex;
+  isolation: isolate;
+}
+.frame-prev-in {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3a4150, #232833);
+}
+.frame-name {
+  font-size: 11px;
+  color: var(--ion-text-color);
+  opacity: 0.85;
+}
+.frame-card .deco-lock,
+.frame-card .deco-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
 .perfil-colors {
   display: flex;
   flex-wrap: wrap;

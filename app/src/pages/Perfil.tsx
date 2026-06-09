@@ -11,6 +11,7 @@ import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
 import { THEMES, isTester } from '../data/themes';
 import { DECOS, decoEmoji } from '../data/decos';
+import { FRAMES } from '../data/frames';
 import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
@@ -26,11 +27,13 @@ const Perfil: React.FC = () => {
   const setFeedback = useStore((s) => s.setFeedback);
   const setTheme = useStore((s) => s.setTheme);
   const setHat = useStore((s) => s.setHat);
+  const setFrame = useStore((s) => s.setFrame);
   const setThemePhoto = useStore((s) => s.setThemePhoto);
 
   const tester = isTester(profile.name);
   const unlockedThemes = profile.cosmetics?.themes || [];
   const unlockedHats = profile.cosmetics?.hats || [];
+  const unlockedFrames = profile.cosmetics?.frames || [];
   const curTheme = profile.cosmetics?.theme || 'dark';
   const curThemeHasPhoto = !!THEMES.find((t) => t.id === curTheme)?.image;
   const photoOn = !profile.cosmetics?.photoOff;
@@ -93,11 +96,13 @@ const Perfil: React.FC = () => {
       <IonCard className="perfil-card">
         <IonCardContent>
           <div className="perfil-head">
-            <button className="perfil-av" style={{ background: profile.color }} onClick={() => photoRef.current?.click()} aria-label="Trocar foto">
-              {profile.photo ? <img src={profile.photo} alt="" /> : (profile.name[0] || '?').toUpperCase()}
-              <span className="perfil-av-cam"><IonIcon icon={cameraOutline} /></span>
-              {decoEmoji(profile.cosmetics?.hat) && <span className="perfil-av-deco">{decoEmoji(profile.cosmetics?.hat)}</span>}
-            </button>
+            <div className={'perfil-av-wrap av-frame-' + (profile.cosmetics?.frame || 'none')}>
+              <button className="perfil-av" style={{ background: profile.color }} onClick={() => photoRef.current?.click()} aria-label="Trocar foto">
+                {profile.photo ? <img src={profile.photo} alt="" /> : (profile.name[0] || '?').toUpperCase()}
+                <span className="perfil-av-cam"><IonIcon icon={cameraOutline} /></span>
+                {decoEmoji(profile.cosmetics?.hat) && <span className="perfil-av-deco">{decoEmoji(profile.cosmetics?.hat)}</span>}
+              </button>
+            </div>
             <input ref={photoRef} type="file" accept="image/*" hidden onChange={onPhoto} />
             <div className="perfil-id">
               <IonInput
@@ -207,6 +212,27 @@ const Perfil: React.FC = () => {
                   aria-label={d.name}
                 >
                   <span className="deco-emoji">{d.id === 'none' ? '🚫' : d.emoji}</span>
+                  {!ok && <span className="deco-lock"><IonIcon icon={lockClosed} /></span>}
+                  {sel && <span className="deco-check"><IonIcon icon={checkmark} /></span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <h3 className="pers-h">Aros do avatar</h3>
+          <div className="frame-grid">
+            {FRAMES.map((f) => {
+              const ok = tester || f.free || unlockedFrames.includes(f.id);
+              const sel = (profile.cosmetics?.frame || 'none') === f.id;
+              return (
+                <button
+                  key={f.id}
+                  className={'frame-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
+                  onClick={() => { if (ok) setFrame(f.id); }}
+                  aria-label={f.name}
+                >
+                  <span className={'frame-prev av-frame-' + f.id}><span className="frame-prev-in" /></span>
+                  <span className="frame-name">{f.name}</span>
                   {!ok && <span className="deco-lock"><IonIcon icon={lockClosed} /></span>}
                   {sel && <span className="deco-check"><IonIcon icon={checkmark} /></span>}
                 </button>
