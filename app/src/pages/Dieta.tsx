@@ -12,6 +12,7 @@ import AppPage from '../components/AppPage';
 import Balanca from '../components/Balanca';
 import Hidratacao from '../components/Hidratacao';
 import Diary from '../components/Diary';
+import DicasDia from '../components/DicasDia';
 import { useStore, useActiveProfile } from '../store/store';
 import { ACTIVITY, GOALS, targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
 import type { Sex, Goal } from '../store/types';
@@ -185,6 +186,7 @@ const Dieta: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
+      <DicasDia />
       <Diary />
       <Balanca />
       <Hidratacao />
