@@ -11,6 +11,8 @@ import { CARDIO_CATALOG } from '../data/cardios';
 import type { Cardio } from '../store/types';
 import './Perfil.css';
 
+const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // domingo → sábado
+
 const Perfil: React.FC = () => {
   const profile = useActiveProfile();
   const updateProfile = useStore((s) => s.updateProfile);
@@ -55,6 +57,14 @@ const Perfil: React.FC = () => {
   // catálogo + customs do perfil que não estão no catálogo
   const customs = cardios.filter((c) => !CARDIO_CATALOG.some((k) => k.label === c.label));
   const cardioList = [...CARDIO_CATALOG, ...customs];
+
+  const schedule = profile.schedule || { days: [], time: '18:00', ntfy: '' };
+  const toggleDay = (i: number) => {
+    const days = schedule.days.includes(i)
+      ? schedule.days.filter((d) => d !== i)
+      : [...schedule.days, i].sort((a, b) => a - b);
+    updateProfile(profile.id, { schedule: { ...schedule, days } });
+  };
 
   return (
     <AppPage title="Perfil">
@@ -183,6 +193,34 @@ const Perfil: React.FC = () => {
             <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
               <IonIcon icon={addOutline} /> Adicionar
             </button>
+          </div>
+        </IonCardContent>
+      </IonCard>
+
+      {/* Agenda de treino */}
+      <IonCard className="perfil-card">
+        <IonCardContent>
+          <h2 className="card-title">Agenda de treino</h2>
+          <p className="card-sub">Marque os dias que {profile.name} treina. A aba Treino lembra no dia.</p>
+          <div className="agenda-days">
+            {DOW.map((d, i) => (
+              <button
+                key={i}
+                className={'agenda-day' + (schedule.days.includes(i) ? ' on' : '')}
+                onClick={() => toggleDay(i)}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+          <div className="agenda-time">
+            <span>Horário do lembrete</span>
+            <input
+              type="time"
+              className="agenda-input"
+              value={schedule.time || '18:00'}
+              onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })}
+            />
           </div>
         </IonCardContent>
       </IonCard>
