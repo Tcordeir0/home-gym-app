@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { IonCard, IonCardContent } from '@ionic/react';
+import { useMemo, useState } from 'react';
+import { IonCard, IonCardContent, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
 import { useStore } from '../store/store';
 import { familyLeague, weekDates } from '../lib/league';
+import { QUESTS } from '../data/quests';
 import './Premios.css';
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -16,12 +17,31 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 const Premios: React.FC = () => {
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
+  const active = useStore((s) => s.active);
+  const history = useStore((s) => s.history);
+  const measures = useStore((s) => s.measures);
+  const daily = useStore((s) => s.daily);
+  const claimQuest = useStore((s) => s.claimQuest);
+  const [toast, setToast] = useState('');
 
   const league = useMemo(() => familyLeague({ users, scores }), [users, scores]);
   const wk = weekDates();
   const max = Math.max(1, league[0]?.pts || 0);
   const anyPts = league.some((r) => r.pts > 0);
   const champ = anyPts ? league[0] : null;
+
+  const ctx = {
+    history: history[active] || [],
+    measures: measures[active] || [],
+    daily: daily[active] || {},
+    weekDays: wk,
+  };
+  const aProfile = users.find((u) => u.id === active);
+  const claimed = aProfile?.quests?.week === wk[0] ? aProfile.quests.claimed : {};
+  const onClaim = (id: string, reward: number) => {
+    claimQuest(id, reward);
+    setToast(`Resgatado +${reward} pts 🎉`);
+  };
 
   return (
     <AppPage title="Prêmios">
@@ -69,14 +89,53 @@ const Premios: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
+      {/* Desafios da semana */}
+      <IonCard className="prem-card">
+        <IonCardContent>
+          <h2 className="card-title">Desafios da semana</h2>
+          <p className="card-sub">Reiniciam toda segunda. Complete e resgate os pontos.</p>
+          <div className="quest-list">
+            {QUESTS.map((q) => {
+              const raw = q.progress(ctx);
+              const cur = Math.min(q.target, raw);
+              const done = raw >= q.target;
+              const got = !!claimed[q.id];
+              return (
+                <div key={q.id} className={'quest' + (got ? ' got' : '')}>
+                  <span className="quest-emoji">{q.emoji}</span>
+                  <div className="quest-main">
+                    <div className="quest-top">
+                      <span className="quest-label">{q.label}</span>
+                      <span className="quest-rw">+{q.reward}</span>
+                    </div>
+                    <div className="quest-bar"><span style={{ width: (cur / q.target) * 100 + '%' }} /></div>
+                  </div>
+                  {got ? (
+                    <span className="quest-claimed">✓</span>
+                  ) : done ? (
+                    <motion.button whileTap={{ scale: 0.94 }} className="quest-go" onClick={() => onClaim(q.id, q.reward)}>
+                      Resgatar
+                    </motion.button>
+                  ) : (
+                    <span className="quest-prog">{cur}/{q.target}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </IonCardContent>
+      </IonCard>
+
       <IonCard className="prem-card soon">
         <IonCardContent>
           <h2 className="card-title">Em breve 🔜</h2>
           <p className="card-sub">
-            Desafios da semana, roleta de prêmios, conquistas sociais e a <b>batalha de duplas 2v2</b> entre contas.
+            Roleta de prêmios, temas com arte única, conquistas sociais e a <b>batalha de duplas 2v2</b> entre contas.
           </p>
         </IonCardContent>
       </IonCard>
+
+      <IonToast isOpen={!!toast} message={toast} duration={2000} position="bottom" onDidDismiss={() => setToast('')} />
     </AppPage>
   );
 };

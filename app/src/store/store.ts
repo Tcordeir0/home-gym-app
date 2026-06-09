@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
+import { weekDates } from '../lib/league';
 
 export interface SetRow {
   kg: string;
@@ -148,6 +149,7 @@ export interface Store extends AppState {
   removeFoodToday: (idx: number) => void;
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
+  claimQuest: (id: string, reward: number) => void;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -386,6 +388,21 @@ export const useStore = create<Store>((set, get) => {
       }));
       return 'ok';
     },
+
+    claimQuest: (id, reward) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const u = s.users.find((x) => x.id === uid);
+        if (!u) return;
+        const wk = weekDates()[0]; // chave da semana = segunda-feira
+        if (!u.quests) u.quests = { week: '', claimed: {} };
+        if (u.quests.week !== wk) { u.quests.week = wk; u.quests.claimed = {}; }
+        if (u.quests.claimed[id]) return;
+        u.quests.claimed[id] = true;
+        const t = todayISO();
+        const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+        sc.byDay[t] = (sc.byDay[t] || 0) + reward;
+      })),
 
     exportState: () => {
       const s = get();
