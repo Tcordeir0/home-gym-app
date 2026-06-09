@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
-import { useStore, useActiveProfile } from '../store/store';
+import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { totalPoints, levelInfo } from '../lib/stats';
+import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
 import type { Cardio } from '../store/types';
@@ -13,9 +14,21 @@ import './Perfil.css';
 const Perfil: React.FC = () => {
   const profile = useActiveProfile();
   const updateProfile = useStore((s) => s.updateProfile);
+  const deleteProfile = useStore((s) => s.deleteProfile);
+  const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
 
   const [addCardio, setAddCardio] = useState(false);
+  const [delOpen, setDelOpen] = useState(false);
+  const photoRef = useRef<HTMLInputElement>(null);
+
+  const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const url = await resizePhoto(f, 400);
+    updateProfile(profile.id, { photo: url });
+    if (photoRef.current) photoRef.current.value = '';
+  };
 
   const lvl = levelInfo(totalPoints({ scores }, profile.id));
   const location = profile.location || 'casa';
@@ -49,9 +62,11 @@ const Perfil: React.FC = () => {
       <IonCard className="perfil-card">
         <IonCardContent>
           <div className="perfil-head">
-            <span className="perfil-av" style={{ background: profile.color }}>
+            <button className="perfil-av" style={{ background: profile.color }} onClick={() => photoRef.current?.click()} aria-label="Trocar foto">
               {profile.photo ? <img src={profile.photo} alt="" /> : (profile.name[0] || '?').toUpperCase()}
-            </span>
+              <span className="perfil-av-cam"><IonIcon icon={cameraOutline} /></span>
+            </button>
+            <input ref={photoRef} type="file" accept="image/*" hidden onChange={onPhoto} />
             <div className="perfil-id">
               <IonInput
                 className="perfil-name"
@@ -65,8 +80,42 @@ const Perfil: React.FC = () => {
               <span className="perfil-lvl">Nível {lvl.level} · {lvl.into}/{lvl.span} XP</span>
             </div>
           </div>
+
+          <div className="perfil-colors">
+            {COLORS.map((c) => (
+              <button
+                key={c}
+                className={'perfil-color' + (profile.color === c ? ' on' : '')}
+                style={{ background: c }}
+                onClick={() => updateProfile(profile.id, { color: c })}
+                aria-label={'Cor ' + c}
+              />
+            ))}
+          </div>
+
+          {profile.photo && (
+            <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
+              Remover foto
+            </button>
+          )}
+          {users.length > 1 && (
+            <button className="perfil-del" onClick={() => setDelOpen(true)}>
+              <IonIcon icon={trashOutline} /> Excluir perfil
+            </button>
+          )}
         </IonCardContent>
       </IonCard>
+
+      <IonAlert
+        isOpen={delOpen}
+        onDidDismiss={() => setDelOpen(false)}
+        header={`Excluir ${profile.name}?`}
+        message="Todos os dados desse perfil (treinos, dieta, progresso) serão apagados deste aparelho."
+        buttons={[
+          { text: 'Cancelar', role: 'cancel' },
+          { text: 'Excluir', role: 'destructive', handler: () => deleteProfile(profile.id) },
+        ]}
+      />
 
       {/* Local de treino */}
       <IonCard className="perfil-card">

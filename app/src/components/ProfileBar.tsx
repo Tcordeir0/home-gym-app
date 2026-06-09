@@ -1,12 +1,15 @@
 import { motion } from 'framer-motion';
+import { IonIcon } from '@ionic/react';
+import { add } from 'ionicons/icons';
 import { useStore } from '../store/store';
 import './ProfileBar.css';
 
-/** Pílulas de perfil (trocáveis). Perfil ativo é por aparelho. */
+/** Pílulas de perfil (trocáveis) + adicionar. Perfil ativo é por aparelho. */
 const ProfileBar: React.FC = () => {
   const users = useStore((s) => s.users);
   const active = useStore((s) => s.active);
   const setActive = useStore((s) => s.setActive);
+  const addProfile = useStore((s) => s.addProfile);
 
   return (
     <div className="profile-bar">
@@ -27,6 +30,16 @@ const ProfileBar: React.FC = () => {
           <span className="profile-name">{u.name}</span>
         </motion.button>
       ))}
+      {users.length < 8 && (
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          className="profile-add"
+          onClick={() => addProfile()}
+          aria-label="Adicionar perfil"
+        >
+          <IonIcon icon={add} />
+        </motion.button>
+      )}
     </div>
   );
 };

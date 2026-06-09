@@ -47,3 +47,23 @@
 .profile-name {
   white-space: nowrap;
 }
+.profile-add {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px dashed var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.profile-add ion-icon {
+  font-size: 20px;
+}
+.profile-add:active {
+  border-color: var(--brand-lime);
+  color: var(--brand-lime);
+}

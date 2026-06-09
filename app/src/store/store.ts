@@ -37,7 +37,7 @@ const STATE_KEYS: (keyof AppState)[] = [
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
-const COLORS = ['#c6ff3a', '#ff5fa8', '#3ad1ff', '#a78bfa', '#ffd166', '#ff8a3a', '#34d399', '#ff6b6b', '#7c9cff', '#c084fc'];
+export const COLORS = ['#c6ff3a', '#ff5fa8', '#3ad1ff', '#a78bfa', '#ffd166', '#ff8a3a', '#34d399', '#ff6b6b', '#7c9cff', '#c084fc'];
 
 export function todayISO(): string {
   const d = new Date();
@@ -124,6 +124,7 @@ function persist(state: AppState) {
 export interface Store extends AppState {
   setActive: (id: string) => void;
   addProfile: () => string;
+  deleteProfile: (id: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
@@ -179,6 +180,17 @@ export const useStore = create<Store>((set, get) => {
       set((s) => ({ users: [...s.users, p], active: id }));
       return id;
     },
+    deleteProfile: (id) => {
+      if (get().users.length <= 1) return; // mantém ao menos 1 perfil
+      set(produce((s: Store) => {
+        s.users = s.users.filter((u) => u.id !== id);
+        const maps: (keyof AppState)[] = ['checks', 'history', 'scores', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily'];
+        maps.forEach((k) => { delete (s[k] as Record<string, unknown>)[id]; });
+        if (s.active === id) s.active = s.users[0].id;
+      }));
+      if (getDeviceActive() === id) setDeviceActive(get().active);
+    },
+
     updateProfile: (id, patch) =>
       set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
 
