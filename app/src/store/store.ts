@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
+import { pickPrize, type Prize } from '../data/roulette';
 
 export interface SetRow {
   kg: string;
@@ -150,6 +151,8 @@ export interface Store extends AppState {
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
   claimQuest: (id: string, reward: number) => void;
+  spinsAvailable: () => number;
+  spinRoulette: () => Prize | null;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -403,6 +406,34 @@ export const useStore = create<Store>((set, get) => {
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
         sc.byDay[t] = (sc.byDay[t] || 0) + reward;
       })),
+
+    spinsAvailable: () => {
+      const s = get();
+      const uid = s.active;
+      const byDay = s.scores[uid]?.byDay || {};
+      const pts = Object.keys(byDay).reduce((a, k) => a + byDay[k], 0);
+      const u = s.users.find((x) => x.id === uid);
+      return Math.max(0, Math.floor(pts / 100) - (u?.spinsUsed || 0));
+    },
+
+    spinRoulette: () => {
+      if (get().spinsAvailable() <= 0) return null;
+      const prize = pickPrize();
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const u = s.users.find((x) => x.id === uid);
+        if (!u) return;
+        u.spinsUsed = (u.spinsUsed || 0) + 1;
+        if (prize.kind === 'pts') {
+          const t = todayISO();
+          const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+          sc.byDay[t] = (sc.byDay[t] || 0) + prize.value;
+        } else if (prize.kind === 'freeze') {
+          u.freezes = (u.freezes || 0) + prize.value;
+        }
+      }));
+      return prize;
+    },
 
     exportState: () => {
       const s = get();
