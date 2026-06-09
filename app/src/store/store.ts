@@ -61,6 +61,7 @@ function newProfile(id: string, name: string, color: string): Profile {
     quests: { week: '', claimed: {} },
     schedule: { days: [], time: '18:00', ntfy: '' },
     body: defaultBody(),
+    location: 'casa',
   };
 }
 
@@ -93,6 +94,7 @@ function migrate(raw: Partial<AppState>): AppState {
     if (!u.quests) u.quests = { week: '', claimed: {} };
     if (!u.schedule) u.schedule = { days: [], time: '18:00', ntfy: '' };
     if (!u.body) u.body = defaultBody();
+    if (!u.location) u.location = 'casa';
   });
   if (s.users.length && !s.users.some((u) => u.id === s.active)) s.active = s.users[0].id;
   return s;
