@@ -11,12 +11,11 @@ export interface Prize {
 export const PRIZES: Prize[] = [
   { id: 'p5', label: '+5 pts', emoji: '🍀', kind: 'pts', value: 5, weight: 20 },
   { id: 'p10', label: '+10 pts', emoji: '⭐', kind: 'pts', value: 10, weight: 22 },
-  { id: 'theme', label: 'Tema novo!', emoji: '🎨', kind: 'theme', value: 0, weight: 13 },
-  { id: 'deco', label: 'Decoração!', emoji: '✨', kind: 'deco', value: 0, weight: 12 },
-  { id: 'frame', label: 'Aro novo!', emoji: '⭕', kind: 'frame', value: 0, weight: 12 },
-  { id: 'p30', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 15 },
-  { id: 'freeze', label: 'Congelador', emoji: '🧊', kind: 'freeze', value: 1, weight: 10 },
-  { id: 'p50', label: '+50 pts', emoji: '💎', kind: 'pts', value: 50, weight: 9 },
+  { id: 'theme', label: 'Tema novo!', emoji: '🎨', kind: 'theme', value: 0, weight: 14 },
+  { id: 'deco', label: 'Decoração!', emoji: '✨', kind: 'deco', value: 0, weight: 13 },
+  { id: 'frame', label: 'Aro novo!', emoji: '⭕', kind: 'frame', value: 0, weight: 14 },
+  { id: 'p30', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 16 },
+  { id: 'p50', label: '+50 pts', emoji: '💎', kind: 'pts', value: 50, weight: 10 },
 ];
 
 /** Sorteia um prêmio por peso. */

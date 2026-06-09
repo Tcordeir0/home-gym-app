@@ -61,7 +61,7 @@ function newProfile(id: string, name: string, color: string): Profile {
     equipment: ['bodyweight', 'dumbbell'],
     cardios: defaultCardios(),
     focus: 'Geral',
-    cosmetics: { themes: [], hats: [], theme: null, hat: null },
+    cosmetics: { themes: [], hats: [], frames: [], theme: null, hat: null, frame: 'electric' },
     spinsUsed: 0, lifeSpinsUsed: 0, freezes: 0,
     quests: { week: '', claimed: {} },
     schedule: { days: [], time: '18:00', ntfy: '' },
@@ -94,6 +94,7 @@ function migrate(raw: Partial<AppState>): AppState {
     if (!Array.isArray(u.cardios) || !u.cardios.length) u.cardios = defaultCardios();
     if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
     if (!Array.isArray(u.cosmetics.frames)) u.cosmetics.frames = [];
+    if (u.cosmetics.frame === undefined) u.cosmetics.frame = 'electric'; // aro elétrico padrão
     if (typeof u.spinsUsed !== 'number') u.spinsUsed = 0;
     if (typeof u.lifeSpinsUsed !== 'number') u.lifeSpinsUsed = 0;
     if (typeof u.freezes !== 'number') u.freezes = 0;

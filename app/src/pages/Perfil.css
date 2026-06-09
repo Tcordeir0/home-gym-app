@@ -82,7 +82,7 @@
   0%, 100% { box-shadow: 0 0 10px 0 var(--glow, transparent); }
   50% { box-shadow: 0 0 20px 3px var(--glow, transparent); }
 }
-:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none)::before { animation: av-ringspin 5s linear infinite; }
+:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball)::before { animation: av-ringspin 5s linear infinite; }
 
 .av-frame-neon { --ring: conic-gradient(from 0deg, #00e5ff, #7a5cff, #c800ff, #00e5ff); box-shadow: 0 0 14px rgba(0, 200, 255, 0.45); }
 .av-frame-gold { --ring: conic-gradient(from 0deg, #fff1b8, #ffd166, #b8860b, #ffe27a, #fff1b8); box-shadow: 0 0 12px rgba(255, 200, 80, 0.4); }
@@ -97,8 +97,68 @@
 .av-frame-ocean { --ring: conic-gradient(from 0deg, #aef2ff, #3ad1ff, #1d4ed8, #3ad1ff); box-shadow: 0 0 13px rgba(60, 160, 255, 0.45); }
 .av-frame-ember { --ring: conic-gradient(from 0deg, #ffb04d, #ff8a3a, #7a1010, #ff8a3a); --glow: rgba(220, 90, 20, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
 
+/* Aro de eletricidade: anel elétrico girando rápido + faíscas (::after) + brilho piscante */
+.av-frame-electric {
+  --ring: conic-gradient(from 0deg, #3a86ff, #cdeaff, #ffe23a, #ffffff, #46d6e6, #3a86ff);
+  --glow: rgba(110, 190, 255, 0.7);
+  animation: av-glowpulse 1.3s ease-in-out infinite;
+}
+:is(.perfil-av-wrap, .frame-prev).av-frame-electric::before { animation-duration: 1.3s; }
+.av-frame-electric::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: repeating-conic-gradient(from 0deg, #ffffff 0deg 6deg, transparent 6deg 26deg, #ffe23a 26deg 30deg, transparent 30deg 52deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  z-index: -1;
+  animation: av-ringspin 0.9s linear infinite reverse, el-flicker 0.3s steps(2, end) infinite;
+}
+@keyframes el-flicker {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.7); }
+}
+
+/* Aro pokébola: metade vermelha (topo) e branca (base) que abrem/fecham */
+.av-frame-pokeball { box-shadow: 0 0 10px rgba(0, 0, 0, 0.35); }
+.av-frame-pokeball::before {
+  background: #e23b3b;
+  clip-path: inset(0 0 50% 0);
+  border-bottom: 2px solid #15181d;
+  animation: pb-top 2.6s ease-in-out infinite;
+}
+.av-frame-pokeball::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 3px;
+  background: #f4f6f8;
+  clip-path: inset(50% 0 0 0);
+  border-top: 2px solid #15181d;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  z-index: -1;
+  animation: pb-bot 2.6s ease-in-out infinite;
+}
+@keyframes pb-top {
+  0%, 36%, 100% { transform: translateY(0); }
+  50%, 60% { transform: translateY(-3px); }
+}
+@keyframes pb-bot {
+  0%, 36%, 100% { transform: translateY(0); }
+  50%, 60% { transform: translateY(3px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .perfil-av-wrap::before, .frame-prev::before { animation: none !important; }
+  .perfil-av-wrap::before, .frame-prev::before,
+  .perfil-av-wrap::after, .frame-prev::after { animation: none !important; }
   .perfil-av-wrap, .frame-prev { animation: none !important; }
 }
 
