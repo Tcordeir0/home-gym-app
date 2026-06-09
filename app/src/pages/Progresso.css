@@ -6,7 +6,25 @@
 }
 
 /* Nível + anel */
-.lvl-card ion-card-content { padding: 18px 16px; }
+.lvl-card ion-card-content { padding: 18px 16px; position: relative; }
+.lvl-share {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--brand-lime);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.lvl-share ion-icon { font-size: 19px; }
+.lvl-share:active { background: var(--app-line); }
 .lvl-wrap { display: flex; align-items: center; gap: 18px; }
 .lvl-ring { position: relative; flex: 0 0 auto; width: 110px; height: 110px; }
 .ring-bg { fill: none; stroke: var(--app-surface-2); stroke-width: 9; }
