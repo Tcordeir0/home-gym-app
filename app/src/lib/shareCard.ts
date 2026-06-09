@@ -1,4 +1,10 @@
 // Gera um card de progresso (canvas) pra compartilhar fora do app (estilo Spotify).
+// O card reflete o TEMA, a COR, o ARO e o COSMÉTICO do perfil ativo.
+import { THEMES } from '../data/themes';
+import { FRAMES } from '../data/frames';
+import { PIXEL_BY_ID, PALETTE } from '../data/gameicons';
+import { APP_VERSION } from './version';
+
 export interface ShareData {
   name: string;
   level: number;
@@ -8,15 +14,32 @@ export interface ShareData {
   treinos: number;
   dias: number;
   photo?: string; // dataURL da foto do perfil
-  color?: string; // cor do avatar (fallback sem foto)
+  color?: string; // cor do avatar/accent
   rank?: number; // posição na liga da casa (1-based)
   totalProfiles?: number;
-  hidratado?: boolean;
+  theme?: string; // id do tema ativo
+  frame?: string; // id do aro ativo
+  hat?: string; // id do cosmético (ícone pixel)
 }
 
-const LIME = '#c6ff3a';
-const INK = '#ffffff';
-const MUTED = '#9098a4';
+// Frases motivacionais — variam pelo progresso (determinístico).
+const PHRASES = [
+  'Cada treino conta. Bora! 💪',
+  'Disciplina vence motivação.',
+  'Construindo a melhor versão.',
+  'Consistência é o segredo. 🔥',
+  'Sem desculpa, só treino.',
+  'Foco, força e progresso.',
+];
+
+function hexToRgb(hex: string): [number, number, number] {
+  const c = hex.replace('#', '');
+  return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
+}
+function isLight(hex: string): boolean {
+  const [r, g, b] = hexToRgb(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62;
+}
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
@@ -44,6 +67,35 @@ function medal(rank?: number): string {
   return '🏅';
 }
 
+// Desenha o aro (frame) ao redor do avatar conforme o cosmético escolhido.
+function drawRing(ctx: CanvasRenderingContext2D, cx: number, ay: number, R: number, lw: number, frame: string, accent: string) {
+  if (frame === 'pokeball') {
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = '#e23b3b';
+    ctx.beginPath(); ctx.arc(cx, ay, R, Math.PI, Math.PI * 2); ctx.stroke(); // metade de cima (vermelha)
+    ctx.strokeStyle = '#f4f6f8';
+    ctx.beginPath(); ctx.arc(cx, ay, R, 0, Math.PI); ctx.stroke(); // metade de baixo (branca)
+    ctx.strokeStyle = '#15181d'; ctx.lineWidth = Math.max(5, lw * 0.34);
+    ctx.beginPath(); ctx.moveTo(cx - R - lw / 2, ay); ctx.lineTo(cx + R + lw / 2, ay); ctx.stroke();
+    return;
+  }
+  const fr = FRAMES.find((f) => f.id === frame);
+  let stroke: string | CanvasGradient = accent;
+  const conic = (ctx as CanvasRenderingContext2D & { createConicGradient?: (a: number, x: number, y: number) => CanvasGradient }).createConicGradient;
+  if (fr && frame !== 'none' && typeof conic === 'function') {
+    const g = conic.call(ctx, -Math.PI / 2, cx, ay);
+    g.addColorStop(0, fr.swatch[0]);
+    g.addColorStop(0.5, fr.swatch[1]);
+    g.addColorStop(1, fr.swatch[0]);
+    stroke = g;
+  }
+  if (frame === 'electric') { ctx.shadowColor = '#8ec8ff'; ctx.shadowBlur = 34; }
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = stroke;
+  ctx.beginPath(); ctx.arc(cx, ay, R, 0, Math.PI * 2); ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
 /** Desenha o card e devolve o dataURL (PNG). */
 export async function buildProgressCard(d: ShareData): Promise<string> {
   try { await (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready; } catch { /* ok */ }
@@ -53,16 +105,43 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   c.width = W; c.height = H;
   const ctx = c.getContext('2d')!;
 
-  // fundo
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#15171c');
-  bg.addColorStop(1, '#0b0c0f');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
+  // ---- cores do tema ativo ----
+  const themeObj = THEMES.find((t) => t.id === d.theme) || THEMES[0];
+  const bgCol = themeObj.swatch[0];
+  const surfCol = themeObj.swatch[1];
+  const accent = d.color || themeObj.swatch[2];
+  const light = isLight(bgCol);
+  const INK = light ? '#0b0c0f' : '#ffffff';
+  const MUTED = light ? '#5a6068' : '#9098a4';
+  const [br, bg2, bb] = hexToRgb(bgCol);
 
-  // marca (centralizada)
+  // ---- fundo: wallpaper do tema (com véu) ou gradiente ----
+  let drewImage = false;
+  if (themeObj.image) {
+    try {
+      const img = await loadImage(themeObj.image);
+      const s = Math.max(W / img.width, H / img.height);
+      const dw = img.width * s, dh = img.height * s;
+      ctx.drawImage(img, cx - dw / 2, 0, dw, dh);
+      const veil = ctx.createLinearGradient(0, 0, 0, H);
+      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.72)`);
+      veil.addColorStop(0.5, `rgba(${br},${bg2},${bb},0.5)`);
+      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.82)`);
+      ctx.fillStyle = veil;
+      ctx.fillRect(0, 0, W, H);
+      drewImage = true;
+    } catch { /* cai no gradiente */ }
+  }
+  if (!drewImage) {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, surfCol);
+    grad.addColorStop(1, bgCol);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ---- marca (topo, centralizada) ----
   ctx.textBaseline = 'alphabetic';
-  ctx.textAlign = 'center';
   ctx.font = '74px Anton, sans-serif';
   const home = 'HOME ', gym = 'GYM';
   const wHome = ctx.measureText(home).width;
@@ -70,10 +149,12 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   const startX = cx - (wHome + wGym) / 2;
   ctx.textAlign = 'left';
   ctx.fillStyle = INK; ctx.fillText(home, startX, 150);
-  ctx.fillStyle = LIME; ctx.fillText(gym, startX + wHome, 150);
+  ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 150);
 
-  // avatar: foto (círculo) OU anel de nível
+  // ---- avatar: foto (círculo) OU anel de nível, com o ARO do perfil ----
   const ay = 400, R = 140;
+  const frame = d.frame || 'none';
+  const ringLw = frame === 'pokeball' ? 22 : 16;
   if (d.photo) {
     try {
       const img = await loadImage(d.photo);
@@ -83,37 +164,53 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       const dw = img.width * s, dh = img.height * s;
       ctx.drawImage(img, cx - dw / 2, ay - dh / 2, dw, dh);
       ctx.restore();
-      ctx.lineWidth = 12; ctx.strokeStyle = LIME;
-      ctx.beginPath(); ctx.arc(cx, ay, R, 0, Math.PI * 2); ctx.stroke();
     } catch { /* sem foto */ }
+    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   } else {
-    ctx.lineWidth = 24; ctx.lineCap = 'round';
-    ctx.strokeStyle = '#1c2027';
-    ctx.beginPath(); ctx.arc(cx, ay, R, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = LIME;
-    ctx.beginPath(); ctx.arc(cx, ay, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.02, d.pct / 100)); ctx.stroke();
-    ctx.textAlign = 'center'; ctx.fillStyle = LIME;
+    // base + número do nível, depois o aro por cima
+    ctx.fillStyle = surfCol;
+    ctx.beginPath(); ctx.arc(cx, ay, R - 4, 0, Math.PI * 2); ctx.fill();
+    ctx.textAlign = 'center'; ctx.fillStyle = accent;
     ctx.font = '140px Anton, sans-serif'; ctx.fillText(String(d.level), cx, ay + 46);
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif'; ctx.fillText('NÍVEL', cx, ay + 100);
+    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   }
 
-  // nome
+  // ---- cosmético (ícone pixel) no canto do avatar ----
+  if (d.hat && d.hat !== 'none' && PIXEL_BY_ID[d.hat]) {
+    const def = PIXEL_BY_ID[d.hat];
+    const sz = 104;
+    const bx = cx - R + 2, by = ay - R + 2;
+    ctx.fillStyle = surfCol;
+    roundRect(ctx, bx - 10, by - 10, sz + 20, sz + 20, 22); ctx.fill();
+    ctx.strokeStyle = `rgba(255,255,255,${light ? 0.12 : 0.16})`; ctx.lineWidth = 3;
+    roundRect(ctx, bx - 10, by - 10, sz + 20, sz + 20, 22); ctx.stroke();
+    const cell = sz / 12;
+    def.grid.forEach((row, gy) => {
+      for (let gx = 0; gx < row.length; gx++) {
+        const col = PALETTE[row[gx]];
+        if (col) { ctx.fillStyle = col; ctx.fillRect(bx + gx * cell, by + gy * cell, cell + 0.6, cell + 0.6); }
+      }
+    });
+  }
+
+  // ---- nome ----
   ctx.textAlign = 'center';
   ctx.fillStyle = INK; ctx.font = '70px Anton, sans-serif';
   ctx.fillText(d.name.toUpperCase(), cx, ay + 250);
 
-  // rank "Xº da casa" + nível
+  // ---- rank "Xº da casa" + nível ----
   ctx.fillStyle = MUTED; ctx.font = '40px Anton, sans-serif';
   const rankTxt = d.rank ? `${medal(d.rank)} ${d.rank}º da casa · Nível ${d.level}` : `Nível ${d.level}`;
   ctx.fillText(rankTxt, cx, ay + 312);
 
-  // pontos
-  ctx.fillStyle = LIME; ctx.font = '170px Anton, sans-serif';
+  // ---- pontos ----
+  ctx.fillStyle = accent; ctx.font = '170px Anton, sans-serif';
   ctx.fillText(String(d.pts), cx, ay + 480);
   ctx.fillStyle = MUTED; ctx.font = '38px Anton, sans-serif';
   ctx.fillText('PONTOS', cx, ay + 532);
 
-  // stats (3 tiles)
+  // ---- stats (3 tiles) ----
   const tiles: [string, string][] = [
     [`${d.streak}`, '🔥 SEQUÊNCIA'],
     [`${d.treinos}`, 'TREINOS'],
@@ -123,27 +220,36 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   let tx = (W - (tw * 3 + gap * 2)) / 2;
   const ty = ay + 560;
   tiles.forEach(([v, l]) => {
-    ctx.fillStyle = '#1c2027';
+    ctx.fillStyle = `rgba(${br},${bg2},${bb},${drewImage ? 0.55 : 1})`;
     roundRect(ctx, tx, ty, tw, th, 26); ctx.fill();
-    ctx.fillStyle = LIME; ctx.font = '84px Anton, sans-serif'; ctx.textAlign = 'center';
+    ctx.strokeStyle = `rgba(255,255,255,${light ? 0.1 : 0.12})`; ctx.lineWidth = 2;
+    roundRect(ctx, tx, ty, tw, th, 26); ctx.stroke();
+    ctx.fillStyle = accent; ctx.font = '84px Anton, sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(v, tx + tw / 2, ty + 108);
     ctx.fillStyle = MUTED; ctx.font = '26px Anton, sans-serif';
     ctx.fillText(l, tx + tw / 2, ty + 158);
     tx += tw + gap;
   });
 
-  // badge Hidratado
-  if (d.hidratado) {
-    const bw = 320, bh = 66, bx = cx - bw / 2, by = ty + th + 28;
-    ctx.fillStyle = 'rgba(95,168,255,0.16)';
-    roundRect(ctx, bx, by, bw, bh, 33); ctx.fill();
-    ctx.fillStyle = '#5fa8ff'; ctx.font = '34px Anton, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('💧 HIDRATADO', cx, by + 45);
-  }
+  // ---- frase motivacional (no lugar do "hidratado") ----
+  const phrase = PHRASES[(d.streak + d.treinos + d.level) % PHRASES.length];
+  ctx.font = '38px Anton, sans-serif'; ctx.textAlign = 'center';
+  const pw = Math.min(W - 120, ctx.measureText(phrase).width + 96);
+  const ph = 78, px = cx - pw / 2, py = ty + th + 34;
+  const [ar, ag, ab] = hexToRgb(accent);
+  ctx.fillStyle = `rgba(${ar},${ag},${ab},0.16)`;
+  roundRect(ctx, px, py, pw, ph, 39); ctx.fill();
+  ctx.fillStyle = accent; ctx.fillText(phrase, cx, py + 52);
 
-  // rodapé
-  ctx.fillStyle = MUTED; ctx.font = '32px Anton, sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('gym.trazzidely.com.br', cx, H - 50);
+  // ---- rodapé: nome do app + versão ----
+  ctx.textAlign = 'center'; ctx.font = '34px Anton, sans-serif';
+  const an = 'HOME GYM', av = ` · v${APP_VERSION}`;
+  const wAn = ctx.measureText(an).width;
+  const wAv = ctx.measureText(av).width;
+  const fStart = cx - (wAn + wAv) / 2;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = INK; ctx.fillText(an, fStart, H - 50);
+  ctx.fillStyle = MUTED; ctx.fillText(av, fStart + wAn, H - 50);
 
   return c.toDataURL('image/png');
 }
