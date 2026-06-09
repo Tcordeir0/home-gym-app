@@ -1,0 +1,81 @@
+.med-tiles {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.med-tile {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  padding: 14px 6px 11px;
+}
+.med-v {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--brand-lime);
+}
+.med-v small {
+  font-size: 11px;
+  color: var(--app-muted);
+}
+.med-l {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--app-muted);
+}
+.med-d {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.med-d.down { color: #34d399; }
+.med-d.up { color: #fbbf24; }
+
+.med-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.med-in {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  text-align: center;
+  border: 1.5px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--ion-text-color);
+  border-radius: 12px;
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 15px;
+}
+.med-in:focus {
+  outline: none;
+  border-color: var(--brand-lime);
+}
+.med-save {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--brand-lime);
+  color: #0b0c0f;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.med-save:disabled {
+  opacity: 0.45;
+}
