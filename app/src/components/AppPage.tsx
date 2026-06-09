@@ -1,6 +1,7 @@
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons } from '@ionic/react';
 import type { ReactNode } from 'react';
 import ProfileBar from './ProfileBar';
+import LevelBadge from './LevelBadge';
 
 interface Props {
   title: string;
@@ -14,6 +15,9 @@ const AppPage: React.FC<Props> = ({ title, brand, children }) => (
     <IonHeader translucent>
       <IonToolbar>
         <IonTitle>{brand ? 'Home Gym' : title}</IonTitle>
+        <IonButtons slot="end">
+          <LevelBadge />
+        </IonButtons>
       </IonToolbar>
     </IonHeader>
     <IonContent fullscreen>
