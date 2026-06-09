@@ -22,7 +22,7 @@ const LevelBadge: React.FC = () => {
       onClick={() => router.push('/progresso', 'forward')}
       aria-label={`Nível ${lvl.level} — ${lvl.pct}% para o próximo`}
     >
-      <svg viewBox="0 0 60 60" width="64" height="64">
+      <svg viewBox="0 0 60 60" width="100%" height="100%">
         <circle cx="30" cy="30" r={R} className="lvlb-bg" />
         <circle
           cx="30" cy="30" r={R} className="lvlb-fg"
