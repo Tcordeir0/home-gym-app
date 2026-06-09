@@ -88,7 +88,8 @@ export interface FoodItem {
 }
 
 export interface DailyEntry {
-  water?: number; // copos
+  water?: number; // (legado v1: nº copos)
+  waterMl?: number; // hidratação em ml (modelo novo, com meta calculada)
   food?: FoodItem[];
 }
 

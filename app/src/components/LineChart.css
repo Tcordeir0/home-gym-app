@@ -1,0 +1,56 @@
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
+}
+.ch-line {
+  fill: none;
+  stroke: var(--brand-lime);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: ch-draw 0.9s ease both;
+}
+@keyframes ch-draw {
+  from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+  to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ch-line { animation: none; }
+}
+.ch-area {
+  fill: rgba(198, 255, 58, 0.1);
+  stroke: none;
+}
+.ch-dot {
+  fill: var(--brand-lime);
+}
+.ch-lbl {
+  fill: var(--app-muted);
+  font-size: 10px;
+  font-family: var(--ion-font-family);
+}
+.ch-val {
+  fill: var(--brand-lime);
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--ion-font-family);
+}
+.chart-empty,
+.chart-single {
+  color: var(--app-muted);
+  text-align: center;
+  padding: 22px 10px;
+  font-size: 13px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
+  line-height: 1.5;
+}
+.chart-single b {
+  color: var(--brand-lime);
+  font-size: 18px;
+}

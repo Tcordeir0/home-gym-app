@@ -120,3 +120,54 @@
 .diet-empty b {
   color: var(--ion-text-color);
 }
+
+/* Balança */
+.bal-cur {
+  text-align: center;
+  margin: 8px 0 12px;
+}
+.bal-cur {
+  font-family: var(--font-display);
+  font-size: 40px;
+  color: var(--brand-lime);
+}
+.bal-unit { font-size: 16px; }
+.bal-delta { font-size: 14px; font-weight: 800; }
+.bal-row { display: flex; gap: 8px; margin-top: 12px; }
+.bal-in {
+  flex: 1; height: 46px; text-align: center;
+  border: 1.5px solid var(--app-line); background: var(--app-surface-2);
+  color: var(--ion-text-color); border-radius: 12px;
+  font-family: var(--ion-font-family); font-weight: 700; font-size: 15px;
+}
+.bal-in:focus { outline: none; border-color: var(--brand-lime); }
+.bal-go {
+  flex: 0 0 auto; padding: 0 22px; border: none; border-radius: 12px;
+  background: var(--brand-lime); color: #0b0c0f;
+  font-family: var(--font-display); font-size: 16px; cursor: pointer;
+}
+
+/* Hidratação */
+.hid-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hid-sum { font-size: 12.5px; font-weight: 700; color: var(--app-muted); }
+.hid-bar {
+  height: 14px; background: var(--app-surface-2); border: 1px solid var(--app-line);
+  border-radius: 999px; overflow: hidden; margin-top: 10px;
+}
+.hid-bar span {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #5fa8ff);
+  transition: width .35s cubic-bezier(.2,.7,.2,1);
+}
+.hid-goal { margin: 8px 0 0; font-size: 12.5px; color: var(--app-muted); }
+.hid-btns { display: flex; gap: 8px; margin-top: 12px; }
+.hid-btn {
+  flex: 1; display: inline-flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 11px; border-radius: 14px; border: 1px solid var(--app-line);
+  background: var(--app-surface-2); color: var(--ion-text-color);
+  font-family: var(--ion-font-family); font-weight: 700; font-size: 14px; cursor: pointer;
+}
+.hid-btn small { font-size: 10px; color: var(--app-muted); }
+.hid-btn.garrafa { border-color: rgba(56,189,248,.4); color: #5fa8ff; }
+.hid-btn.minus { flex: 0 0 52px; justify-content: center; font-size: 22px; }
+.hid-done { margin: 10px 0 0; font-size: 13px; color: #34d399; font-weight: 700; }

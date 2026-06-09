@@ -9,6 +9,8 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import AppPage from '../components/AppPage';
+import Balanca from '../components/Balanca';
+import Hidratacao from '../components/Hidratacao';
 import { useStore, useActiveProfile } from '../store/store';
 import { ACTIVITY, GOALS, targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
 import type { Sex, Goal } from '../store/types';
@@ -181,6 +183,9 @@ const Dieta: React.FC = () => {
           )}
         </IonCardContent>
       </IonCard>
+
+      <Balanca />
+      <Hidratacao />
     </AppPage>
   );
 };

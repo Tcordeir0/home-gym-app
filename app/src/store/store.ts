@@ -133,6 +133,8 @@ export interface Store extends AppState {
   latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
   setWeightToday: (kg: number) => void;
   updateActiveBody: (patch: Partial<Body>) => void;
+  weightSeries: () => { x: string; y: number }[];
+  addWaterToday: (ml: number) => void;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -253,6 +255,24 @@ export const useStore = create<Store>((set, get) => {
       set(produce((s: Store) => {
         const u = s.users.find((x) => x.id === s.active);
         if (u) u.body = { ...u.body, ...patch };
+      })),
+
+    weightSeries: () => {
+      const s = get();
+      return (s.measures[s.active] || [])
+        .filter((m) => typeof m.weight === 'number')
+        .slice()
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+        .map((m) => ({ x: m.date, y: m.weight as number }));
+    },
+
+    addWaterToday: (ml) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const t = todayISO();
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        dd[t] = dd[t] || {};
+        dd[t].waterMl = Math.max(0, (dd[t].waterMl || 0) + ml);
       })),
   };
 });
