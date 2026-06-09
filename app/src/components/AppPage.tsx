@@ -1,23 +1,21 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons } from '@ionic/react';
 import type { ReactNode } from 'react';
 import ProfileBar from './ProfileBar';
-import LevelBadge from './LevelBadge';
 
 interface Props {
   title: string;
   brand?: boolean;
+  /** Elemento opcional no canto superior direito do header (ex.: anel de nível no Treino). */
+  accessory?: ReactNode;
   children?: ReactNode;
 }
 
 /** Casca de página estilo iOS: large title que colapsa ao rolar. */
-const AppPage: React.FC<Props> = ({ title, brand, children }) => (
+const AppPage: React.FC<Props> = ({ title, brand, accessory, children }) => (
   <IonPage>
     <IonHeader translucent>
       <IonToolbar>
         <IonTitle>{brand ? 'Home Gym' : title}</IonTitle>
-        <IonButtons slot="end">
-          <LevelBadge />
-        </IonButtons>
       </IonToolbar>
     </IonHeader>
     <IonContent fullscreen>
@@ -32,6 +30,11 @@ const AppPage: React.FC<Props> = ({ title, brand, children }) => (
               title
             )}
           </IonTitle>
+          {accessory && (
+            <IonButtons slot="end" className="header-accessory">
+              {accessory}
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
       <ProfileBar />
