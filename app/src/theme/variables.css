@@ -128,6 +128,58 @@ html[data-theme='grafite'] {
   --app-surface-2: #1e2128;
 }
 
+html[data-theme='bloco'] {
+  --ion-color-primary: #7cc93a;
+  --ion-color-primary-contrast: #0c1206;
+  --brand-lime: #7cc93a;
+  --ion-background-color: #15110c;
+  --ion-background-color-rgb: 21, 17, 12;
+  --ion-toolbar-background: #15110c;
+  --ion-item-background: #201910;
+  --ion-card-background: #201910;
+  --app-surface-2: #211a12;
+  --app-line: rgba(124, 201, 58, 0.14);
+}
+
+html[data-theme='synth'] {
+  --ion-color-primary: #ff2fd0;
+  --ion-color-primary-contrast: #1a0316;
+  --brand-lime: #ff2fd0;
+  --ion-background-color: #0d0420;
+  --ion-background-color-rgb: 13, 4, 32;
+  --ion-toolbar-background: #0d0420;
+  --ion-item-background: #190a30;
+  --ion-card-background: #190a30;
+  --app-surface-2: #1a0b33;
+  --app-line: rgba(255, 47, 208, 0.16);
+}
+
+html[data-theme='cosmos'] {
+  --ion-color-primary: #8b6bff;
+  --ion-color-primary-contrast: #0a0618;
+  --brand-lime: #8b6bff;
+  --ion-background-color: #060414;
+  --ion-background-color-rgb: 6, 4, 20;
+  --ion-toolbar-background: #060414;
+  --ion-item-background: #0d0a20;
+  --ion-card-background: #0d0a20;
+  --app-surface-2: #0e0a22;
+  --app-line: rgba(139, 107, 255, 0.16);
+}
+
+html[data-theme='ouro'] {
+  --ion-color-primary: #ffd24d;
+  --ion-color-primary-contrast: #1a1405;
+  --brand-lime: #ffd24d;
+  --ion-background-color: #0c0a06;
+  --ion-background-color-rgb: 12, 10, 6;
+  --ion-toolbar-background: #0c0a06;
+  --ion-item-background: #16120a;
+  --ion-card-background: #16120a;
+  --app-surface-2: #16120a;
+  --app-line: rgba(255, 210, 77, 0.18);
+}
+
 /* Tipografia de marca (Anton só em display) */
 .brand {
   font-family: var(--font-display);

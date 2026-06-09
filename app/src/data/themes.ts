@@ -14,6 +14,10 @@ export const THEMES: Theme[] = [
   { id: 'matrix', name: 'Matrix', emoji: '🟩', free: false, swatch: ['#04080a', '#0c1a0e', '#39ff88'] },
   { id: 'sunset', name: 'Sunset', emoji: '🌅', free: false, swatch: ['#140d12', '#251621', '#ff7a4d'] },
   { id: 'grafite', name: 'Grafite', emoji: '⚙️', free: false, swatch: ['#0f1013', '#1e2128', '#e8eaee'] },
+  { id: 'bloco', name: 'Bloco', emoji: '⛏️', free: false, swatch: ['#15110c', '#211a12', '#7cc93a'] },
+  { id: 'synth', name: 'Synthwave', emoji: '🌆', free: false, swatch: ['#0d0420', '#1a0b33', '#ff2fd0'] },
+  { id: 'cosmos', name: 'Cosmos', emoji: '🌌', free: false, swatch: ['#060414', '#0e0a22', '#8b6bff'] },
+  { id: 'ouro', name: 'Ouro', emoji: '👑', free: false, swatch: ['#0c0a06', '#16120a', '#ffd24d'] },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);
