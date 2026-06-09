@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick } from '../lib/feedback';
@@ -12,6 +12,7 @@ import { CARDIO_CATALOG } from '../data/cardios';
 import { THEMES, isTester } from '../data/themes';
 import { DECOS } from '../data/decos';
 import { FRAMES } from '../data/frames';
+import { supabase } from '../lib/supabase';
 import { PACK_LABELS, type Pack } from '../data/gameicons';
 import PixelIcon from '../components/PixelIcon';
 import type { Cardio, Feedback } from '../store/types';
@@ -48,6 +49,8 @@ const Perfil: React.FC = () => {
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
+  const [accountEmail, setAccountEmail] = useState('');
+  useEffect(() => { supabase.auth.getUser().then(({ data }) => setAccountEmail(data.user?.email || '')); }, []);
   const photoRef = useRef<HTMLInputElement>(null);
 
   const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -386,6 +389,10 @@ const Perfil: React.FC = () => {
               aria-label="Vibração"
             />
           </div>
+          {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
+          <button className="perfil-logout" onClick={() => supabase.auth.signOut()}>
+            <IonIcon icon={logOutOutline} /> Sair da conta
+          </button>
         </IonCardContent>
       </IonCard>
 
