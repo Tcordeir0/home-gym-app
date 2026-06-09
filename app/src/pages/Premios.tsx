@@ -1,17 +1,84 @@
+import { useMemo } from 'react';
 import { IonCard, IonCardContent } from '@ionic/react';
+import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
+import { useStore } from '../store/store';
+import { familyLeague, weekDates } from '../lib/league';
+import './Premios.css';
 
-const Premios: React.FC = () => (
-  <AppPage title="Prêmios">
-    <IonCard className="hero-card">
-      <IonCardContent>
-        <h2 className="card-title">Prêmios</h2>
-        <p className="card-sub">
-          Nível e XP, desafios da semana, roletas, temas com arte única e decorações de avatar.
-        </p>
-      </IonCardContent>
-    </IonCard>
-  </AppPage>
-);
+const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const dd = (iso: string) => {
+  const [, m, d] = iso.split('-').map(Number);
+  return `${d} ${MES[m - 1]}`;
+};
+const MEDALS = ['🥇', '🥈', '🥉'];
+
+const Premios: React.FC = () => {
+  const users = useStore((s) => s.users);
+  const scores = useStore((s) => s.scores);
+
+  const league = useMemo(() => familyLeague({ users, scores }), [users, scores]);
+  const wk = weekDates();
+  const max = Math.max(1, league[0]?.pts || 0);
+  const anyPts = league.some((r) => r.pts > 0);
+  const champ = anyPts ? league[0] : null;
+
+  return (
+    <AppPage title="Prêmios">
+      <IonCard className="prem-card">
+        <IonCardContent>
+          <div className="prem-head">
+            <h2 className="card-title">Liga da família</h2>
+            <span className="prem-week">{dd(wk[0])} – {dd(wk[6])}</span>
+          </div>
+
+          {champ ? (
+            <div className="champ">
+              <span className="champ-crown">👑</span>
+              <span><b>{champ.name}</b> lidera a semana com {champ.pts} pts</span>
+            </div>
+          ) : (
+            <p className="card-sub">Treinem essa semana pra liga esquentar 🔥</p>
+          )}
+
+          <div className="liga-list">
+            {league.map((r, i) => (
+              <motion.div
+                key={r.id}
+                className="liga-row"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <span className="liga-pos">{i < 3 && r.pts > 0 ? MEDALS[i] : `${i + 1}º`}</span>
+                <span className="liga-av" style={{ background: r.color }}>
+                  {r.photo ? <img src={r.photo} alt="" /> : (r.name[0] || '?').toUpperCase()}
+                </span>
+                <div className="liga-main">
+                  <div className="liga-top">
+                    <span className="liga-name">{r.name}</span>
+                    <span className="liga-pts">{r.pts}<small> pts</small></span>
+                  </div>
+                  <div className="liga-bar">
+                    <span style={{ width: (r.pts / max) * 100 + '%' }} />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </IonCardContent>
+      </IonCard>
+
+      <IonCard className="prem-card soon">
+        <IonCardContent>
+          <h2 className="card-title">Em breve 🔜</h2>
+          <p className="card-sub">
+            Desafios da semana, roleta de prêmios, conquistas sociais e a <b>batalha de duplas 2v2</b> entre contas.
+          </p>
+        </IonCardContent>
+      </IonCard>
+    </AppPage>
+  );
+};
 
 export default Premios;

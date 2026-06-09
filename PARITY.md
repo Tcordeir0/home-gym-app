@@ -61,8 +61,26 @@
 - [ ] Som + vibração (feedback), reduced-motion
 - [ ] Deploy Coolify (gym.trazzidely.com.br) quando atingir paridade → cutover
 
+## Família & Social (escolhido com Talys 09/06)
+### Família — local (dá pra fazer já, multi-perfil no aparelho)
+- [ ] **Liga da família** — ranking semanal por pontos + pódio + "campeão da semana" (estreia a página Prêmios)
+- [ ] **Meta de casal / desafio compartilhado** — barra conjunta (ex.: "20 treinos juntos no mês")
+- [ ] **Cutucar + Mural da família** — empurrãozinho entre perfis (`pokes`) + feed de conquistas + reações (🔥👏💪)
+- [ ] **Treino em dupla** (flexível: QUALQUER 2 perfis) — marcar "treinamos juntos" → bônus + conquista de dupla
+### Amigos / cross-conta — precisa Supabase
+- [ ] **Amigo por código/link** — ver pontos/sequência da semana do amigo
+- [ ] **Grupos / liga de amigos** — ranking semanal + desafio de grupo
+- [ ] **Batalha de DUPLAS 2v2 (ideia do Talys)** — sua dupla (ex.: Talys+Andressa) vs dupla de outra conta (irmão+namorada). Placar da dupla = soma dos pontos dos 2 na janela (semana). Liga, revanche, histórico de confrontos. Dupla = qualquer 2 perfis/contas. Unifica dupla+grupo+duelo num só sistema de "times".
+- [ ] **Desafio direto (duelo 1v1)** — 7 dias de sequência, vencedor leva o selo
+- [ ] Postar conquista (card de compartilhar) no feed dos amigos
+### Bônus de engajamento
+- [ ] Conquistas sociais ("família completa treinou hoje", "treinou no mesmo dia que X") · "Não quebre a corrente" (alerta de sequência em risco)
+- [ ] **Porta de entrada do social no header do Treino** (espaço vazio ao lado do HOME GYM) — atalho pra liga/amigos/duplas
+
+> ⚠️ Ordem (decidido com Talys 09/06): terminar o CORE/paridade que falta ANTES dos duelos ativos/2v2/amigos cross-conta. A Liga da família (ranking passivo local) já entra; os DUELOS ativos esperam o Supabase.
+
 ## Mecânicas novas (pós-paridade)
-- [ ] Anel/score de saúde diário · Duelo da família (liga) · Treino inteligente + ciclo Andressa · Onboarding
+- [ ] Anel/score de saúde diário · Treino inteligente + ciclo Andressa · Onboarding
 
 ## Dieta — Sugestões de refeição (FUTURO, pós-core — ideia do Talys 09/06)
 - Com base na meta calculada (kcal/proteína), sugerir **pratos que ajudam** + macros + **receita/vídeo de preparo**, num cartão/sheet discreto (não poluir a página).
