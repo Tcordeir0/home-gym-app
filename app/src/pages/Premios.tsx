@@ -151,7 +151,7 @@ const Premios: React.FC = () => {
             <h2 className="card-title">Roleta de prêmios</h2>
             <span className="prem-week">{spins} giro{spins !== 1 ? 's' : ''}</span>
           </div>
-          <p className="card-sub">1 giro a cada 100 pts. Pontos, congelador, tema ou cosmético.</p>
+          <p className="card-sub">1 giro a cada 100 pts. Pontos, aro, tema ou cosmético.</p>
           <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
         </IonCardContent>
       </IonCard>

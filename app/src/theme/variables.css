@@ -281,6 +281,21 @@ html[data-theme='snow'] {
   --app-line: rgba(150, 210, 255, 0.22);
 }
 
+html[data-theme='eletrico'] {
+  --ion-color-primary: #ffe14d;
+  --ion-color-primary-contrast: #1a1602;
+  --brand-lime: #ffe14d;
+  --ion-background-color: #0c1830;
+  --ion-background-color-rgb: 12, 24, 48;
+  --ion-text-color: #eef3ff;
+  --ion-toolbar-background: rgba(12, 24, 48, 0.5);
+  --ion-tab-bar-background: rgba(9, 19, 40, 0.62);
+  --ion-item-background: rgba(18, 36, 66, 0.46);
+  --ion-card-background: rgba(18, 36, 66, 0.46);
+  --app-surface-2: rgba(26, 48, 84, 0.46);
+  --app-line: rgba(255, 225, 90, 0.22);
+}
+
 /* Liquid glass em TODOS os temas premium (menos Preto/Branco):
    cards/superfícies viram um vidro escuro translúcido uniforme que deixa a
    textura/wallpaper aparecer borrada por trás, mantendo o texto legível. */

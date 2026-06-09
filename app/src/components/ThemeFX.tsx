@@ -123,6 +123,40 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'electric' && (
+        <div className="fx-electric">
+          {/* raios que piscam em posições/escalas diferentes */}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <svg
+              key={'b' + i}
+              className="bolt"
+              viewBox="0 0 40 220"
+              style={{
+                left: `${[12, 34, 56, 74, 88][i]}%`,
+                height: `${36 + (i % 3) * 10}vh`,
+                transform: `rotate(${(i % 2 ? 1 : -1) * (6 + i * 2)}deg)`,
+                animationDelay: `${(i * 1.3) % 6}s`,
+                animationDuration: `${2.6 + (i % 3)}s`,
+              }}
+            >
+              <path d="M22 0 L8 88 L24 92 L6 220 L34 96 L18 92 L30 0 Z" />
+            </svg>
+          ))}
+          {/* faíscas elétricas brilhando */}
+          {Array.from({ length: 22 }).map((_, i) => (
+            <span
+              key={'s' + i}
+              className="spark"
+              style={{
+                left: `${(i * 43 + 6) % 98}%`,
+                top: `${(i * 31 + 8) % 94}%`,
+                animationDuration: `${1.4 + (i % 4) * 0.5}s`,
+                animationDelay: `${(i * 0.27) % 4}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {themeObj?.fx === 'snow' && (
         <div className="fx-snow">
           {Array.from({ length: 40 }).map((_, i) => (

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { IonIcon } from '@ionic/react';
-import { star, snow, colorPalette, sparkles, diamond } from 'ionicons/icons';
+import { star, ellipseOutline, colorPalette, sparkles, diamond } from 'ionicons/icons';
 import { motion } from 'framer-motion';
 import { PRIZES, type Prize } from '../data/roulette';
 import './Roleta.css';
@@ -10,9 +10,9 @@ const SEG = 360 / N;
 const SEG_BG = ['rgba(255,255,255,0.04)', 'rgba(255,255,255,0.1)'];
 
 function iconFor(p: Prize) {
-  if (p.kind === 'freeze') return snow;
   if (p.kind === 'theme') return colorPalette;
   if (p.kind === 'deco') return sparkles;
+  if (p.kind === 'frame') return ellipseOutline;
   return p.value >= 50 ? diamond : star;
 }
 

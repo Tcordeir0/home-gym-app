@@ -6,7 +6,7 @@ export interface Theme {
   free: boolean; // grátis (Preto/Branco) ou prêmio da roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric'; // partículas por cima da arte
 }
 
 export const THEMES: Theme[] = [
@@ -27,6 +27,7 @@ export const THEMES: Theme[] = [
   { id: 'math', name: 'Math', emoji: '🧮', free: false, swatch: ['#10353f', '#16454f', '#5fe0e8'], image: '/themes/math.png', fx: 'math' },
   { id: 'love', name: 'Love', emoji: '💗', free: false, swatch: ['#160a1e', '#241433', '#ff6bc4'], image: '/themes/love.png', fx: 'hearts' },
   { id: 'snow', name: 'Snow', emoji: '❄️', free: false, swatch: ['#0c1a2c', '#13283f', '#8fd0ff'], image: '/themes/snow.png', fx: 'snow' },
+  { id: 'eletrico', name: 'Elétrico', emoji: '⚡', free: false, swatch: ['#0c1830', '#15294a', '#ffe14d'], image: '/themes/eletrico.png', fx: 'electric' },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);

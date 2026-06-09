@@ -234,6 +234,47 @@
   100% { transform: translate(var(--drift), 104vh); opacity: 0; }
 }
 
+/* ===== fx eletricidade (tema Elétrico) ===== */
+.fx-electric { position: absolute; inset: 0; overflow: hidden; }
+.fx-electric .bolt {
+  position: absolute;
+  top: -2vh;
+  width: auto;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px #8ec8ff) drop-shadow(0 0 12px #ffe14d);
+  opacity: 0;
+  transform-origin: top center;
+  animation-name: fx-bolt;
+  animation-timing-function: steps(1, end);
+  animation-iteration-count: infinite;
+}
+.fx-electric .bolt path { fill: rgba(255, 255, 255, 0.85); stroke: #cde8ff; stroke-width: 1.5; }
+@keyframes fx-bolt {
+  0%, 100% { opacity: 0; }
+  2% { opacity: 1; }
+  5% { opacity: 0.2; }
+  7% { opacity: 0.9; }
+  10% { opacity: 0; }
+}
+.fx-electric .spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffe14d;
+  box-shadow: 0 0 6px #ffe14d, 0 0 12px #8ec8ff;
+  opacity: 0;
+  animation-name: fx-spark;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes fx-spark {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .theme-fx,
   .theme-fx::before { animation: none !important; }
@@ -242,5 +283,7 @@
   .firefly,
   .math-sym,
   .heart,
-  .flake { display: none; }
+  .flake,
+  .fx-electric .bolt,
+  .fx-electric .spark { display: none; }
 }
