@@ -281,14 +281,23 @@ html[data-theme='snow'] {
   --app-line: rgba(150, 210, 255, 0.22);
 }
 
-/* Liquid glass: temas com wallpaper deixam os cards translúcidos com blur */
+/* Liquid glass em TODOS os temas premium (menos Preto/Branco):
+   cards/superfícies viram um vidro escuro translúcido uniforme que deixa a
+   textura/wallpaper aparecer borrada por trás, mantendo o texto legível. */
+html[data-glass] {
+  --ion-card-background: rgba(10, 14, 20, 0.52);
+  --ion-item-background: rgba(10, 14, 20, 0.46);
+  --app-surface-2: rgba(22, 28, 38, 0.5);
+}
 html[data-glass] ion-card,
 html[data-glass] .ex-card,
 html[data-glass] .tbn,
 html[data-glass] .cardio-pill,
 html[data-glass] .profile-pill {
-  -webkit-backdrop-filter: blur(11px) saturate(1.1);
-  backdrop-filter: blur(11px) saturate(1.1);
+  background: rgba(10, 14, 20, 0.52);
+  -webkit-backdrop-filter: blur(13px) saturate(1.15);
+  backdrop-filter: blur(13px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Tipografia de marca (Anton só em display) */

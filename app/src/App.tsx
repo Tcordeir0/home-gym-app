@@ -65,8 +65,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
-    // temas com wallpaper (e foto ligada) → cards em liquid glass
-    if (THEMES.find((t) => t.id === theme)?.image && !photoOff) root.setAttribute('data-glass', '1');
+    // liquid glass em TODOS os temas premium (menos Preto/Branco)
+    if (theme !== 'dark' && theme !== 'light') root.setAttribute('data-glass', '1');
     else root.removeAttribute('data-glass');
     // a cor do perfil vira o accent em TODOS os temas (no Branco escurece pra ler bem);
     // a textura/animação do tema mantém a cor-assinatura própria.
