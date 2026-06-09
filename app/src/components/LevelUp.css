@@ -1,0 +1,67 @@
+.lvup {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 9, 12, 0.72);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+.lvup-rays {
+  position: absolute;
+  width: 160vmax;
+  height: 160vmax;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(198, 255, 58, 0.12) 0deg 6deg,
+    transparent 6deg 18deg
+  );
+  animation: lvup-spin 9s linear infinite;
+  pointer-events: none;
+}
+@keyframes lvup-spin {
+  to { transform: rotate(360deg); }
+}
+.lvup-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 44px;
+  border-radius: 26px;
+  background: var(--app-surface-2);
+  border: 1.5px solid rgba(198, 255, 58, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.lvup-cap {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
+.lvup-num {
+  font-family: var(--font-display);
+  font-size: 96px;
+  line-height: 1;
+  color: var(--brand-lime);
+  text-shadow: 0 0 30px rgba(198, 255, 58, 0.5);
+}
+.lvup-sub {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.4px;
+}
+.lvup-conf {
+  position: absolute;
+  top: 60%;
+  font-size: 34px;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lvup-rays { animation: none; }
+  .lvup-conf { display: none; }
+}
