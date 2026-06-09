@@ -1,0 +1,11 @@
+.treino-seg {
+  margin-bottom: 6px;
+}
+.treino-focus {
+  margin: 4px 2px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
