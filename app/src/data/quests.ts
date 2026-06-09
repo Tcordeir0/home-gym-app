@@ -5,6 +5,7 @@ export interface QuestCtx {
   measures: Measure[];
   daily: Record<string, DailyEntry>;
   weekDays: string[];
+  waterGoal: number;
 }
 
 export interface Quest {
@@ -28,7 +29,7 @@ export const QUESTS: Quest[] = [
   },
   {
     id: 'agua4', label: 'Bata a água em 4 dias', emoji: '💧', target: 4, reward: 30,
-    progress: (c) => c.weekDays.filter((d) => (c.daily[d]?.waterMl || 0) >= 2000).length,
+    progress: (c) => c.weekDays.filter((d) => (c.daily[d]?.waterMl || 0) >= c.waterGoal).length,
   },
   {
     id: 'peso1', label: 'Registre o peso', emoji: '⚖️', target: 1, reward: 20,

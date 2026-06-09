@@ -1,5 +1,6 @@
 // Pontos, nível e estatísticas — portado do v1.
 import type { AppState } from '../store/types';
+import { waterGoal } from './diet';
 
 export type StatsInput = Pick<AppState, 'users' | 'history' | 'scores' | 'measures' | 'daily'>;
 
@@ -51,9 +52,14 @@ export function statsFor(state: StatsInput, uid: string): Stats {
   }
 
   const weighIns = ((state.measures && state.measures[uid]) || []).filter((m) => typeof m.weight === 'number').length;
+  // meta de água pela última pesagem do perfil (não fixo em 2L)
+  const marr = (state.measures && state.measures[uid]) || [];
+  let lw: number | null = null, lwDate = '';
+  marr.forEach((m) => { if (typeof m.weight === 'number' && m.date >= lwDate) { lw = m.weight; lwDate = m.date; } });
+  const wgoal = waterGoal(lw);
   const dd = (state.daily && state.daily[uid]) || {};
   let waterDays = 0;
-  Object.keys(dd).forEach((date) => { if ((dd[date].waterMl || 0) >= 2000) waterDays++; });
+  Object.keys(dd).forEach((date) => { if ((dd[date].waterMl || 0) >= wgoal) waterDays++; });
 
   return { treinos, cardios, activeDays: Object.keys(days).length, streak, pts: totalPoints(state, uid), weighIns, waterDays };
 }

@@ -6,6 +6,7 @@ import { useStore } from '../store/store';
 import { familyLeague, weekDates } from '../lib/league';
 import { QUESTS } from '../data/quests';
 import { PRIZES, type Prize } from '../data/roulette';
+import { waterGoal } from '../lib/diet';
 import './Premios.css';
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -34,11 +35,15 @@ const Premios: React.FC = () => {
   const anyPts = league.some((r) => r.pts > 0);
   const champ = anyPts ? league[0] : null;
 
+  const measureArr = measures[active] || [];
+  let lw: number | null = null, lwDate = '';
+  measureArr.forEach((m) => { if (typeof m.weight === 'number' && m.date >= lwDate) { lw = m.weight; lwDate = m.date; } });
   const ctx = {
     history: history[active] || [],
-    measures: measures[active] || [],
+    measures: measureArr,
     daily: daily[active] || {},
     weekDays: wk,
+    waterGoal: waterGoal(lw),
   };
   const aProfile = users.find((u) => u.id === active);
   const claimed = aProfile?.quests?.week === wk[0] ? aProfile.quests.claimed : {};
