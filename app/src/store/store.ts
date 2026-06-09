@@ -3,7 +3,7 @@ import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
 import { pickPrize, type Prize } from '../data/roulette';
-import { themeUnlocked } from '../data/themes';
+import { themeUnlocked, THEMES } from '../data/themes';
 
 export interface SetRow {
   kg: string;
@@ -431,20 +431,35 @@ export const useStore = create<Store>((set, get) => {
     spinRoulette: () => {
       if (get().spinsAvailable() <= 0) return null;
       const prize = pickPrize();
+      let result: Prize = prize;
       set(produce((s: Store) => {
         const uid = s.active;
         const u = s.users.find((x) => x.id === uid);
         if (!u) return;
         u.spinsUsed = (u.spinsUsed || 0) + 1;
-        if (prize.kind === 'pts') {
-          const t = todayISO();
-          const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+        const t = todayISO();
+        const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+
+        if (prize.kind === 'theme') {
+          if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+          const owned = u.cosmetics.themes || [];
+          const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
+          if (locked.length) {
+            const won = locked[Math.floor(Math.random() * locked.length)];
+            u.cosmetics.themes = [...owned, won.id];
+            result = { ...prize, label: `Tema ${won.name}`, emoji: won.emoji };
+          } else {
+            // já tem todos os temas → vira pontos
+            sc.byDay[t] = (sc.byDay[t] || 0) + 30;
+            result = { id: 'p30b', label: '+30 pts', emoji: '✨', kind: 'pts', value: 30, weight: 0 };
+          }
+        } else if (prize.kind === 'pts') {
           sc.byDay[t] = (sc.byDay[t] || 0) + prize.value;
         } else if (prize.kind === 'freeze') {
           u.freezes = (u.freezes || 0) + prize.value;
         }
       }));
-      return prize;
+      return result;
     },
 
     exportState: () => {
