@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { IonCard, IonCardContent, IonIcon, IonAlert } from '@ionic/react';
-import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline } from 'ionicons/icons';
+import { IonCard, IonCardContent, IonIcon, IonAlert, IonToast } from '@ionic/react';
+import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
 import Medidas from '../components/Medidas';
@@ -9,6 +9,7 @@ import FotoProgresso from '../components/FotoProgresso';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS } from '../data/achievements';
+import { shareProgress } from '../lib/shareCard';
 import type { HistoryEntry } from '../store/types';
 import './Progresso.css';
 
@@ -40,6 +41,7 @@ const Progresso: React.FC = () => {
 
   const [expanded, setExpanded] = useState<number | null>(null);
   const [delIdx, setDelIdx] = useState<number | null>(null);
+  const [toast, setToast] = useState('');
 
   const name = users.find((u) => u.id === active)?.name || '';
   const today = todayISO();
@@ -71,11 +73,26 @@ const Progresso: React.FC = () => {
 
   const unlocked = ACHIEVEMENTS.filter((a) => a.test(stats)).length;
 
+  const onShare = async () => {
+    try {
+      const res = await shareProgress({
+        name, level: lvl.level, pts: stats.pts, pct: lvl.pct,
+        streak: stats.streak, treinos: stats.treinos, dias: stats.activeDays,
+      });
+      setToast(res === 'shared' ? 'Compartilhado! 💪' : 'Card salvo (galeria/Downloads) 📲');
+    } catch {
+      setToast('Não consegui gerar o card agora');
+    }
+  };
+
   return (
     <AppPage title="Progresso">
       {/* Nível + pontos */}
       <IonCard className="prog-card lvl-card">
         <IonCardContent>
+          <button className="lvl-share" onClick={onShare} aria-label="Compartilhar progresso">
+            <IonIcon icon={shareOutline} />
+          </button>
           <div className="lvl-wrap">
             <div className="lvl-ring">
               <svg viewBox="0 0 110 110" width="110" height="110">
@@ -231,6 +248,14 @@ const Progresso: React.FC = () => {
           },
         ]}
         onDidDismiss={() => setDelIdx(null)}
+      />
+
+      <IonToast
+        isOpen={!!toast}
+        message={toast}
+        duration={2200}
+        position="bottom"
+        onDidDismiss={() => setToast('')}
       />
     </AppPage>
   );
