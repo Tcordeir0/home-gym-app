@@ -1,10 +1,10 @@
 import { IonIcon } from '@ionic/react';
-import { flame, checkmarkCircle, barbell, bed } from 'ionicons/icons';
+import { flame, checkmarkCircle, barbell } from 'ionicons/icons';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { weekDates } from '../lib/league';
 import './TreinoBanner.css';
 
-/** Banner só na aba Treino: dia de treino / descanso / concluído, ciente da agenda. */
+/** Banner só na aba Treino: dia de treino / concluído. Em dia de descanso some. */
 const TreinoBanner: React.FC = () => {
   const profile = useActiveProfile();
   const history = useStore((s) => s.history[s.active]) || [];
@@ -16,12 +16,12 @@ const TreinoBanner: React.FC = () => {
 
   const days = profile.schedule?.days || [];
   const dow = new Date().getDay();
-  const restDay = days.length > 0 && !days.includes(dow) && !doneToday;
+  // dia de descanso (agendado e hoje não é dia) e ainda não treinou → sem banner
+  if (days.length > 0 && !days.includes(dow) && !doneToday) return null;
 
-  const mode = doneToday ? 'done' : restDay ? 'rest' : 'go';
+  const mode = doneToday ? 'done' : 'go';
   const cfg = {
     done: { icon: checkmarkCircle, title: 'Treino de hoje concluído! 🔥' },
-    rest: { icon: bed, title: 'Hoje é dia de descanso 😌' },
     go: { icon: barbell, title: 'Hoje é dia de treino 💪' },
   }[mode];
 
@@ -31,9 +31,7 @@ const TreinoBanner: React.FC = () => {
       <div className="tbn-txt">
         <span className="tbn-title">{cfg.title}</span>
         <span className="tbn-sub">
-          {mode === 'rest' ? (
-            'Recupere pro próximo treino'
-          ) : weekTreinos > 0 ? (
+          {weekTreinos > 0 ? (
             <>
               <IonIcon icon={flame} /> {weekTreinos} treino{weekTreinos > 1 ? 's' : ''} esta semana
               {mode === 'go' && ' — bora somar mais'}

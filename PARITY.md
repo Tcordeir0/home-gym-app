@@ -28,11 +28,13 @@
 - [x] Diário de alimentos: base `foods.ts` (BR+PT) + soma vs meta + grama editável
 - [x] Busca online Open Food Facts (via Edge Function `off-search`) + código de barras
 - [x] Foto do prato: "O prato contém…?" + reconhecimento IA no navegador (Transformers.js Food-101)
+- [ ] **Dicas inteligentes (pedido Talys 09/06)**: coach com base no que comeu/bebeu no dia — "passou da meta de água", "exagerou nas calorias", "tá com pouca proteína", "bebeu pouca água". Cartão discreto na Dieta.
 
 ## Progresso
 - [x] Histórico: pontos + nível/XP (anel), stats (treinos/cardios/sequência/dias ativos), calendário com marcações por tipo
 - [x] Conquistas (treino + dieta: balança/hidratação) — 13 badges, marcos dourados
 - [x] Sessões registradas (expandir detalhe kg×reps, remover com ajuste de pontos)
+- [~] Compartilhar progresso (card canvas + Web Share) — feito; **MELHORAR (pedido Talys 09/06): incluir FOTO do perfil + medalha/posição "Xº da casa" + badge Hidratado, estilo card do Spotify; COR do card = tema selecionado**
 - [ ] Medidas corporais (peso/braço/peito/cintura) + foto de progresso
 - [ ] Gráficos animados (carga por exercício + medidas no tempo)
 - [ ] Registro retroativo (treino/cardio outra data)
@@ -55,7 +57,7 @@
 
 ## Backend / cross-cutting
 - [ ] Sync Supabase (login email/senha, RLS, app_state) — mesmo projeto `mtbdbahmwbjmmuljvxfn`
-- [ ] **Push real no celular** (Web Push + Capacitor Push nas lojas) **[MELHORIA: chega de banner que não sai]**
+- [ ] **Push real no celular** (Web Push + Capacitor Push nas lojas) — **ÚNICO popup do sistema = lembrete de TREINAR no horário da agenda (Talys 09/06). Sem notificação de descanso.**
 - [ ] PWA instalável + **apps de loja via Capacitor** (App Store/Play) **[MELHORIA]**
 - [ ] **Ícone do app** (PWA manifest + ícones Capacitor iOS/Android) — herda do v1, refinar pra todos os tamanhos
 - [ ] Som + vibração (feedback), reduced-motion
