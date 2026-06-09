@@ -3,7 +3,6 @@ import { IonIcon } from '@ionic/react';
 import { eyeOutline, chevronDown, flame } from 'ionicons/icons';
 import { motion } from 'framer-motion';
 import type { Exercise } from '../data/types';
-import { DEMOS } from '../data/demos';
 import { useStore, rowsFor } from '../store/store';
 import './ExerciseCard.css';
 
@@ -22,7 +21,6 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const lastBestSet = useStore((s) => s.lastBestSet);
 
   const [openTip, setOpenTip] = useState(false);
-  const hasDemo = !!DEMOS[ex.nome];
   const rows = rowsFor(setlog as never, active, treino, exIdx, ex.series);
   const doneCount = rows.filter((s) => s.done).length;
   const last = lastBestSet(ex.nome);
@@ -43,11 +41,9 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
         <button className="ex-tip-btn" onClick={() => setOpenTip((v) => !v)}>
           <IonIcon icon={chevronDown} className={'chev' + (openTip ? ' open' : '')} /> Dica
         </button>
-        {hasDemo && (
-          <button className="ex-demo-btn" onClick={() => onDemo(ex)}>
-            <IonIcon icon={eyeOutline} /> Demo
-          </button>
-        )}
+        <button className="ex-demo-btn" onClick={() => onDemo(ex)}>
+          <IonIcon icon={eyeOutline} /> Demo
+        </button>
       </div>
       {openTip && <p className="ex-tip">{ex.dica}</p>}
 

@@ -51,7 +51,7 @@ const DemoSheet: React.FC<Props> = ({ ex, onClose }) => {
                 <img className={'demo-img' + (frame === 1 ? ' on' : '')} src={`/demos/${id}/1.jpg`} alt="" />
               </div>
             ) : (
-              <div className="demo-empty">Sem demonstração offline pra este exercício.</div>
+              <div className="demo-empty">Sem foto offline pra este exercício — toque no YouTube abaixo pra ver a execução certa.</div>
             )}
 
             <p className="demo-tip">{ex.dica}</p>
