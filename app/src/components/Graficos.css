@@ -1,0 +1,46 @@
+.gr-seg {
+  margin: 12px 0 6px;
+}
+.gr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 12px 0 4px;
+}
+.gr-chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.gr-chip.on {
+  border-color: var(--brand-lime);
+  background: rgba(198, 255, 58, 0.12);
+  color: var(--brand-lime);
+}
+.gr-select {
+  margin: 12px 0 4px;
+  --background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.gr-empty {
+  margin: 14px 0 4px;
+  font-size: 13px;
+  color: var(--app-muted);
+  background: var(--app-surface-2);
+  border-radius: 12px;
+  padding: 14px;
+}
+.gr-empty b {
+  color: var(--ion-text-color);
+}
