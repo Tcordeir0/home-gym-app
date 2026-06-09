@@ -3,6 +3,8 @@ import { IonCard, IonCardContent, IonIcon, IonAlert } from '@ionic/react';
 import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
+import Medidas from '../components/Medidas';
+import FotoProgresso from '../components/FotoProgresso';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS } from '../data/achievements';
@@ -210,6 +212,10 @@ const Progresso: React.FC = () => {
           )}
         </IonCardContent>
       </IonCard>
+
+      {/* Medidas + foto de progresso */}
+      <Medidas />
+      <FotoProgresso />
 
       <IonAlert
         isOpen={delIdx !== null}

@@ -3,31 +3,31 @@
 > Regra: nenhuma feature é "pronta" sem o ✅. O **v1 (home-gym-app, vanilla)** fica vivo em `gym.trazzidely.com.br` até tudo aqui estar ✅. Cada item vira branch → PR → CI → merge. Itens **[MELHORIA]** já nascem corrigidos (não eram assim no v1).
 
 ## Fundação
-- [ ] Shell com **IonTabs nativo** (5 abas: Treino · Dieta · Progresso · Prêmios · Perfil) — páginas reais nativas **[MELHORIA: resolve "modais" do v1]**
-- [ ] Design system iOS premium (tokens dark, SF Pro, accent limão `#c6ff3a`, Anton display) — herda do DESIGN.md do v1
-- [ ] Store (estado) — Zustand ou Context, com persistência localStorage + tipos TS
-- [ ] Perfil ativo **por aparelho** (privacidade) — `hgt_active_device`
+- [x] Shell com **IonTabs nativo** (5 abas: Treino · Dieta · Progresso · Prêmios · Perfil) — páginas reais nativas **[MELHORIA: resolve "modais" do v1]**
+- [x] Design system iOS premium (tokens dark, SF Pro, accent limão `#c6ff3a`, Anton display) — herda do DESIGN.md do v1
+- [x] Store (estado) — Zustand + immer, persistência localStorage `hgt_v2` + tipos TS
+- [x] Perfil ativo **por aparelho** (privacidade) — `hgt_active_device`
 - [ ] Gate de login / multi-perfil (Talys, Andressa, Victor + dinâmicos, máx 8)
 - [ ] Perfil tester **TCORDEIRO** (tudo liberado)
 
 ## Treino
-- [ ] Fichas A/B/C + Aquecimento por perfil; **segmented control** nas abas de treino **[MELHORIA]**
-- [ ] Exercícios: nome, foco, dica, séries com **kg × reps** por série, marcar série feita
-- [ ] Barra de progresso; concluir treino (anti-duplicação 1x/dia por A/B/C)
-- [ ] Dica de progressão ("última vez Xkg×Y — supera!")
-- [ ] Cardio (corrida/natação + tipos custom), cronômetro, registro
-- [ ] Gerador de treino por equipamento (pool PT)
-- [ ] Demos offline (free-exercise-db) + vídeo YouTube por exercício
+- [x] Fichas A/B/C + Aquecimento por perfil; **segmented control** nas abas de treino **[MELHORIA]**
+- [x] Exercícios: nome, foco, dica, séries com **kg × reps** por série, marcar série feita
+- [x] Barra de progresso; concluir treino (anti-duplicação 1x/dia por A/B/C)
+- [x] Dica de progressão ("última vez Xkg×Y — supera!")
+- [x] Cardio (corrida/natação + tipos custom), cronômetro, registro
+- [x] Gerador de treino por equipamento+local (pool PT, lê do Perfil)
+- [x] Demos offline (free-exercise-db) + vídeo YouTube por exercício (coerente casa/academia)
 - [ ] Banner "Hoje é dia de treino" (só na Treino) **[MELHORIA: não polui outras abas]**
 
 ## Dieta
-- [ ] Calculadora Mifflin-St Jeor (meta calorias + déficit/piso, TDEE, proteína)
-- [ ] IMC + % gordura (Navy)
-- [ ] Balança: peso + gráfico + delta colorido + "Pesar"
-- [ ] Hidratação: **seleção copo/garrafa/ml + meta CALCULADA por peso/altura + registrar acima da meta** **[MELHORIA]**
-- [ ] Diário de alimentos: base `foods.json` (BR+PT) + soma vs meta + grama editável
-- [ ] Busca online Open Food Facts (via Edge Function `off-search`) + código de barras
-- [ ] Foto do prato: "O prato contém…?" + reconhecimento IA no navegador (Transformers.js Food-101)
+- [x] Calculadora Mifflin-St Jeor (meta calorias + déficit/piso, TDEE, proteína)
+- [x] IMC + % gordura (Navy)
+- [x] Balança: peso + gráfico + delta colorido + "Pesar"
+- [x] Hidratação: **seleção copo/garrafa/ml + meta CALCULADA por peso/altura + registrar acima da meta** **[MELHORIA]**
+- [x] Diário de alimentos: base `foods.ts` (BR+PT) + soma vs meta + grama editável
+- [x] Busca online Open Food Facts (via Edge Function `off-search`) + código de barras
+- [x] Foto do prato: "O prato contém…?" + reconhecimento IA no navegador (Transformers.js Food-101)
 
 ## Progresso
 - [x] Histórico: pontos + nível/XP (anel), stats (treinos/cardios/sequência/dias ativos), calendário com marcações por tipo
@@ -37,6 +37,7 @@
 - [ ] Gráficos animados (carga por exercício + medidas no tempo)
 - [ ] Registro retroativo (treino/cardio outra data)
 - [ ] Backup export/import JSON
+- [ ] **Compartilhar progresso pra fora do app** (cartão → imagem, Web Share API / share nativo Capacitor) **[MELHORIA: já existe no v1, mas refinar o card e o fluxo]**
 
 ## Prêmios
 - [ ] Nível/XP + barra; níveis sobem com burst
@@ -46,15 +47,17 @@
 - [ ] Decorações de avatar
 
 ## Perfil
-- [ ] Editor: nome, foto, cor, equipamento, tipos de cardio
+- [x] Local de treino (casa/academia) + equipamento disponível — **por perfil**, alimenta o gerador
+- [x] Nome editável + badge de nível bonito no header (Treino) **[MELHORIA]**
+- [ ] Editor: foto, cor, tipos de cardio
 - [ ] "Conta e ajustes" interno: sincronização, notificações, configurações, histórico **[MELHORIA: já vem aqui]**
-- [ ] Badge de nível bonito no topo (header) **[MELHORIA]**
 - [ ] Excluir/zerar perfil; agenda e lembretes
 
 ## Backend / cross-cutting
 - [ ] Sync Supabase (login email/senha, RLS, app_state) — mesmo projeto `mtbdbahmwbjmmuljvxfn`
 - [ ] **Push real no celular** (Web Push + Capacitor Push nas lojas) **[MELHORIA: chega de banner que não sai]**
 - [ ] PWA instalável + **apps de loja via Capacitor** (App Store/Play) **[MELHORIA]**
+- [ ] **Ícone do app** (PWA manifest + ícones Capacitor iOS/Android) — herda do v1, refinar pra todos os tamanhos
 - [ ] Som + vibração (feedback), reduced-motion
 - [ ] Deploy Coolify (gym.trazzidely.com.br) quando atingir paridade → cutover
 

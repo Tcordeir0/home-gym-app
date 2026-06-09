@@ -134,6 +134,11 @@ export interface Store extends AppState {
   // Dieta
   latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
   setWeightToday: (kg: number) => void;
+  setMeasureField: (field: 'arm' | 'chest' | 'waist', value: number) => void;
+  setProgressPhoto: (dataUrl: string) => void;
+  removeProgressPhoto: (date: string) => void;
+  progressPhotos: () => { date: string; photo: string }[];
+  measureSeries: (field: 'weight' | 'arm' | 'chest' | 'waist') => { x: string; y: number }[];
   updateActiveBody: (patch: Partial<Body>) => void;
   weightSeries: () => { x: string; y: number }[];
   addWaterToday: (ml: number) => void;
@@ -256,6 +261,52 @@ export const useStore = create<Store>((set, get) => {
         if (e) e.weight = kg;
         else arr.push({ date: t, weight: kg });
       })),
+
+    setMeasureField: (field, value) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const t = todayISO();
+        const arr = (s.measures[uid] = s.measures[uid] || []);
+        const e = arr.find((m) => m.date === t);
+        if (e) e[field] = value;
+        else arr.push({ date: t, [field]: value });
+      })),
+
+    setProgressPhoto: (dataUrl) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const t = todayISO();
+        const arr = (s.measures[uid] = s.measures[uid] || []);
+        const e = arr.find((m) => m.date === t);
+        if (e) e.photo = dataUrl;
+        else arr.push({ date: t, photo: dataUrl });
+      })),
+
+    removeProgressPhoto: (date) =>
+      set(produce((s: Store) => {
+        const arr = s.measures[s.active];
+        if (!arr) return;
+        const e = arr.find((m) => m.date === date);
+        if (e) delete e.photo;
+      })),
+
+    progressPhotos: () => {
+      const s = get();
+      return (s.measures[s.active] || [])
+        .filter((m) => typeof m.photo === 'string' && m.photo)
+        .slice()
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+        .map((m) => ({ date: m.date, photo: m.photo as string }));
+    },
+
+    measureSeries: (field) => {
+      const s = get();
+      return (s.measures[s.active] || [])
+        .filter((m) => typeof m[field] === 'number')
+        .slice()
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+        .map((m) => ({ x: m.date, y: m[field] as number }));
+    },
 
     updateActiveBody: (patch) =>
       set(produce((s: Store) => {
