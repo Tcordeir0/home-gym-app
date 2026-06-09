@@ -6,6 +6,7 @@ import Calendar from '../components/Calendar';
 import Medidas from '../components/Medidas';
 import Graficos from '../components/Graficos';
 import FotoProgresso from '../components/FotoProgresso';
+import Ferramentas from '../components/Ferramentas';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS } from '../data/achievements';
@@ -235,6 +236,7 @@ const Progresso: React.FC = () => {
       <Medidas />
       <Graficos />
       <FotoProgresso />
+      <Ferramentas onToast={setToast} />
 
       <IonAlert
         isOpen={delIdx !== null}

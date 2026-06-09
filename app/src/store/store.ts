@@ -146,6 +146,9 @@ export interface Store extends AppState {
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
   removeHistoryEntry: (idx: number) => void;
+  addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
+  exportState: () => string;
+  importState: (json: string) => boolean;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -353,6 +356,42 @@ export const useStore = create<Store>((set, get) => {
         const f = s.daily[s.active]?.[todayISO()]?.food;
         if (f) f.splice(idx, 1);
       })),
+
+    addBackdated: (w, date, cardio) => {
+      const s0 = get();
+      const uid = s0.active;
+      const hist = s0.history[uid] || [];
+      if (w !== 'cardio' && hist.some((e) => e.date === date && e.w === w)) return 'dup';
+      set(produce((s: Store) => {
+        const h = (s.history[uid] = s.history[uid] || []);
+        h.push(
+          w === 'cardio'
+            ? { date, w: 'cardio', t: cardio?.label || 'Cardio', emoji: cardio?.emoji }
+            : { date, w, exercises: [] },
+        );
+        const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+        sc.byDay[date] = (sc.byDay[date] || 0) + (w === 'cardio' ? PTS_CARDIO : PTS_TREINO);
+      }));
+      return 'ok';
+    },
+
+    exportState: () => {
+      const s = get();
+      const data: Record<string, unknown> = {};
+      STATE_KEYS.forEach((k) => { data[k] = s[k]; });
+      return JSON.stringify(data, null, 2);
+    },
+
+    importState: (json) => {
+      try {
+        const raw = JSON.parse(json);
+        if (!raw || !Array.isArray(raw.users)) return false;
+        set(migrate(raw));
+        return true;
+      } catch {
+        return false;
+      }
+    },
 
     removeHistoryEntry: (idx) =>
       set(produce((s: Store) => {
