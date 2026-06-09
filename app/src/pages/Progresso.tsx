@@ -4,6 +4,7 @@ import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashO
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
 import Medidas from '../components/Medidas';
+import Graficos from '../components/Graficos';
 import FotoProgresso from '../components/FotoProgresso';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
@@ -213,8 +214,9 @@ const Progresso: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
-      {/* Medidas + foto de progresso */}
+      {/* Medidas + gráficos + foto de progresso */}
       <Medidas />
+      <Graficos />
       <FotoProgresso />
 
       <IonAlert
