@@ -1,0 +1,141 @@
+.ex-card {
+  background: var(--ion-card-background);
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  padding: 16px;
+  margin: 12px 0;
+  position: relative;
+  overflow: hidden;
+}
+.ex-card.complete {
+  border-color: rgba(198, 255, 58, 0.5);
+}
+.ex-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ex-name {
+  margin: 0 0 3px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ion-text-color);
+}
+.ex-muscle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
+.ex-reps {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--brand-lime);
+  line-height: 1;
+}
+.ex-reps .x {
+  font-size: 14px;
+  margin: 0 1px;
+  opacity: 0.7;
+}
+.ex-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.ex-tip-btn,
+.ex-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--ion-text-color);
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ex-demo-btn {
+  border-color: rgba(198, 255, 58, 0.35);
+  color: var(--brand-lime);
+}
+.chev {
+  transition: transform 0.2s ease;
+  font-size: 15px;
+}
+.chev.open {
+  transform: rotate(180deg);
+}
+.ex-tip {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--app-muted);
+  background: var(--app-surface-2);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.ex-sets {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.set-n {
+  flex: 0 0 22px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--app-muted);
+}
+.set-in {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  text-align: center;
+  border: 1.5px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--ion-text-color);
+  border-radius: 10px;
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 14px;
+}
+.set-in:focus {
+  outline: none;
+  border-color: var(--brand-lime);
+}
+.set-x {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+.set-done {
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  font-size: 18px;
+  cursor: pointer;
+}
+.set-row.done .set-done {
+  background: var(--brand-lime);
+  border-color: var(--brand-lime);
+  color: #0b0c0f;
+}
+.set-row.done .set-in {
+  border-color: rgba(198, 255, 58, 0.3);
+}
