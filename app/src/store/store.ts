@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
-import { pickPrize, type Prize } from '../data/roulette';
+import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 
@@ -157,7 +157,7 @@ export interface Store extends AppState {
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
   claimQuest: (id: string, reward: number) => void;
   spinsAvailable: () => number;
-  spinRoulette: () => Prize | null;
+  spinRoulette: () => { prize: Prize; index: number } | null;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -441,6 +441,7 @@ export const useStore = create<Store>((set, get) => {
     spinRoulette: () => {
       if (get().spinsAvailable() <= 0) return null;
       const prize = pickPrize();
+      const index = PRIZES.indexOf(prize);
       let result: Prize = prize;
       set(produce((s: Store) => {
         const uid = s.active;
@@ -475,7 +476,7 @@ export const useStore = create<Store>((set, get) => {
           u.freezes = (u.freezes || 0) + prize.value;
         }
       }));
-      return result;
+      return { prize: result, index };
     },
 
     exportState: () => {

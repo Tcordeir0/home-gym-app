@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useStore } from '../store/store';
+import { THEMES } from '../data/themes';
 import './ThemeFX.css';
 
 const CHARS = '01ｱｲｳｴｵｶｷｸｹｺ日月火水木金土ＡＢＣＤＥＦ'.split('');
 
-/** Texturas/animações por tema (chuva Matrix em canvas + overlays CSS). */
+/** Texturas/animações por tema (chuva Matrix em canvas + overlays CSS + wallpapers). */
 const ThemeFX: React.FC = () => {
   const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
+  const themeObj = THEMES.find((t) => t.id === theme);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -42,8 +44,29 @@ const ThemeFX: React.FC = () => {
   }, [theme]);
 
   return (
-    <div className={'theme-fx fx-' + theme} aria-hidden="true">
+    <div
+      className={'theme-fx fx-' + theme}
+      aria-hidden="true"
+      style={themeObj?.image ? { backgroundImage: `url(${themeObj.image})`, backgroundSize: 'cover', backgroundPosition: 'center top' } : undefined}
+    >
       <canvas ref={canvasRef} className="fx-matrix-canvas" />
+      {themeObj?.fx === 'bubbles' && (
+        <div className="fx-bubbles">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={i}
+              className="bubble"
+              style={{
+                left: `${(i * 61) % 100}%`,
+                width: `${6 + (i % 4) * 4}px`,
+                height: `${6 + (i % 4) * 4}px`,
+                animationDuration: `${5 + (i % 5)}s`,
+                animationDelay: `${(i * 0.7) % 6}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

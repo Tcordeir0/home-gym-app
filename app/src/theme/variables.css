@@ -206,6 +206,31 @@ html[data-theme='arcade'] {
   --app-line: rgba(255, 225, 77, 0.16);
 }
 
+html[data-theme='aquatico_mine'] {
+  --ion-color-primary: #3fe0d0;
+  --ion-color-primary-contrast: #03242c;
+  --brand-lime: #3fe0d0;
+  --ion-background-color: #0a2735;
+  --ion-background-color-rgb: 10, 39, 53;
+  --ion-text-color: #eaf6f8;
+  --ion-toolbar-background: rgba(10, 39, 53, 0.5);
+  --ion-tab-bar-background: rgba(8, 32, 44, 0.62);
+  --ion-item-background: rgba(11, 46, 60, 0.44);
+  --ion-card-background: rgba(11, 46, 60, 0.44);
+  --app-surface-2: rgba(18, 60, 76, 0.44);
+  --app-line: rgba(150, 224, 232, 0.22);
+}
+
+/* Liquid glass: temas com wallpaper deixam os cards translúcidos com blur */
+html[data-glass] ion-card,
+html[data-glass] .ex-card,
+html[data-glass] .tbn,
+html[data-glass] .cardio-pill,
+html[data-glass] .profile-pill {
+  -webkit-backdrop-filter: blur(11px) saturate(1.1);
+  backdrop-filter: blur(11px) saturate(1.1);
+}
+
 /* Tipografia de marca (Anton só em display) */
 .brand {
   font-family: var(--font-display);

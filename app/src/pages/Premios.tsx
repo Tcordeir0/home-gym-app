@@ -5,7 +5,8 @@ import AppPage from '../components/AppPage';
 import { useStore } from '../store/store';
 import { familyLeague, weekDates } from '../lib/league';
 import { QUESTS } from '../data/quests';
-import { PRIZES, type Prize } from '../data/roulette';
+import { type Prize } from '../data/roulette';
+import Roleta from '../components/Roleta';
 import { waterGoal } from '../lib/diet';
 import { fxReward } from '../lib/feedback';
 import './Premios.css';
@@ -27,8 +28,6 @@ const Premios: React.FC = () => {
   const claimQuest = useStore((s) => s.claimQuest);
   const spinRoulette = useStore((s) => s.spinRoulette);
   const [toast, setToast] = useState('');
-  const [spinning, setSpinning] = useState(false);
-  const [reel, setReel] = useState<Prize | null>(null);
 
   const league = useMemo(() => familyLeague({ users, scores }), [users, scores]);
   const wk = weekDates();
@@ -56,20 +55,9 @@ const Premios: React.FC = () => {
 
   const activePts = Object.values(scores[active]?.byDay || {}).reduce((a, b) => a + b, 0);
   const spins = Math.max(0, Math.floor(activePts / 100) - (aProfile?.spinsUsed || 0));
-  const spin = () => {
-    if (spinning || spins <= 0) return;
-    const prize = spinRoulette();
-    if (!prize) return;
-    setSpinning(true);
-    let n = 0;
-    const iv = window.setInterval(() => { setReel(PRIZES[n % PRIZES.length]); n += 1; }, 90);
-    window.setTimeout(() => {
-      clearInterval(iv);
-      setReel(prize);
-      setSpinning(false);
-      fxReward();
-      setToast(`Você ganhou ${prize.label}! ${prize.emoji}`);
-    }, 1200);
+  const onPrize = (prize: Prize) => {
+    fxReward();
+    setToast(`Você ganhou ${prize.label}! ${prize.emoji}`);
   };
 
   return (
@@ -163,19 +151,8 @@ const Premios: React.FC = () => {
             <h2 className="card-title">Roleta de prêmios</h2>
             <span className="prem-week">{spins} giro{spins !== 1 ? 's' : ''}</span>
           </div>
-          <p className="card-sub">1 giro a cada 100 pts. Gire e leve pontos ou congeladores 🧊.</p>
-          <div className={'rol-display' + (spinning ? ' spin' : '')}>
-            <span className="rol-emoji">{reel ? reel.emoji : '🎁'}</span>
-            <span className="rol-label">{reel ? reel.label : 'Boa sorte!'}</span>
-          </div>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            className="rol-go"
-            disabled={spinning || spins <= 0}
-            onClick={spin}
-          >
-            {spins > 0 ? (spinning ? 'Girando…' : 'Girar (1 giro)') : 'Sem giros — junte 100 pts'}
-          </motion.button>
+          <p className="card-sub">1 giro a cada 100 pts. Pontos, congelador, tema ou cosmético.</p>
+          <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
         </IonCardContent>
       </IonCard>
 

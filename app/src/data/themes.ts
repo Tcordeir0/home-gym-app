@@ -5,6 +5,8 @@ export interface Theme {
   emoji: string;
   free: boolean; // grátis (Preto/Branco) ou prêmio da roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
+  image?: string; // wallpaper de fundo (cards viram "liquid glass")
+  fx?: 'bubbles' | 'sparkles'; // partículas por cima da arte
 }
 
 export const THEMES: Theme[] = [
@@ -20,6 +22,7 @@ export const THEMES: Theme[] = [
   { id: 'ouro', name: 'Ouro', emoji: '👑', free: false, swatch: ['#0c0a06', '#16120a', '#ffd24d'] },
   { id: 'checker', name: 'Checker', emoji: '🏁', free: false, swatch: ['#06121f', '#0c1c2e', '#2ad1ff'] },
   { id: 'arcade', name: 'Arcade', emoji: '👾', free: false, swatch: ['#0a0710', '#150f1e', '#ffe14d'] },
+  { id: 'aquatico_mine', name: 'Aquático', emoji: '🌊', free: false, swatch: ['#0a2735', '#0d3444', '#3fe0d0'], image: '/themes/aquatico_mine.png', fx: 'bubbles' },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);
