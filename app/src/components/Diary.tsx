@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { trashOutline, addOutline } from 'ionicons/icons';
+import { cloudOutline } from 'ionicons/icons';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor } from '../lib/diet';
 import { FOODS } from '../data/foods';
+import { offSearch, offBarcode, type OffHit } from '../lib/off';
 
 const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -16,6 +18,38 @@ const Diary: React.FC = () => {
   const setGrams = useStore((s) => s.setFoodGrams);
   const removeFood = useStore((s) => s.removeFoodToday);
   const [q, setQ] = useState('');
+  const [bc, setBc] = useState('');
+  const [online, setOnline] = useState<OffHit[]>([]);
+  const [onlineMsg, setOnlineMsg] = useState('');
+
+  const doOnline = async () => {
+    setOnline([]);
+    setOnlineMsg('Buscando online…');
+    try {
+      const hits = q.trim() ? await offSearch(q.trim()) : [];
+      setOnline(hits);
+      setOnlineMsg(hits.length ? '' : 'Nada encontrado online pra isso.');
+    } catch {
+      setOnlineMsg('Sem conexão pra buscar online agora.');
+    }
+  };
+  const doBarcode = async () => {
+    const code = bc.replace(/\D/g, '');
+    if (code.length < 6) return;
+    setOnline([]);
+    setOnlineMsg('Buscando código…');
+    try {
+      const hit = await offBarcode(code);
+      if (hit) { setOnline([hit]); setOnlineMsg(''); }
+      else setOnlineMsg('Produto não encontrado nesse código.');
+    } catch {
+      setOnlineMsg('Sem conexão pra buscar o código agora.');
+    }
+  };
+  const pick = (it: { n: string; k: number; p: number }) => {
+    addFood({ n: it.n, k: it.k, p: it.p, g: 100 });
+    setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
+  };
 
   const weight = latestMeasure('weight');
   const t = targetsFor(profile.body, weight);
@@ -89,11 +123,7 @@ const Diary: React.FC = () => {
         {hits.length > 0 && (
           <div className="food-results">
             {hits.map((f, i) => (
-              <button
-                className="food-hit"
-                key={i}
-                onClick={() => { addFood({ n: f.n, k: f.kcal, p: f.p, g: f.porcao || 100 }); setQ(''); }}
-              >
+              <button className="food-hit" key={i} onClick={() => pick({ n: f.n, k: f.kcal, p: f.p })}>
                 <span className="food-hit-n">{f.n}</span>
                 <span className="food-hit-k">{f.kcal} kcal · {f.p}g prot</span>
                 <IonIcon className="food-hit-add" icon={addOutline} />
@@ -101,8 +131,34 @@ const Diary: React.FC = () => {
             ))}
           </div>
         )}
-        {qn.length >= 2 && !hits.length && (
-          <p className="diary-empty">Nada na base local. Busca online (Open Food Facts) chega no próximo PR.</p>
+        {qn.length >= 2 && (
+          <button className="food-online-go" onClick={doOnline}>
+            <IonIcon icon={cloudOutline} /> Buscar "{q.trim()}" online
+          </button>
+        )}
+
+        <div className="bc-row">
+          <input
+            className="bal-in bc-in"
+            inputMode="numeric"
+            placeholder="Código de barras (nº do embalado)"
+            value={bc}
+            onChange={(e) => setBc(e.target.value)}
+          />
+          <button className="bc-go" onClick={doBarcode}>Buscar</button>
+        </div>
+
+        {onlineMsg && <p className="diary-empty">{onlineMsg}</p>}
+        {online.length > 0 && (
+          <div className="food-results">
+            {online.map((h, i) => (
+              <button className="food-hit" key={i} onClick={() => pick(h)}>
+                <span className="food-hit-n">{h.n}</span>
+                <span className="food-hit-k">{Math.round(h.k)} kcal · {h.p}g prot</span>
+                <IonIcon className="food-hit-add" icon={addOutline} />
+              </button>
+            ))}
+          </div>
         )}
       </IonCardContent>
     </IonCard>

@@ -195,3 +195,20 @@
 .food-hit-n { flex: 1; min-width: 0; font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .food-hit-k { flex: 0 0 auto; font-size: 11px; color: var(--app-muted); }
 .food-hit-add { flex: 0 0 auto; color: var(--brand-lime); font-size: 18px; }
+
+/* Busca online + código de barras */
+.food-online-go {
+  width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px;
+  border: 1px solid var(--app-line); background: var(--app-surface-2);
+  color: var(--ion-text-color); font-family: var(--ion-font-family);
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.food-online-go ion-icon { font-size: 16px; }
+.bc-row { display: flex; gap: 8px; margin-top: 8px; }
+.bc-in { flex: 1; height: 42px; text-align: left; padding: 0 12px; font-size: 14px; }
+.bc-go {
+  flex: 0 0 auto; padding: 0 18px; border: 1px solid var(--app-line); border-radius: 12px;
+  background: var(--app-surface-2); color: var(--ion-text-color);
+  font-family: var(--ion-font-family); font-weight: 700; font-size: 14px; cursor: pointer;
+}

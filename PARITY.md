@@ -60,3 +60,7 @@
 
 ## Mecânicas novas (pós-paridade)
 - [ ] Anel/score de saúde diário · Duelo da família (liga) · Treino inteligente + ciclo Andressa · Onboarding
+
+## Dieta — Sugestões de refeição (FUTURO, pós-core — ideia do Talys 09/06)
+- Com base na meta calculada (kcal/proteína), sugerir **pratos que ajudam** + macros + **receita/vídeo de preparo**, num cartão/sheet discreto (não poluir a página).
+- APIs grátis avaliadas: **Spoonacular** (busca por nutrientes/macros + instruções, free tier, precisa chave→proxy Edge Function), **TheMealDB** (grátis, receita+vídeo YouTube, sem filtro de macro), **Edamam** (filtro por calorias/proteína, free tier). Recomendado: Spoonacular pelo "por macros" (ou TheMealDB pra simplicidade+vídeo).
