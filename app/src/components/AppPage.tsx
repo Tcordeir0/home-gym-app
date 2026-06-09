@@ -1,5 +1,6 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/react';
 import type { ReactNode } from 'react';
+import ProfileBar from './ProfileBar';
 
 interface Props {
   title: string;
@@ -29,6 +30,7 @@ const AppPage: React.FC<Props> = ({ title, brand, children }) => (
           </IonTitle>
         </IonToolbar>
       </IonHeader>
+      <ProfileBar />
       <div className="page-body">{children}</div>
     </IonContent>
   </IonPage>
