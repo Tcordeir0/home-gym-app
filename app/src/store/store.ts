@@ -129,6 +129,10 @@ export interface Store extends AppState {
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
   addCardio: (label: string, emoji?: string) => void;
+  // Dieta
+  latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
+  setWeightToday: (kg: number) => void;
+  updateActiveBody: (patch: Partial<Body>) => void;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -221,6 +225,34 @@ export const useStore = create<Store>((set, get) => {
         h.push({ date: today, w: 'cardio', t: label, emoji });
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
         sc.byDay[today] = (sc.byDay[today] || 0) + PTS_CARDIO;
+      })),
+
+    latestMeasure: (field) => {
+      const s = get();
+      const arr = s.measures[s.active] || [];
+      let best: number | null = null;
+      let bestDate = '';
+      arr.forEach((m) => {
+        const v = m[field];
+        if (typeof v === 'number' && m.date >= bestDate) { best = v; bestDate = m.date; }
+      });
+      return best;
+    },
+
+    setWeightToday: (kg) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const t = todayISO();
+        const arr = (s.measures[uid] = s.measures[uid] || []);
+        const e = arr.find((m) => m.date === t);
+        if (e) e.weight = kg;
+        else arr.push({ date: t, weight: kg });
+      })),
+
+    updateActiveBody: (patch) =>
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (u) u.body = { ...u.body, ...patch };
       })),
   };
 });

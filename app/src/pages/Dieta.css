@@ -1,0 +1,122 @@
+.diet-card,
+.diet-results {
+  margin: 12px 0;
+  border-radius: 18px;
+  border: 1px solid var(--app-line);
+  box-shadow: none;
+}
+.diet-list {
+  background: transparent;
+  margin-top: 8px;
+}
+.diet-list ion-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --border-color: var(--app-line);
+}
+.diet-adv {
+  margin-top: 12px;
+}
+.diet-adv summary {
+  cursor: pointer;
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 700;
+  list-style: none;
+}
+.diet-adv summary::-webkit-details-marker {
+  display: none;
+}
+.diet-note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--app-muted);
+}
+
+/* Resultados */
+.meta-wrap {
+  text-align: center;
+  margin-bottom: 4px;
+}
+.meta-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
+.meta-kcal {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1.05;
+  color: var(--brand-lime);
+}
+.meta-unit {
+  font-size: 18px;
+}
+.meta-floor {
+  font-size: 12px;
+  color: #fbbf24;
+}
+.dstats {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.dstat {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  padding: 12px 8px;
+}
+.dstat-v {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--brand-lime);
+}
+.dstat-l {
+  margin-top: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--app-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dstat.hint {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--app-muted);
+  text-align: center;
+}
+.diet-base {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--app-muted);
+  background: var(--app-surface-2);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.diet-base b {
+  color: var(--ion-text-color);
+}
+.diet-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--app-muted);
+}
+.diet-empty b {
+  color: var(--ion-text-color);
+}
