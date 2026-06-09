@@ -1,0 +1,46 @@
+.lvl-badge {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.lvlb-bg {
+  fill: none;
+  stroke: var(--app-surface-2);
+  stroke-width: 4.5;
+}
+.lvlb-fg {
+  fill: none;
+  stroke: var(--brand-lime);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lvlb-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1;
+  color: var(--brand-lime);
+}
+.lvlb-cap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 14px);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}

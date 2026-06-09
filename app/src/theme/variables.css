@@ -76,6 +76,16 @@ ion-toolbar ion-title[size='large'] {
   padding: 4px 16px calc(16px + var(--ion-safe-area-bottom, 0px));
 }
 
+/* Acessório do header (ex.: anel de nível no Treino) — grande, recuado da borda */
+.header-accessory {
+  overflow: visible;
+  align-self: center;
+  margin-right: 8px;
+}
+ion-toolbar.toolbar-title-large {
+  overflow: visible;
+}
+
 /* Cards */
 .hero-card {
   margin: 12px 0;

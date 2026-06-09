@@ -6,6 +6,7 @@ import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
 import Cardio from '../components/Cardio';
 import GeneratorSheet from '../components/GeneratorSheet';
+import LevelBadge from '../components/LevelBadge';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
@@ -56,7 +57,7 @@ const Treino: React.FC = () => {
   };
 
   return (
-    <AppPage title="Treino" brand>
+    <AppPage title="Treino" brand accessory={<LevelBadge />}>
       <IonSegment
         className="treino-seg"
         value={seg}
