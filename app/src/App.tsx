@@ -37,10 +37,45 @@ import './theme/variables.css';
 
 setupIonicReact({ mode: 'ios' });
 
+const FREE_THEMES = ['dark', 'light'];
+function rgbOf(hex: string) {
+  const c = hex.replace('#', '');
+  return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
+}
+function contrastOf(hex: string) {
+  const [r, g, b] = rgbOf(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55 ? '#0b0c0f' : '#ffffff';
+}
+function darken(hex: string, f: number) {
+  const [r, g, b] = rgbOf(hex);
+  const h = (n: number) => Math.round(n * f).toString(16).padStart(2, '0');
+  return `#${h(r)}${h(g)}${h(b)}`;
+}
+
 const App: React.FC = () => {
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
   useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
+
+  // Aplica o tema do perfil ativo + accent pela cor do perfil (nos temas grátis).
+  const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
+  const color = useStore((s) => s.users.find((u) => u.id === s.active)?.color || '#c6ff3a');
+  useEffect(() => {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    if (FREE_THEMES.includes(theme)) {
+      // Preto: cor como está. Branco: escurece pra ler bem no fundo claro.
+      const accent = theme === 'light' ? darken(color, 0.62) : color;
+      root.style.setProperty('--brand-lime', accent);
+      root.style.setProperty('--ion-color-primary', accent);
+      root.style.setProperty('--ion-color-primary-contrast', contrastOf(accent));
+    } else {
+      // premium: usa o accent assinatura do tema (do CSS)
+      root.style.removeProperty('--brand-lime');
+      root.style.removeProperty('--ion-color-primary');
+      root.style.removeProperty('--ion-color-primary-contrast');
+    }
+  }, [theme, color]);
 
   // Esconde a tab bar quando o teclado abre (não deve subir junto).
   useEffect(() => {

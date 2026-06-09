@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick } from '../lib/feedback';
@@ -9,6 +9,7 @@ import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
+import { THEMES, isTester } from '../data/themes';
 import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
@@ -22,6 +23,11 @@ const Perfil: React.FC = () => {
   const scores = useStore((s) => s.scores);
   const feedback = useStore((s) => s.feedback);
   const setFeedback = useStore((s) => s.setFeedback);
+  const setTheme = useStore((s) => s.setTheme);
+
+  const tester = isTester(profile.name);
+  const unlockedThemes = profile.cosmetics?.themes || [];
+  const curTheme = profile.cosmetics?.theme || 'dark';
 
   const somOn = feedback === 'both' || feedback === 'sound';
   const vibOn = feedback === 'both' || feedback === 'vibrate';
@@ -134,6 +140,38 @@ const Perfil: React.FC = () => {
           { text: 'Excluir', role: 'destructive', handler: () => deleteProfile(profile.id) },
         ]}
       />
+
+      {/* Tema */}
+      <IonCard className="perfil-card">
+        <IonCardContent>
+          <h2 className="card-title">Tema</h2>
+          <p className="card-sub">
+            Preto e Branco são grátis. Os outros são prêmios da roleta.
+            {tester && ' (Tester: tudo liberado)'}
+          </p>
+          <div className="theme-grid">
+            {THEMES.map((th) => {
+              const ok = tester || th.free || unlockedThemes.includes(th.id);
+              const sel = curTheme === th.id;
+              return (
+                <button
+                  key={th.id}
+                  className={'theme-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
+                  onClick={() => { if (ok) setTheme(th.id); }}
+                >
+                  <span className="theme-prev" style={{ background: th.swatch[0] }}>
+                    <i style={{ background: th.swatch[1] }} />
+                    <i style={{ background: th.swatch[2] }} />
+                    {!ok && <span className="theme-lock"><IonIcon icon={lockClosed} /></span>}
+                    {sel && <span className="theme-check"><IonIcon icon={checkmark} /></span>}
+                  </span>
+                  <span className="theme-name">{th.emoji} {th.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </IonCardContent>
+      </IonCard>
 
       {/* Local de treino */}
       <IonCard className="perfil-card">
