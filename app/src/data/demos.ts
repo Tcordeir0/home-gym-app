@@ -1,8 +1,9 @@
-// Portado do v1 — dados de treino + demos. NÃO editar à mão (gerado do index.html v1).
+// Portado do v1 — dados de treino + demos (gerado do index.html v1).
+// Correções manuais de coerência casa/academia ficam marcadas com // fix.
 export const DEMOS: Record<string, string> = {
   "Abdominal bicicleta": "Air_Bike",
-  "Abdução com elástico": "Thigh_Abductor",
-  "Abdução de quadril": "Thigh_Abductor",
+  // "Abdução com elástico" e "Abdução de quadril" são de casa (deitada/elástico);
+  // o único demo de abdução é a MÁQUINA (Thigh_Abductor) → removido, cai pra dica + YouTube. // fix
   "Afundo búlgaro com halteres": "Split_Squat_with_Dumbbells",
   "Afundo reverso": "Dumbbell_Rear_Lunge",
   "Agachamento Goblet": "Goblet_Squat",
