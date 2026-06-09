@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -33,7 +34,28 @@ import './theme/variables.css';
 
 setupIonicReact({ mode: 'ios' });
 
-const App: React.FC = () => (
+const App: React.FC = () => {
+  // Esconde a tab bar quando o teclado abre (não deve subir junto).
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let raf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const kb = window.innerHeight - vv.height;
+        document.body.classList.toggle('kb-open', kb > 120);
+      });
+    };
+    vv.addEventListener('resize', onResize);
+    vv.addEventListener('scroll', onResize);
+    return () => {
+      vv.removeEventListener('resize', onResize);
+      vv.removeEventListener('scroll', onResize);
+    };
+  }, []);
+
+  return (
   <IonApp>
     <IonReactRouter>
       <IonTabs>
@@ -72,6 +94,7 @@ const App: React.FC = () => (
       </IonTabs>
     </IonReactRouter>
   </IonApp>
-);
+  );
+};
 
 export default App;

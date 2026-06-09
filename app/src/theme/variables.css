@@ -76,6 +76,11 @@ ion-toolbar ion-title[size='large'] {
   padding: 4px 16px calc(16px + var(--ion-safe-area-bottom, 0px));
 }
 
+/* Teclado aberto: a tab bar não sobe junto — some */
+body.kb-open ion-tab-bar {
+  display: none;
+}
+
 /* Acessório do header (ex.: anel de nível no Treino) — grande, recuado da borda */
 .header-accessory {
   overflow: visible;
