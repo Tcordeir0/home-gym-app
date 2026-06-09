@@ -32,6 +32,13 @@ const Treino: React.FC = () => {
   const exercises: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
   const labels = plan.labels || { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
 
+  // nome descritivo do dia (ex.: "Glúteos + Posterior"); cai pro foco quando o rótulo é genérico
+  const generic = !labels[seg] || labels[seg] === `Treino ${seg}`;
+  const dayName =
+    seg === 'warm'
+      ? labels.warm && labels.warm !== 'Aquec.' ? labels.warm : 'Prepara o corpo'
+      : generic ? `Foco: ${plan.focus}` : (labels[seg] as string);
+
   // progresso do treino atual
   let done = 0;
   let total = 0;
@@ -58,7 +65,7 @@ const Treino: React.FC = () => {
       >
         {(['A', 'B', 'C', 'warm'] as Seg[]).map((k) => (
           <IonSegmentButton key={k} value={k}>
-            <IonLabel>{k === 'warm' ? 'Aquec.' : labels[k] || `Treino ${k}`}</IonLabel>
+            <IonLabel>{k === 'warm' ? 'Aquec.' : `Treino ${k}`}</IonLabel>
           </IonSegmentButton>
         ))}
       </IonSegment>
@@ -66,9 +73,7 @@ const Treino: React.FC = () => {
       <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />
 
       <div className="treino-top">
-        <span className="treino-focus">
-          {seg === 'warm' ? 'Prepara o corpo' : `Foco: ${plan.focus}`}
-        </span>
+        <span className="treino-focus">{dayName}</span>
         {seg !== 'warm' && <span className="treino-pct">{pct}%</span>}
       </div>
       {seg !== 'warm' && (
@@ -83,7 +88,7 @@ const Treino: React.FC = () => {
 
       {seg !== 'warm' && (
         <motion.button whileTap={{ scale: 0.97 }} className="treino-done" onClick={onComplete}>
-          Concluir {labels[seg] || `Treino ${seg}`}
+          Concluir Treino {seg}
         </motion.button>
       )}
 

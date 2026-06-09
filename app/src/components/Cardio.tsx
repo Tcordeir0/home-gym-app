@@ -29,12 +29,15 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
 
   return (
     <>
-      <div className="cardio-bar">
-        {(profile.cardios || []).map((c, i) => (
-          <motion.button key={i} whileTap={{ scale: 0.95 }} className="cardio-pill" onClick={() => start(c)}>
-            <span className="cardio-emoji">{c.emoji || '🏃'}</span> {c.label}
-          </motion.button>
-        ))}
+      <div className="cardio-section">
+        <span className="cardio-label">Cardio extra</span>
+        <div className="cardio-bar">
+          {(profile.cardios || []).map((c, i) => (
+            <motion.button key={i} whileTap={{ scale: 0.95 }} className="cardio-pill" onClick={() => start(c)}>
+              <span className="cardio-emoji">{c.emoji || '🏃'}</span> {c.label}
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       <IonModal isOpen={!!open} onDidDismiss={close} breakpoints={[0, 0.5]} initialBreakpoint={0.5} handle>
