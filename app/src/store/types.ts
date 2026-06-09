@@ -57,6 +57,7 @@ export interface Profile {
   level?: number;
   photo?: string;
   bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
+  location?: 'casa' | 'academia'; // local de treino — alimenta o gerador
 }
 
 export interface SetEntry {
