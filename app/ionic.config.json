@@ -1,0 +1,7 @@
+{
+  "name": "home-gym",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
