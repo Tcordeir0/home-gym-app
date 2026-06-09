@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
+import Cardio from '../components/Cardio';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
@@ -54,6 +55,8 @@ const Treino: React.FC = () => {
           </IonSegmentButton>
         ))}
       </IonSegment>
+
+      <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />
 
       <div className="treino-top">
         <span className="treino-focus">
