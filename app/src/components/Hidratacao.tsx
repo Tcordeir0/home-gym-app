@@ -1,9 +1,9 @@
-import { IonCard, IonCardContent } from '@ionic/react';
+import { useState } from 'react';
+import { IonCard, IonCardContent, IonAlert } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 
 const COPO = 250;
-const GARRAFA = 500;
 
 const Hidratacao: React.FC = () => {
   const profile = useActiveProfile();
@@ -11,9 +11,12 @@ const Hidratacao: React.FC = () => {
   const active = useStore((s) => s.active);
   const latestMeasure = useStore((s) => s.latestMeasure);
   const addWater = useStore((s) => s.addWaterToday);
+  const updateProfile = useStore((s) => s.updateProfile);
+  const [editBottle, setEditBottle] = useState(false);
+  const [other, setOther] = useState(false);
 
+  const bottle = profile.bottleMl || 500;
   const weight = latestMeasure('weight');
-  // meta calculada: 35 ml por kg (mín 2L); senão 2L
   const goal = weight ? Math.max(2000, Math.round((weight * 35) / 50) * 50) : 2000;
   const ml = daily?.[active]?.[todayISO()]?.waterMl || 0;
   const pct = Math.min(100, Math.round((ml / goal) * 100));
@@ -36,20 +39,59 @@ const Hidratacao: React.FC = () => {
           Meta calculada pelo seu peso (~35ml/kg).{' '}
           {over ? 'Passou da meta — mandou bem! 💪' : `Faltam ${((goal - ml) / 1000).toFixed(1)}L`}
         </p>
+
         <div className="hid-btns">
           <motion.button whileTap={{ scale: 0.94 }} className="hid-btn" onClick={() => addWater(COPO)}>
             🥛 +1 copo<small>250ml</small>
           </motion.button>
-          <motion.button whileTap={{ scale: 0.94 }} className="hid-btn garrafa" onClick={() => addWater(GARRAFA)}>
-            🍶 +1 garrafa<small>500ml</small>
+          <motion.button whileTap={{ scale: 0.94 }} className="hid-btn garrafa" onClick={() => addWater(bottle)}>
+            🍶 +1 garrafa<small>{bottle}ml</small>
           </motion.button>
           <motion.button whileTap={{ scale: 0.9 }} className="hid-btn minus" onClick={() => addWater(-COPO)}>
             −
           </motion.button>
         </div>
-        {profile && over && (
-          <p className="hid-done">Hidratação batida hoje! 💧</p>
-        )}
+
+        <div className="hid-cfg">
+          <button className="hid-link" onClick={() => setEditBottle(true)}>✎ Tamanho da garrafa ({bottle}ml)</button>
+          <button className="hid-link" onClick={() => setOther(true)}>+ outro (ml)</button>
+        </div>
+        {over && <p className="hid-done">Hidratação batida hoje! 💧</p>}
+
+        <IonAlert
+          isOpen={editBottle}
+          onDidDismiss={() => setEditBottle(false)}
+          header="Tamanho da sua garrafa"
+          subHeader="Em ml (ex: 600, 1000, 2000)"
+          inputs={[{ name: 'ml', type: 'number', value: bottle, placeholder: 'ml' }]}
+          buttons={[
+            { text: 'Cancelar', role: 'cancel' },
+            {
+              text: 'Salvar',
+              handler: (d) => {
+                const v = parseInt(d.ml, 10);
+                if (v > 0) updateProfile(profile.id, { bottleMl: v });
+              },
+            },
+          ]}
+        />
+        <IonAlert
+          isOpen={other}
+          onDidDismiss={() => setOther(false)}
+          header="Adicionar água"
+          subHeader="Quantos ml você bebeu?"
+          inputs={[{ name: 'ml', type: 'number', placeholder: 'ml (ex: 1000)' }]}
+          buttons={[
+            { text: 'Cancelar', role: 'cancel' },
+            {
+              text: 'Adicionar',
+              handler: (d) => {
+                const v = parseInt(d.ml, 10);
+                if (v > 0) addWater(v);
+              },
+            },
+          ]}
+        />
       </IonCardContent>
     </IonCard>
   );

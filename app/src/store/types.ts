@@ -56,6 +56,7 @@ export interface Profile {
   body: Body;
   level?: number;
   photo?: string;
+  bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
 }
 
 export interface SetEntry {
