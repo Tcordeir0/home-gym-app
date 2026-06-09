@@ -494,7 +494,7 @@ export const useStore = create<Store>((set, get) => {
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.hats = [...owned, won.id];
-              result = { ...prize, label: won.name, emoji: won.emoji };
+              result = { ...prize, label: won.name, emoji: '✨' };
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           }
         } else if (prize.kind === 'pts') {

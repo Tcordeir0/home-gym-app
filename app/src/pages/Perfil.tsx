@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick } from '../lib/feedback';
@@ -10,8 +10,10 @@ import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
 import { THEMES, isTester } from '../data/themes';
-import { DECOS, decoEmoji } from '../data/decos';
+import { DECOS } from '../data/decos';
 import { FRAMES } from '../data/frames';
+import { PACK_LABELS, type Pack } from '../data/gameicons';
+import PixelIcon from '../components/PixelIcon';
 import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
@@ -100,7 +102,7 @@ const Perfil: React.FC = () => {
               <button className="perfil-av" style={{ background: profile.color }} onClick={() => photoRef.current?.click()} aria-label="Trocar foto">
                 {profile.photo ? <img src={profile.photo} alt="" /> : (profile.name[0] || '?').toUpperCase()}
                 <span className="perfil-av-cam"><IonIcon icon={cameraOutline} /></span>
-                {decoEmoji(profile.cosmetics?.hat) && <span className="perfil-av-deco">{decoEmoji(profile.cosmetics?.hat)}</span>}
+                {profile.cosmetics?.hat && <span className="perfil-av-deco"><PixelIcon id={profile.cosmetics.hat} size={20} /></span>}
               </button>
             </div>
             <input ref={photoRef} type="file" accept="image/*" hidden onChange={onPhoto} />
@@ -201,23 +203,44 @@ const Perfil: React.FC = () => {
 
           <h3 className="pers-h">Cosméticos</h3>
           <div className="deco-grid">
-            {DECOS.map((d) => {
-              const ok = tester || d.free || unlockedHats.includes(d.id);
+            {DECOS.filter((d) => d.free).map((d) => {
               const sel = (profile.cosmetics?.hat || 'none') === d.id;
               return (
                 <button
                   key={d.id}
-                  className={'deco-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
-                  onClick={() => { if (ok) setHat(d.id); }}
+                  className={'deco-card' + (sel ? ' sel' : '')}
+                  onClick={() => setHat(d.id)}
                   aria-label={d.name}
                 >
-                  <span className="deco-emoji">{d.id === 'none' ? '🚫' : d.emoji}</span>
-                  {!ok && <span className="deco-lock"><IonIcon icon={lockClosed} /></span>}
+                  <span className="deco-icon"><IonIcon icon={banOutline} /></span>
                   {sel && <span className="deco-check"><IonIcon icon={checkmark} /></span>}
                 </button>
               );
             })}
           </div>
+          {(['poke', 'mario', 'mine'] as Pack[]).map((pk) => (
+            <div key={pk}>
+              <h4 className="pers-pack">{PACK_LABELS[pk]}</h4>
+              <div className="deco-grid">
+                {DECOS.filter((d) => d.pack === pk).map((d) => {
+                  const ok = tester || unlockedHats.includes(d.id);
+                  const sel = profile.cosmetics?.hat === d.id;
+                  return (
+                    <button
+                      key={d.id}
+                      className={'deco-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
+                      onClick={() => { if (ok) setHat(d.id); }}
+                      aria-label={d.name}
+                    >
+                      <span className="deco-icon"><PixelIcon id={d.id} size={30} /></span>
+                      {!ok && <span className="deco-lock"><IonIcon icon={lockClosed} /></span>}
+                      {sel && <span className="deco-check"><IonIcon icon={checkmark} /></span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
 
           <h3 className="pers-h">Aros do avatar</h3>
           <div className="frame-grid">
