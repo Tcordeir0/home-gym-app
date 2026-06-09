@@ -82,6 +82,17 @@
   border-radius: 12px;
   padding: 10px 12px;
 }
+.ex-last {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--brand-lime);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ex-last b {
+  color: var(--ion-text-color);
+}
 .ex-sets {
   margin-top: 12px;
   display: flex;
