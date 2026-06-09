@@ -23,10 +23,20 @@
   font-size: 14px;
   cursor: pointer;
 }
+/* Preto/Branco: pill sólido na cor do tema (texto escuro) */
 .profile-pill.active {
   background: var(--brand-lime);
   border-color: var(--brand-lime);
   color: #0b0c0f;
+}
+/* Temas com liquid glass: o pill continua vidro; nome e aro na cor do tema */
+html[data-glass] .profile-pill.active {
+  background: var(--ion-item-background);
+  border-color: var(--brand-lime);
+  color: var(--brand-lime);
+  box-shadow: 0 0 0 1.5px var(--brand-lime) inset, 0 0 12px -3px var(--brand-lime);
+  -webkit-backdrop-filter: blur(11px) saturate(1.1);
+  backdrop-filter: blur(11px) saturate(1.1);
 }
 .profile-av-wrap {
   position: relative;
@@ -53,9 +63,13 @@
   color: #0b0c0f;
   object-fit: cover;
 }
-.profile-pill.active .profile-av {
+html:not([data-glass]) .profile-pill.active .profile-av {
   background: #0b0c0f !important;
   color: var(--brand-lime);
+}
+/* glass: avatar mantém a cara natural + aro na cor do tema (reforça onde estou) */
+html[data-glass] .profile-pill.active .profile-av {
+  box-shadow: 0 0 0 2px var(--brand-lime), 0 0 8px -1px var(--brand-lime);
 }
 .profile-name {
   white-space: nowrap;
