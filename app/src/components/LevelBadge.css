@@ -11,9 +11,13 @@
   background: transparent;
   cursor: pointer;
 }
+/* disco escuro atrás do badge: dá contraste pro arco/número em QUALQUER tema/wallpaper */
+.lvlb-disc {
+  fill: rgba(10, 12, 16, 0.46);
+}
 .lvlb-bg {
   fill: none;
-  stroke: var(--app-surface-2);
+  stroke: rgba(255, 255, 255, 0.18);
   stroke-width: 4.5;
 }
 .lvlb-fg {
@@ -21,6 +25,7 @@
   stroke: var(--brand-lime);
   stroke-width: 4.5;
   stroke-linecap: round;
+  filter: drop-shadow(0 0 2.5px var(--brand-lime));
   transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .lvlb-num {
