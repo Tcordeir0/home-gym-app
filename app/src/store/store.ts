@@ -11,6 +11,7 @@ type Setlog = Record<string, Record<string, Record<number, SetRow[]>>>;
 
 const PTS_SET = 5;
 const PTS_TREINO = 50;
+const PTS_CARDIO = 30;
 
 /** Linhas de série de um exercício (do setlog), preenchidas até `series`. */
 export function rowsFor(
@@ -127,6 +128,7 @@ export interface Store extends AppState {
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
+  addCardio: (label: string, emoji?: string) => void;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -210,6 +212,16 @@ export const useStore = create<Store>((set, get) => {
       }
       return null;
     },
+
+    addCardio: (label, emoji) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const today = todayISO();
+        const h = (s.history[uid] = s.history[uid] || []);
+        h.push({ date: today, w: 'cardio', t: label, emoji });
+        const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+        sc.byDay[today] = (sc.byDay[today] || 0) + PTS_CARDIO;
+      })),
   };
 });
 
