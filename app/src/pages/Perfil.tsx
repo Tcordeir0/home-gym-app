@@ -26,11 +26,14 @@ const Perfil: React.FC = () => {
   const setFeedback = useStore((s) => s.setFeedback);
   const setTheme = useStore((s) => s.setTheme);
   const setHat = useStore((s) => s.setHat);
+  const setThemePhoto = useStore((s) => s.setThemePhoto);
 
   const tester = isTester(profile.name);
   const unlockedThemes = profile.cosmetics?.themes || [];
   const unlockedHats = profile.cosmetics?.hats || [];
   const curTheme = profile.cosmetics?.theme || 'dark';
+  const curThemeHasPhoto = !!THEMES.find((t) => t.id === curTheme)?.image;
+  const photoOn = !profile.cosmetics?.photoOff;
 
   const somOn = feedback === 'both' || feedback === 'sound';
   const vibOn = feedback === 'both' || feedback === 'vibrate';
@@ -183,6 +186,13 @@ const Perfil: React.FC = () => {
               );
             })}
           </div>
+
+          {curThemeHasPhoto && (
+            <div className="ajuste-row">
+              <span>🖼️ Foto do tema</span>
+              <IonToggle checked={photoOn} onIonChange={(e) => setThemePhoto(e.detail.checked)} aria-label="Foto do tema" />
+            </div>
+          )}
 
           <h3 className="pers-h">Cosméticos</h3>
           <div className="deco-grid">

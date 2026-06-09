@@ -6,7 +6,7 @@ export interface Theme {
   free: boolean; // grátis (Preto/Branco) ou prêmio da roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow'; // partículas por cima da arte
 }
 
 export const THEMES: Theme[] = [
@@ -23,6 +23,10 @@ export const THEMES: Theme[] = [
   { id: 'checker', name: 'Checker', emoji: '🏁', free: false, swatch: ['#06121f', '#0c1c2e', '#2ad1ff'] },
   { id: 'arcade', name: 'Arcade', emoji: '👾', free: false, swatch: ['#0a0710', '#150f1e', '#ffe14d'] },
   { id: 'aquatico_mine', name: 'Aquático', emoji: '🌊', free: false, swatch: ['#0a2735', '#0d3444', '#3fe0d0'], image: '/themes/aquatico_mine.png', fx: 'bubbles' },
+  { id: 'sitio_poke', name: 'Sítio Poké', emoji: '🏕️', free: false, swatch: ['#0c1612', '#16241c', '#ffd76b'], image: '/themes/sitio_poke.png', fx: 'fireflies' },
+  { id: 'math', name: 'Math', emoji: '🧮', free: false, swatch: ['#10353f', '#16454f', '#5fe0e8'], image: '/themes/math.png', fx: 'math' },
+  { id: 'love', name: 'Love', emoji: '💗', free: false, swatch: ['#160a1e', '#241433', '#ff6bc4'], image: '/themes/love.png', fx: 'hearts' },
+  { id: 'snow', name: 'Snow', emoji: '❄️', free: false, swatch: ['#0c1a2c', '#13283f', '#8fd0ff'], image: '/themes/snow.png', fx: 'snow' },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);
