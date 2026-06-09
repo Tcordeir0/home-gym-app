@@ -17,6 +17,7 @@ import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icon
 import { useStore } from './store/store';
 import { setFeedbackMode } from './lib/feedback';
 import { supabase } from './lib/supabase';
+import { syncOnLogin, startSync, stopSync } from './lib/sync';
 import { THEMES } from './data/themes';
 import Auth from './pages/Auth';
 import Treino from './pages/Treino';
@@ -65,6 +66,19 @@ const App: React.FC = () => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Sync com o Supabase: ao logar, puxa o estado e passa a empurrar mudanças.
+  // Segura no splash até o sync inicial terminar (nunca mostra dados de outra conta).
+  const uid = session?.user?.id;
+  const [syncing, setSyncing] = useState(false);
+  useEffect(() => {
+    if (uid) {
+      setSyncing(true);
+      syncOnLogin().finally(() => { startSync(); setSyncing(false); });
+    } else {
+      stopSync();
+    }
+  }, [uid]);
 
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
@@ -126,6 +140,18 @@ const App: React.FC = () => {
       <IonApp>
         <ThemeFX />
         <Auth />
+      </IonApp>
+    );
+  }
+  // Logado mas ainda sincronizando o estado da conta → splash (evita flash de dados errados).
+  if (syncing) {
+    return (
+      <IonApp>
+        <ThemeFX />
+        <div className="app-splash">
+          <span className="brand">HOME <span className="brand-hl">GYM</span></span>
+          <IonSpinner name="crescent" />
+        </div>
       </IonApp>
     );
   }

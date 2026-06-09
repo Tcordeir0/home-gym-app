@@ -133,6 +133,7 @@ export interface Store extends AppState {
   addProfile: () => string;
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
+  resetState: () => void;
   setTheme: (t: string) => void;
   setHat: (id: string) => void;
   setFrame: (id: string) => void;
@@ -188,6 +189,7 @@ export const useStore = create<Store>((set, get) => {
     ...initial,
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
+    resetState: () => set(defaultState()),
     setTheme: (t) =>
       set(produce((s: Store) => {
         const u = s.users.find((x) => x.id === s.active);
