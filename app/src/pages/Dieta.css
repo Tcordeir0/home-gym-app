@@ -220,3 +220,34 @@
   font-family: var(--ion-font-family); font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 2px 0;
 }
 .hid-link:active { color: var(--brand-lime); }
+
+/* Foto do prato (PlateSheet) */
+.diary-photo { margin-top: 12px !important; }
+.plate-content { --background: var(--ion-background-color); }
+.plate-wrap { padding: 8px 16px calc(20px + var(--ion-safe-area-bottom, 0px)); }
+.plate-title { margin: 0 0 12px; font-family: var(--font-display); font-size: 24px; letter-spacing: .4px; }
+.plate-photo-btn {
+  width: 100%; padding: 13px; border-radius: 14px; border: 1px solid var(--app-line);
+  background: var(--app-surface-2); color: var(--ion-text-color);
+  font-family: var(--ion-font-family); font-weight: 700; font-size: 14px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.plate-img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 14px; margin-top: 12px; border: 1px solid var(--app-line); }
+.plate-msg { margin: 12px 0 0; font-size: 13.5px; color: var(--app-muted); }
+.plate-ai { margin: 14px 0 8px; font-size: 13px; color: var(--app-muted); display: flex; align-items: center; gap: 5px; }
+.plate-ai b { color: var(--ion-text-color); }
+.plate-ai ion-icon { color: var(--brand-lime); }
+.ai-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.ai-chip {
+  border: 1px solid var(--brand-lime); background: rgba(198,255,58,.12); color: var(--ion-text-color);
+  font-family: var(--ion-font-family); font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+}
+.ai-chip small { color: var(--app-muted); }
+.plate-h { margin: 16px 0 8px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--app-muted); }
+.plate-confirm {
+  width: 100%; margin-top: 14px; padding: 16px; border: none; border-radius: 16px;
+  background: var(--brand-lime); color: #0b0c0f; font-family: var(--font-display);
+  font-size: 17px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer;
+}
+.plate-confirm:disabled { opacity: .5; }
+.plate-note { margin: 12px 0 0; font-size: 12px; color: var(--app-muted); line-height: 1.5; }
