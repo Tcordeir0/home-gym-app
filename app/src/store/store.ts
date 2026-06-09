@@ -132,6 +132,7 @@ export interface Store extends AppState {
   setFeedback: (f: AppState['feedback']) => void;
   setTheme: (t: string) => void;
   setHat: (id: string) => void;
+  setThemePhoto: (on: boolean) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
@@ -198,6 +199,13 @@ export const useStore = create<Store>((set, get) => {
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
         if (!decoUnlocked(id, u.cosmetics.hats || [], u.name)) return;
         u.cosmetics.hat = id === 'none' ? null : id;
+      })),
+    setThemePhoto: (on) =>
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        u.cosmetics.photoOff = !on;
       })),
     addProfile: () => {
       const id = 'u' + Date.now();

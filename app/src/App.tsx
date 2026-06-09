@@ -61,11 +61,12 @@ const App: React.FC = () => {
   // Aplica o tema do perfil ativo + accent pela cor do perfil (nos temas grátis).
   const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
   const color = useStore((s) => s.users.find((u) => u.id === s.active)?.color || '#c6ff3a');
+  const photoOff = useStore((s) => !!s.users.find((u) => u.id === s.active)?.cosmetics?.photoOff);
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
-    // temas com wallpaper → cards em liquid glass
-    if (THEMES.find((t) => t.id === theme)?.image) root.setAttribute('data-glass', '1');
+    // temas com wallpaper (e foto ligada) → cards em liquid glass
+    if (THEMES.find((t) => t.id === theme)?.image && !photoOff) root.setAttribute('data-glass', '1');
     else root.removeAttribute('data-glass');
     // a cor do perfil vira o accent em TODOS os temas (no Branco escurece pra ler bem);
     // a textura/animação do tema mantém a cor-assinatura própria.
@@ -73,7 +74,7 @@ const App: React.FC = () => {
     root.style.setProperty('--brand-lime', accent);
     root.style.setProperty('--ion-color-primary', accent);
     root.style.setProperty('--ion-color-primary-contrast', contrastOf(accent));
-  }, [theme, color]);
+  }, [theme, color, photoOff]);
 
   // Esconde a tab bar quando o teclado abre (não deve subir junto).
   useEffect(() => {

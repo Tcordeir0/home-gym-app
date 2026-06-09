@@ -221,6 +221,66 @@ html[data-theme='aquatico_mine'] {
   --app-line: rgba(150, 224, 232, 0.22);
 }
 
+html[data-theme='sitio_poke'] {
+  --ion-color-primary: #ffd76b;
+  --ion-color-primary-contrast: #1a1405;
+  --brand-lime: #ffd76b;
+  --ion-background-color: #0c1612;
+  --ion-background-color-rgb: 12, 22, 18;
+  --ion-text-color: #eef6ee;
+  --ion-toolbar-background: rgba(12, 22, 18, 0.5);
+  --ion-tab-bar-background: rgba(10, 20, 16, 0.62);
+  --ion-item-background: rgba(17, 31, 24, 0.46);
+  --ion-card-background: rgba(17, 31, 24, 0.46);
+  --app-surface-2: rgba(26, 44, 34, 0.46);
+  --app-line: rgba(180, 220, 180, 0.2);
+}
+
+html[data-theme='math'] {
+  --ion-color-primary: #5fe0e8;
+  --ion-color-primary-contrast: #042227;
+  --brand-lime: #5fe0e8;
+  --ion-background-color: #0f3540;
+  --ion-background-color-rgb: 15, 53, 64;
+  --ion-text-color: #eaf8f9;
+  --ion-toolbar-background: rgba(15, 53, 64, 0.5);
+  --ion-tab-bar-background: rgba(12, 44, 54, 0.62);
+  --ion-item-background: rgba(18, 60, 72, 0.44);
+  --ion-card-background: rgba(18, 60, 72, 0.44);
+  --app-surface-2: rgba(24, 72, 86, 0.44);
+  --app-line: rgba(140, 224, 232, 0.22);
+}
+
+html[data-theme='love'] {
+  --ion-color-primary: #ff6bc4;
+  --ion-color-primary-contrast: #2a0820;
+  --brand-lime: #ff6bc4;
+  --ion-background-color: #160a1e;
+  --ion-background-color-rgb: 22, 10, 30;
+  --ion-text-color: #f6eef4;
+  --ion-toolbar-background: rgba(22, 10, 30, 0.5);
+  --ion-tab-bar-background: rgba(18, 8, 26, 0.62);
+  --ion-item-background: rgba(33, 18, 44, 0.46);
+  --ion-card-background: rgba(33, 18, 44, 0.46);
+  --app-surface-2: rgba(44, 24, 58, 0.46);
+  --app-line: rgba(255, 150, 210, 0.22);
+}
+
+html[data-theme='snow'] {
+  --ion-color-primary: #8fd0ff;
+  --ion-color-primary-contrast: #04141f;
+  --brand-lime: #8fd0ff;
+  --ion-background-color: #0c1a2c;
+  --ion-background-color-rgb: 12, 26, 44;
+  --ion-text-color: #eef6ff;
+  --ion-toolbar-background: rgba(12, 26, 44, 0.5);
+  --ion-tab-bar-background: rgba(10, 22, 38, 0.62);
+  --ion-item-background: rgba(19, 40, 63, 0.46);
+  --ion-card-background: rgba(19, 40, 63, 0.46);
+  --app-surface-2: rgba(28, 52, 78, 0.46);
+  --app-line: rgba(150, 210, 255, 0.22);
+}
+
 /* Liquid glass: temas com wallpaper deixam os cards translúcidos com blur */
 html[data-glass] ion-card,
 html[data-glass] .ex-card,

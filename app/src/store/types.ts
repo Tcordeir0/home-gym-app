@@ -25,6 +25,7 @@ export interface Cosmetics {
   hats: string[];
   theme: string | null;
   hat: string | null;
+  photoOff?: boolean; // esconde o wallpaper do tema (mantém cores + partículas)
 }
 
 export interface Schedule {
