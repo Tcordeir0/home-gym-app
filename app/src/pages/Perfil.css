@@ -563,6 +563,27 @@
   font-size: 15px;
   font-weight: 600;
 }
+.perfil-account {
+  margin: 14px 0 10px;
+  font-size: 13px;
+  color: var(--app-muted);
+}
+.perfil-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
+  background: var(--app-surface-2);
+  color: #ff7a7a;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.perfil-logout ion-icon {
+  font-size: 17px;
+}
 .ajuste-row:last-child {
   border-bottom: 0;
 }

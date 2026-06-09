@@ -1,20 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
+  IonSpinner,
   IonTabBar,
   IonTabButton,
   IonTabs,
   setupIonicReact,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import type { Session } from '@supabase/supabase-js';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore } from './store/store';
 import { setFeedbackMode } from './lib/feedback';
+import { supabase } from './lib/supabase';
 import { THEMES } from './data/themes';
+import Auth from './pages/Auth';
 import Treino from './pages/Treino';
 import Dieta from './pages/Dieta';
 import Progresso from './pages/Progresso';
@@ -54,6 +58,14 @@ function darken(hex: string, f: number) {
 }
 
 const App: React.FC = () => {
+  // Sessão do Supabase (gate de login). undefined = carregando.
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
   useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
@@ -95,6 +107,28 @@ const App: React.FC = () => {
       vv.removeEventListener('scroll', onResize);
     };
   }, []);
+
+  // Carregando a sessão → splash curto da marca.
+  if (session === undefined) {
+    return (
+      <IonApp>
+        <ThemeFX />
+        <div className="app-splash">
+          <span className="brand">HOME <span className="brand-hl">GYM</span></span>
+          <IonSpinner name="crescent" />
+        </div>
+      </IonApp>
+    );
+  }
+  // Sem sessão → tela de login/registro.
+  if (!session) {
+    return (
+      <IonApp>
+        <ThemeFX />
+        <Auth />
+      </IonApp>
+    );
+  }
 
   return (
   <IonApp>
