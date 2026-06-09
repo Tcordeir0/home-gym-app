@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick } from '../lib/feedback';
@@ -10,6 +10,7 @@ import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
 import { THEMES, isTester } from '../data/themes';
+import { DECOS, decoEmoji } from '../data/decos';
 import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
@@ -24,9 +25,11 @@ const Perfil: React.FC = () => {
   const feedback = useStore((s) => s.feedback);
   const setFeedback = useStore((s) => s.setFeedback);
   const setTheme = useStore((s) => s.setTheme);
+  const setHat = useStore((s) => s.setHat);
 
   const tester = isTester(profile.name);
   const unlockedThemes = profile.cosmetics?.themes || [];
+  const unlockedHats = profile.cosmetics?.hats || [];
   const curTheme = profile.cosmetics?.theme || 'dark';
 
   const somOn = feedback === 'both' || feedback === 'sound';
@@ -36,6 +39,7 @@ const Perfil: React.FC = () => {
 
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
+  const [persOpen, setPersOpen] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
 
   const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +93,7 @@ const Perfil: React.FC = () => {
             <button className="perfil-av" style={{ background: profile.color }} onClick={() => photoRef.current?.click()} aria-label="Trocar foto">
               {profile.photo ? <img src={profile.photo} alt="" /> : (profile.name[0] || '?').toUpperCase()}
               <span className="perfil-av-cam"><IonIcon icon={cameraOutline} /></span>
+              {decoEmoji(profile.cosmetics?.hat) && <span className="perfil-av-deco">{decoEmoji(profile.cosmetics?.hat)}</span>}
             </button>
             <input ref={photoRef} type="file" accept="image/*" hidden onChange={onPhoto} />
             <div className="perfil-id">
@@ -103,18 +108,6 @@ const Perfil: React.FC = () => {
               />
               <span className="perfil-lvl">Nível {lvl.level} · {lvl.into}/{lvl.span} XP</span>
             </div>
-          </div>
-
-          <div className="perfil-colors">
-            {COLORS.map((c) => (
-              <button
-                key={c}
-                className={'perfil-color' + (profile.color === c ? ' on' : '')}
-                style={{ background: c }}
-                onClick={() => updateProfile(profile.id, { color: c })}
-                aria-label={'Cor ' + c}
-              />
-            ))}
           </div>
 
           {profile.photo && (
@@ -141,14 +134,34 @@ const Perfil: React.FC = () => {
         ]}
       />
 
-      {/* Tema */}
+      {/* Personalizar: cor + tema + cosméticos (colapsável) */}
       <IonCard className="perfil-card">
         <IonCardContent>
-          <h2 className="card-title">Tema</h2>
+          <button className="pers-toggle" onClick={() => setPersOpen((o) => !o)}>
+            <span className="card-title">🎨 Personalizar</span>
+            <IonIcon icon={chevronDown} className={'pers-chev' + (persOpen ? ' open' : '')} />
+          </button>
+          {!persOpen ? null : (
+          <>
           <p className="card-sub">
-            Preto e Branco são grátis. Os outros são prêmios da roleta.
+            A cor pinta o app em qualquer tema. Temas e cosméticos vêm da roleta.
             {tester && ' (Tester: tudo liberado)'}
           </p>
+
+          <h3 className="pers-h">Cor</h3>
+          <div className="perfil-colors">
+            {COLORS.map((c) => (
+              <button
+                key={c}
+                className={'perfil-color' + (profile.color === c ? ' on' : '')}
+                style={{ background: c }}
+                onClick={() => updateProfile(profile.id, { color: c })}
+                aria-label={'Cor ' + c}
+              />
+            ))}
+          </div>
+
+          <h3 className="pers-h">Tema</h3>
           <div className="theme-grid">
             {THEMES.map((th) => {
               const ok = tester || th.free || unlockedThemes.includes(th.id);
@@ -165,11 +178,33 @@ const Perfil: React.FC = () => {
                     {!ok && <span className="theme-lock"><IonIcon icon={lockClosed} /></span>}
                     {sel && <span className="theme-check"><IonIcon icon={checkmark} /></span>}
                   </span>
-                  <span className="theme-name">{th.emoji} {th.name}</span>
+                  <span className="theme-name">{th.name}</span>
                 </button>
               );
             })}
           </div>
+
+          <h3 className="pers-h">Cosméticos</h3>
+          <div className="deco-grid">
+            {DECOS.map((d) => {
+              const ok = tester || d.free || unlockedHats.includes(d.id);
+              const sel = (profile.cosmetics?.hat || 'none') === d.id;
+              return (
+                <button
+                  key={d.id}
+                  className={'deco-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
+                  onClick={() => { if (ok) setHat(d.id); }}
+                  aria-label={d.name}
+                >
+                  <span className="deco-emoji">{d.id === 'none' ? '🚫' : d.emoji}</span>
+                  {!ok && <span className="deco-lock"><IonIcon icon={lockClosed} /></span>}
+                  {sel && <span className="deco-check"><IonIcon icon={checkmark} /></span>}
+                </button>
+              );
+            })}
+          </div>
+          </>
+          )}
         </IonCardContent>
       </IonCard>
 

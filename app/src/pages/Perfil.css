@@ -237,6 +237,79 @@
   outline: none;
   border-color: var(--brand-lime);
 }
+/* Personalizar (colapsável) */
+.pers-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ion-text-color);
+}
+.pers-chev {
+  font-size: 20px;
+  color: var(--app-muted);
+  transition: transform 0.25s ease;
+}
+.pers-chev.open { transform: rotate(180deg); }
+.pers-h {
+  margin: 18px 0 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--app-muted);
+}
+.perfil-av-deco {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Cosméticos */
+.deco-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.deco-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1.5px solid var(--app-line);
+  background: var(--app-surface-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.deco-emoji { font-size: 24px; line-height: 1; }
+.deco-card.sel { border-color: var(--brand-lime); background: rgba(198, 255, 58, 0.1); }
+.deco-card.locked { opacity: 0.55; }
+.deco-card.locked .deco-emoji { filter: grayscale(0.7) brightness(0.7); }
+.deco-lock,
+.deco-check {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+.deco-lock { background: rgba(0, 0, 0, 0.6); color: #fff; }
+.deco-check { background: var(--brand-lime); color: #0b0c0f; }
+
 /* Tema */
 .theme-grid {
   display: grid;

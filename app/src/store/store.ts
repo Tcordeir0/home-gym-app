@@ -4,6 +4,7 @@ import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
 import { pickPrize, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
+import { decoUnlocked, DECOS } from '../data/decos';
 
 export interface SetRow {
   kg: string;
@@ -130,6 +131,7 @@ export interface Store extends AppState {
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   setTheme: (t: string) => void;
+  setHat: (id: string) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
@@ -188,6 +190,14 @@ export const useStore = create<Store>((set, get) => {
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
         if (!themeUnlocked(t, u.cosmetics.themes || [], u.name)) return; // só aplica se desbloqueado
         u.cosmetics.theme = t;
+      })),
+    setHat: (id) =>
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!decoUnlocked(id, u.cosmetics.hats || [], u.name)) return;
+        u.cosmetics.hat = id === 'none' ? null : id;
       })),
     addProfile: () => {
       const id = 'u' + Date.now();
@@ -440,18 +450,24 @@ export const useStore = create<Store>((set, get) => {
         const t = todayISO();
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
 
-        if (prize.kind === 'theme') {
+        if (prize.kind === 'theme' || prize.kind === 'deco') {
           if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
-          const owned = u.cosmetics.themes || [];
-          const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
-          if (locked.length) {
-            const won = locked[Math.floor(Math.random() * locked.length)];
-            u.cosmetics.themes = [...owned, won.id];
-            result = { ...prize, label: `Tema ${won.name}`, emoji: won.emoji };
+          if (prize.kind === 'theme') {
+            const owned = u.cosmetics.themes || [];
+            const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
+            if (locked.length) {
+              const won = locked[Math.floor(Math.random() * locked.length)];
+              u.cosmetics.themes = [...owned, won.id];
+              result = { ...prize, label: `Tema ${won.name}`, emoji: won.emoji };
+            } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else {
-            // já tem todos os temas → vira pontos
-            sc.byDay[t] = (sc.byDay[t] || 0) + 30;
-            result = { id: 'p30b', label: '+30 pts', emoji: '✨', kind: 'pts', value: 30, weight: 0 };
+            const owned = u.cosmetics.hats || [];
+            const locked = DECOS.filter((d) => !d.free && !owned.includes(d.id));
+            if (locked.length) {
+              const won = locked[Math.floor(Math.random() * locked.length)];
+              u.cosmetics.hats = [...owned, won.id];
+              result = { ...prize, label: won.name, emoji: won.emoji };
+            } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           }
         } else if (prize.kind === 'pts') {
           sc.byDay[t] = (sc.byDay[t] || 0) + prize.value;
