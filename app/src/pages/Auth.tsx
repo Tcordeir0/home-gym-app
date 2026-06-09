@@ -3,6 +3,7 @@ import { IonContent, IonInput, IonSpinner, IonIcon } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { mailOutline, lockClosedOutline, personOutline, checkmarkCircle } from 'ionicons/icons';
 import { supabase, authErrorPt } from '../lib/supabase';
+import { markFreshAccount } from '../lib/sync';
 import './Auth.css';
 
 type Mode = 'login' | 'register';
@@ -34,12 +35,17 @@ const Auth: React.FC = () => {
           options: { data: { name: name.trim() } },
         });
         if (error) { setErr(authErrorPt(error.message)); }
-        else if (!data.session) {
-          // confirmação de email ligada no projeto
-          setInfo('Conta criada! Enviamos um email de confirmação — confirme e depois entre.');
-          setMode('login');
+        else {
+          // conta NOVA → começa do zero com 1 perfil (nome do cadastro), sem perfil padrão
+          const newId = data.session?.user?.id || data.user?.id;
+          if (newId) markFreshAccount(newId);
+          if (!data.session) {
+            // confirmação de email ligada no projeto
+            setInfo('Conta criada! Enviamos um email de confirmação — confirme e depois entre.');
+            setMode('login');
+          }
+          // se data.session existe, já entra (onAuthStateChange dispara o sync)
         }
-        // se data.session existe, já entra (onAuthStateChange cuida)
       }
     } catch (e) {
       setErr(authErrorPt((e as Error)?.message));

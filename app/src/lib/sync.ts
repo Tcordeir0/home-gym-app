@@ -4,9 +4,15 @@
 import { supabase } from './supabase';
 import { useStore } from '../store/store';
 
-const MOD_KEY = 'hgt_mod';   // timestamp da última mudança local
-const UID_KEY = 'hgt_uid';   // dono atual do estado local (detecta troca de conta)
+const MOD_KEY = 'hgt_mod';     // timestamp da última mudança local
+const UID_KEY = 'hgt_uid';     // dono atual do estado local (detecta troca de conta)
+const FRESH_KEY = 'hgt_fresh'; // marcado no registro: conta recém-criada (começa com 1 perfil)
 const DEBOUNCE = 2000;
+
+/** Marca que a conta acabou de ser CRIADA (registro) — começa do zero com 1 perfil. */
+export function markFreshAccount(uid: string) {
+  try { localStorage.setItem(FRESH_KEY, uid); } catch { /* ok */ }
+}
 
 function getMod(): number { return Number(localStorage.getItem(MOD_KEY) || 0); }
 function setMod(n: number) { try { localStorage.setItem(MOD_KEY, String(n)); } catch { /* ok */ } }
@@ -43,26 +49,18 @@ function schedulePush() {
   pushTimer = setTimeout(() => { void pushNow(); }, DEBOUNCE);
 }
 
-/** No login: decide entre PUXAR (remoto mais novo) ou EMPURRAR (local mais novo/primeira vez). */
+/** No login: decide entre PUXAR (remoto) ou EMPURRAR (local), isolando por conta. */
 export async function syncOnLogin(): Promise<void> {
   try {
-    const uid = await currentUid();
+    const { data: sess } = await supabase.auth.getSession();
+    const user = sess.session?.user;
+    const uid = user?.id;
     if (!uid) return;
+    const name = (user?.user_metadata?.name as string) || '';
 
-    // Troca de conta no mesmo aparelho → zera o local pra NÃO vazar dados entre contas.
-    // Antes de zerar, guarda um BACKUP do estado atual (rede de segurança — nada se perde).
     const prevUid = localStorage.getItem(UID_KEY);
-    if (prevUid && prevUid !== uid) {
-      try {
-        const cur = useStore.getState().exportState();
-        if (cur) localStorage.setItem('hgt_backup', cur);
-      } catch { /* ok */ }
-      adopting = true;
-      useStore.getState().resetState();
-      adopting = false;
-      setMod(0);
-    }
-    try { localStorage.setItem(UID_KEY, uid); } catch { /* ok */ }
+    const fresh = localStorage.getItem(FRESH_KEY) === uid; // conta recém-registrada
+    const switched = !!prevUid && prevUid !== uid;         // trocou de conta nesse aparelho
 
     const { data, error } = await supabase
       .from('app_state_v2')
@@ -75,15 +73,35 @@ export async function syncOnLogin(): Promise<void> {
     const hasRemote = !!remote && Array.isArray(remote.users) && remote.users.length > 0;
     const remoteMod = data ? Date.parse(data.updated_at) : 0;
 
-    if (hasRemote && remoteMod > getMod()) {
+    // Se trocou de conta, faz backup do que tá no local antes de qualquer coisa.
+    if (switched || fresh) {
+      try { const cur = useStore.getState().exportState(); if (cur) localStorage.setItem('hgt_backup', cur); } catch { /* ok */ }
+    }
+
+    if (hasRemote && (switched || fresh || remoteMod > getMod())) {
+      // Remoto é a fonte da verdade (mais novo, ou é outra conta) → adota.
       adopting = true;
       const ok = useStore.getState().importState(JSON.stringify(remote));
       adopting = false;
       if (ok) setMod(remoteMod);
       else await pushNow();
+    } else if (hasRemote) {
+      // Mesma conta, local mais novo → empurra.
+      await pushNow();
     } else {
-      await pushNow(); // local é mais novo, ou primeira sincronização da conta
+      // SEM estado remoto pra essa conta.
+      if (fresh || switched) {
+        // Conta nova (ou troca pra conta sem dados) → 1 perfil com o nome do cadastro.
+        adopting = true;
+        useStore.getState().initForUser(name);
+        adopting = false;
+        setMod(0);
+      }
+      // senão: primeira sync de conta EXISTENTE com dados locais → preserva o local.
+      await pushNow();
     }
+
+    try { localStorage.setItem(UID_KEY, uid); localStorage.removeItem(FRESH_KEY); } catch { /* ok */ }
   } catch { /* nunca trava o app por causa do sync */ }
 }
 

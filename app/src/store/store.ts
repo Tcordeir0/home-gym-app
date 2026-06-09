@@ -72,11 +72,18 @@ function newProfile(id: string, name: string, color: string): Profile {
 
 function defaultState(): AppState {
   return {
-    users: [newProfile('u1', 'Talys', '#c6ff3a'), newProfile('u2', 'Andressa', '#ff5fa8')],
+    users: [newProfile('u1', 'Você', COLORS[0])],
     active: 'u1',
     checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'both', appTheme: 'dark',
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
+}
+
+/** Estado inicial de uma conta NOVA: um único perfil com o nome do cadastro. */
+function freshStateFor(name: string): AppState {
+  const s = defaultState();
+  s.users[0].name = (name || '').trim() || 'Você';
+  return s;
 }
 
 /** Garante todos os campos (igual migrateState do v1). */
@@ -134,6 +141,7 @@ export interface Store extends AppState {
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   resetState: () => void;
+  initForUser: (name: string) => void;
   setTheme: (t: string) => void;
   setHat: (id: string) => void;
   setFrame: (id: string) => void;
@@ -190,6 +198,7 @@ export const useStore = create<Store>((set, get) => {
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
     resetState: () => set(defaultState()),
+    initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>
       set(produce((s: Store) => {
         const u = s.users.find((x) => x.id === s.active);
