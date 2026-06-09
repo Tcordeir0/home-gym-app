@@ -138,6 +138,7 @@ export interface Store extends AppState {
   addFoodToday: (item: { n: string; k: number; p: number; g: number }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
+  removeHistoryEntry: (idx: number) => void;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -298,6 +299,25 @@ export const useStore = create<Store>((set, get) => {
       set(produce((s: Store) => {
         const f = s.daily[s.active]?.[todayISO()]?.food;
         if (f) f.splice(idx, 1);
+      })),
+
+    removeHistoryEntry: (idx) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const list = s.history[uid];
+        if (!list || !list[idx]) return;
+        const e = list[idx];
+        // devolve os pontos que essa sessão deu
+        let pts = 0;
+        if (e.w === 'cardio') pts = PTS_CARDIO;
+        else {
+          let sets = 0;
+          (e.exercises || []).forEach((x) => { sets += x.sets.length; });
+          pts = PTS_TREINO + PTS_SET * sets;
+        }
+        const sc = s.scores[uid];
+        if (sc && sc.byDay[e.date] != null) sc.byDay[e.date] = Math.max(0, sc.byDay[e.date] - pts);
+        list.splice(idx, 1);
       })),
   };
 });

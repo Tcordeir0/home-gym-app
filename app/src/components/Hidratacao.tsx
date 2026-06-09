@@ -63,7 +63,7 @@ const Hidratacao: React.FC = () => {
           onDidDismiss={() => setEditBottle(false)}
           header="Tamanho da sua garrafa"
           subHeader="Em ml (ex: 600, 1000, 2000)"
-          inputs={[{ name: 'ml', type: 'number', value: bottle, placeholder: 'ml' }]}
+          inputs={[{ name: 'ml', type: 'number', value: String(bottle), placeholder: 'ml', min: 1 }]}
           buttons={[
             { text: 'Cancelar', role: 'cancel' },
             {

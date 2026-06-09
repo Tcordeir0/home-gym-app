@@ -30,9 +30,9 @@
 - [ ] Foto do prato: "O prato contém…?" + reconhecimento IA no navegador (Transformers.js Food-101)
 
 ## Progresso
-- [ ] Histórico: pontos, stats (total/mês/7dias/sequência), calendário com marcações
-- [ ] Conquistas (treino + dieta: balança/hidratação)
-- [ ] Sessões registradas (expandir detalhe, remover)
+- [x] Histórico: pontos + nível/XP (anel), stats (treinos/cardios/sequência/dias ativos), calendário com marcações por tipo
+- [x] Conquistas (treino + dieta: balança/hidratação) — 13 badges, marcos dourados
+- [x] Sessões registradas (expandir detalhe kg×reps, remover com ajuste de pontos)
 - [ ] Medidas corporais (peso/braço/peito/cintura) + foto de progresso
 - [ ] Gráficos animados (carga por exercício + medidas no tempo)
 - [ ] Registro retroativo (treino/cardio outra data)
