@@ -5,16 +5,23 @@ import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
 import Cardio from '../components/Cardio';
+import GeneratorSheet from '../components/GeneratorSheet';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
 import './Treino.css';
 
 type Seg = 'A' | 'B' | 'C' | 'warm';
+const DEFAULT_LABELS = { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
 
 const Treino: React.FC = () => {
   const profile = useActiveProfile();
-  const plan = PLANS[profile.id] || PLANS['u1'];
+  const custom = profile.treinos as Record<string, Exercise[]> | undefined;
+  const plan =
+    custom && custom.A
+      ? { focus: profile.focus || 'Geral', labels: (profile.labels as Record<string, string>) || DEFAULT_LABELS, treinos: custom }
+      : PLANS[profile.id] || PLANS['u1'];
+  const [genOpen, setGenOpen] = useState(false);
   const active = useStore((s) => s.active);
   const setlog = useStore((s) => s.setlog);
   const completeWorkout = useStore((s) => s.completeWorkout);
@@ -80,7 +87,16 @@ const Treino: React.FC = () => {
         </motion.button>
       )}
 
+      <button className="treino-gen" onClick={() => setGenOpen(true)}>
+        ⚙️ Montar treino por equipamento
+      </button>
+
       <DemoSheet ex={demo} onClose={() => setDemo(null)} />
+      <GeneratorSheet
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        onDone={() => { setSeg('A'); setToast('Treino gerado! 💪'); }}
+      />
       <IonToast
         isOpen={!!toast}
         message={toast}
