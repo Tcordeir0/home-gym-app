@@ -1,11 +1,49 @@
 .treino-seg {
   margin-bottom: 6px;
 }
+.treino-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 2px 6px;
+}
 .treino-focus {
-  margin: 4px 2px 8px;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.2px;
   text-transform: uppercase;
   color: var(--app-muted);
+}
+.treino-pct {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--brand-lime);
+}
+.treino-bar {
+  height: 8px;
+  background: var(--app-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 2px 6px;
+}
+.treino-bar span {
+  display: block;
+  height: 100%;
+  background: var(--brand-lime);
+  border-radius: 999px;
+  transition: width 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.treino-done {
+  width: 100%;
+  margin: 16px 0 8px;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--brand-lime);
+  color: #0b0c0f;
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
 }

@@ -1,5 +1,32 @@
 import { create } from 'zustand';
-import type { AppState, Profile, Body, Cardio } from './types';
+import { produce } from 'immer';
+import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
+
+export interface SetRow {
+  kg: string;
+  reps: string;
+  done: boolean;
+}
+type Setlog = Record<string, Record<string, Record<number, SetRow[]>>>;
+
+const PTS_SET = 5;
+const PTS_TREINO = 50;
+
+/** Linhas de série de um exercício (do setlog), preenchidas até `series`. */
+export function rowsFor(
+  setlog: Setlog,
+  uid: string,
+  treino: string,
+  exIdx: number,
+  series: number
+): SetRow[] {
+  const saved = setlog?.[uid]?.[treino]?.[exIdx];
+  const rows: SetRow[] = [];
+  for (let i = 0; i < series; i++) {
+    rows.push(saved?.[i] ? { ...saved[i] } : { kg: '', reps: '', done: false });
+  }
+  return rows;
+}
 
 const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados existentes
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
@@ -95,6 +122,21 @@ export interface Store extends AppState {
   setActive: (id: string) => void;
   addProfile: () => string;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
+  // Treino
+  setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
+  toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
+  completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
+  lastBestSet: (nome: string) => { kg: number; reps: number } | null;
+}
+
+function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
+  const sl = s.setlog as Setlog;
+  sl[uid] = sl[uid] || {};
+  sl[uid][treino] = sl[uid][treino] || {};
+  if (!sl[uid][treino][exIdx]) {
+    sl[uid][treino][exIdx] = Array.from({ length: series }, () => ({ kg: '', reps: '', done: false }));
+  }
+  return sl[uid][treino][exIdx];
 }
 
 export const useStore = create<Store>((set, get) => {
@@ -117,6 +159,57 @@ export const useStore = create<Store>((set, get) => {
     },
     updateProfile: (id, patch) =>
       set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
+
+    setSetField: (treino, exIdx, setIdx, field, v, series) =>
+      set(produce((s: Store) => { ensureRow(s, s.active, treino, exIdx, series)[setIdx][field] = v; })),
+
+    toggleSetDone: (treino, exIdx, setIdx, series) =>
+      set(produce((s: Store) => {
+        const r = ensureRow(s, s.active, treino, exIdx, series)[setIdx];
+        r.done = !r.done;
+      })),
+
+    completeWorkout: (treino, exs) => {
+      const s0 = get();
+      const uid = s0.active;
+      const today = todayISO();
+      const hist = s0.history[uid] || [];
+      if (hist.some((e) => e.date === today && e.w === treino)) return 'dup';
+      const sl = (s0.setlog as Setlog)[uid]?.[treino] || {};
+      let doneSets = 0;
+      const exercises = exs.map((ex, i) => {
+        const rows = sl[i] || [];
+        const sets = rows
+          .filter((r) => r.done)
+          .map((r) => ({ kg: r.kg ? parseFloat(r.kg) : null, reps: r.reps ? parseInt(r.reps, 10) : null }));
+        doneSets += sets.length;
+        return { nome: ex.nome, sets };
+      });
+      if (doneSets === 0) return 'empty';
+      set(produce((s: Store) => {
+        const h = (s.history[uid] = s.history[uid] || []);
+        h.push({ date: today, w: treino as HistoryEntry['w'], exercises });
+        const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
+        sc.byDay[today] = (sc.byDay[today] || 0) + PTS_TREINO + PTS_SET * doneSets;
+        delete (s.setlog as Setlog)[uid][treino];
+      }));
+      return 'ok';
+    },
+
+    lastBestSet: (nome) => {
+      const s = get();
+      const uid = s.active;
+      const hist = (s.history[uid] || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+      for (const e of hist) {
+        const ex = e.exercises?.find((x) => x.nome === nome);
+        if (ex && ex.sets.length) {
+          let best = ex.sets[0];
+          ex.sets.forEach((st) => { if ((st.kg || 0) > (best.kg || 0)) best = st; });
+          if (best.kg != null || best.reps != null) return { kg: best.kg || 0, reps: best.reps || 0 };
+        }
+      }
+      return null;
+    },
   };
 });
 
