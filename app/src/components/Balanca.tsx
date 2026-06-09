@@ -8,9 +8,13 @@ const fmtNum = (n: number) => (Math.round(n * 10) / 10).toString();
 
 const Balanca: React.FC = () => {
   const profile = useActiveProfile();
-  const weightSeries = useStore((s) => s.weightSeries);
+  const measuresArr = useStore((s) => s.measures[s.active]) || []; // reativo: re-renderiza ao salvar
   const setWeight = useStore((s) => s.setWeightToday);
-  const series = weightSeries();
+  const series = measuresArr
+    .filter((m) => typeof m.weight === 'number')
+    .slice()
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+    .map((m) => ({ x: m.date, y: m.weight as number }));
   const cur = series.length ? series[series.length - 1].y : null;
   const prev = series.length > 1 ? series[series.length - 2].y : null;
   const goal = profile.body.goal;

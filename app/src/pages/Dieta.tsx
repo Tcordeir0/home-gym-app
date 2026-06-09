@@ -28,10 +28,15 @@ const Dieta: React.FC = () => {
   const body = profile.body;
   const updateBody = useStore((s) => s.updateActiveBody);
   const setWeight = useStore((s) => s.setWeightToday);
-  const latestMeasure = useStore((s) => s.latestMeasure);
+  const myMeasures = useStore((s) => s.measures[s.active]) || []; // reativo ao pesar
 
-  const weight = latestMeasure('weight');
-  const waist = latestMeasure('waist');
+  const latest = (f: 'weight' | 'waist') => {
+    let v: number | null = null, d = '';
+    myMeasures.forEach((m) => { const x = m[f]; if (typeof x === 'number' && m.date >= d) { v = x; d = m.date; } });
+    return v;
+  };
+  const weight = latest('weight');
+  const waist = latest('waist');
 
   const t = targetsFor(body, weight);
   const m = weight && body.height ? bmi(weight, body.height) : null;
