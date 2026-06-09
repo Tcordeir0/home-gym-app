@@ -11,6 +11,8 @@ import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { shareProgress } from '../lib/shareCard';
+import { familyLeague } from '../lib/league';
+import { waterGoal } from '../lib/diet';
 import type { HistoryEntry } from '../store/types';
 import './Progresso.css';
 
@@ -76,9 +78,19 @@ const Progresso: React.FC = () => {
 
   const onShare = async () => {
     try {
+      const aProfile = users.find((u) => u.id === active);
+      const league = familyLeague({ users, scores });
+      const rank = league.findIndex((r) => r.id === active) + 1;
+      const myMeasures = measures[active] || [];
+      let lw: number | null = null, lwDate = '';
+      myMeasures.forEach((mm) => { if (typeof mm.weight === 'number' && mm.date >= lwDate) { lw = mm.weight; lwDate = mm.date; } });
+      const todayWater = daily[active]?.[today]?.waterMl || 0;
       const res = await shareProgress({
         name, level: lvl.level, pts: stats.pts, pct: lvl.pct,
         streak: stats.streak, treinos: stats.treinos, dias: stats.activeDays,
+        photo: aProfile?.photo, color: aProfile?.color,
+        rank: rank > 0 ? rank : undefined, totalProfiles: users.length,
+        hidratado: todayWater >= waterGoal(lw),
       });
       setToast(res === 'shared' ? 'Compartilhado! 💪' : 'Card salvo (galeria/Downloads) 📲');
     } catch {
