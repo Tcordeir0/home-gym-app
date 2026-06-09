@@ -135,6 +135,9 @@ export interface Store extends AppState {
   updateActiveBody: (patch: Partial<Body>) => void;
   weightSeries: () => { x: string; y: number }[];
   addWaterToday: (ml: number) => void;
+  addFoodToday: (item: { n: string; k: number; p: number; g: number }) => void;
+  setFoodGrams: (idx: number, g: number) => void;
+  removeFoodToday: (idx: number) => void;
 }
 
 function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, series: number) {
@@ -273,6 +276,28 @@ export const useStore = create<Store>((set, get) => {
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[t] = dd[t] || {};
         dd[t].waterMl = Math.max(0, (dd[t].waterMl || 0) + ml);
+      })),
+
+    addFoodToday: (item) =>
+      set(produce((s: Store) => {
+        const uid = s.active;
+        const t = todayISO();
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        dd[t] = dd[t] || {};
+        dd[t].food = dd[t].food || [];
+        dd[t].food!.push(item);
+      })),
+
+    setFoodGrams: (idx, g) =>
+      set(produce((s: Store) => {
+        const f = s.daily[s.active]?.[todayISO()]?.food;
+        if (f && f[idx]) f[idx].g = g;
+      })),
+
+    removeFoodToday: (idx) =>
+      set(produce((s: Store) => {
+        const f = s.daily[s.active]?.[todayISO()]?.food;
+        if (f) f.splice(idx, 1);
       })),
   };
 });

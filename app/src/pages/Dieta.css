@@ -171,3 +171,27 @@
 .hid-btn.garrafa { border-color: rgba(56,189,248,.4); color: #5fa8ff; }
 .hid-btn.minus { flex: 0 0 52px; justify-content: center; font-size: 22px; }
 .hid-done { margin: 10px 0 0; font-size: 13px; color: #34d399; font-weight: 700; }
+
+/* Diário */
+.diary-meta { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.diary-kcal { font-family: var(--font-display); font-size: 30px; }
+.diary-kcal small { font-size: 14px; color: var(--app-muted); }
+.diary-prot { font-size: 13px; font-weight: 700; color: var(--app-muted); }
+.diary-fill { background: linear-gradient(90deg,#9be000,var(--brand-lime)); }
+.diary-rem { text-align: center; font-size: 12px; color: var(--app-muted); margin-top: 6px; }
+.diary-list { margin-top: 12px; }
+.food-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--app-line); }
+.food-row:last-child { border-bottom: 0; }
+.food-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.food-g { flex: 0 0 58px; width: 58px; height: 36px; text-align: center; border: 1.5px solid var(--app-line); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 10px; font-weight: 700; font-size: 13px; }
+.food-g:focus { outline: none; border-color: var(--brand-lime); }
+.food-kcal { flex: 0 0 auto; min-width: 46px; text-align: right; font-family: var(--font-display); font-size: 16px; color: var(--brand-lime); line-height: 1; }
+.food-kcal small { font-size: 9px; color: var(--app-muted); display: block; font-family: var(--ion-font-family); }
+.food-del { flex: 0 0 auto; border: 0; background: transparent; color: var(--app-muted); font-size: 18px; cursor: pointer; padding: 4px; }
+.diary-empty { margin: 8px 0 0; font-size: 13px; color: var(--app-muted); background: var(--app-surface-2); border-radius: 12px; padding: 10px 12px; }
+.diary-search { width: 100%; margin-top: 12px; text-align: left; padding: 0 14px; }
+.food-results { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.food-hit { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid var(--app-line); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+.food-hit-n { flex: 1; min-width: 0; font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.food-hit-k { flex: 0 0 auto; font-size: 11px; color: var(--app-muted); }
+.food-hit-add { flex: 0 0 auto; color: var(--brand-lime); font-size: 18px; }
