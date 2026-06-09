@@ -12,6 +12,8 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
+import { useStore } from './store/store';
+import { setFeedbackMode } from './lib/feedback';
 import Treino from './pages/Treino';
 import Dieta from './pages/Dieta';
 import Progresso from './pages/Progresso';
@@ -35,6 +37,10 @@ import './theme/variables.css';
 setupIonicReact({ mode: 'ios' });
 
 const App: React.FC = () => {
+  // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
+  const feedback = useStore((s) => s.feedback);
+  useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
+
   // Esconde a tab bar quando o teclado abre (não deve subir junto).
   useEffect(() => {
     const vv = window.visualViewport;

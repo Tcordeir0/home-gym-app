@@ -1,14 +1,15 @@
 import { useRef, useState } from 'react';
-import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert } from '@ionic/react';
+import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { addOutline, cameraOutline, trashOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
+import { fxTick } from '../lib/feedback';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
-import type { Cardio } from '../store/types';
+import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
 const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // domingo → sábado
@@ -19,6 +20,13 @@ const Perfil: React.FC = () => {
   const deleteProfile = useStore((s) => s.deleteProfile);
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
+  const feedback = useStore((s) => s.feedback);
+  const setFeedback = useStore((s) => s.setFeedback);
+
+  const somOn = feedback === 'both' || feedback === 'sound';
+  const vibOn = feedback === 'both' || feedback === 'vibrate';
+  const calcFeedback = (som: boolean, vib: boolean): Feedback =>
+    som && vib ? 'both' : som ? 'sound' : vib ? 'vibrate' : 'none';
 
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
@@ -220,6 +228,30 @@ const Perfil: React.FC = () => {
               className="agenda-input"
               value={schedule.time || '18:00'}
               onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })}
+            />
+          </div>
+        </IonCardContent>
+      </IonCard>
+
+      {/* Conta & ajustes */}
+      <IonCard className="perfil-card">
+        <IonCardContent>
+          <h2 className="card-title">Conta & ajustes</h2>
+          <p className="card-sub">Feedback ao marcar série, concluir treino e ganhar prêmios.</p>
+          <div className="ajuste-row">
+            <span>🔊 Som</span>
+            <IonToggle
+              checked={somOn}
+              onIonChange={(e) => { const v = e.detail.checked; if (v) fxTick(); setFeedback(calcFeedback(v, vibOn)); }}
+              aria-label="Som"
+            />
+          </div>
+          <div className="ajuste-row">
+            <span>📳 Vibração</span>
+            <IonToggle
+              checked={vibOn}
+              onIonChange={(e) => setFeedback(calcFeedback(somOn, e.detail.checked))}
+              aria-label="Vibração"
             />
           </div>
         </IonCardContent>

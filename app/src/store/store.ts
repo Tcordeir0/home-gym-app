@@ -127,6 +127,7 @@ export interface Store extends AppState {
   setActive: (id: string) => void;
   addProfile: () => string;
   deleteProfile: (id: string) => void;
+  setFeedback: (f: AppState['feedback']) => void;
   updateProfile: (id: string, patch: Partial<Profile>) => void;
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
@@ -177,6 +178,7 @@ export const useStore = create<Store>((set, get) => {
   return {
     ...initial,
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
+    setFeedback: (f) => set({ feedback: f }),
     addProfile: () => {
       const id = 'u' + Date.now();
       const color = COLORS[get().users.length % COLORS.length];

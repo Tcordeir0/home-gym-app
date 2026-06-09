@@ -237,6 +237,22 @@
   outline: none;
   border-color: var(--brand-lime);
 }
+.ajuste-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--app-line);
+  font-size: 15px;
+  font-weight: 600;
+}
+.ajuste-row:last-child {
+  border-bottom: 0;
+}
+.ajuste-row ion-toggle {
+  --background-checked: var(--brand-lime);
+  --handle-background-checked: #0b0c0f;
+}
 .perfil-note {
   margin: 14px 0 0;
   font-size: 12.5px;

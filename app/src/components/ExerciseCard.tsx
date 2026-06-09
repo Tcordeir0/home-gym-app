@@ -4,6 +4,7 @@ import { eyeOutline, chevronDown, flame } from 'ionicons/icons';
 import { motion } from 'framer-motion';
 import type { Exercise } from '../data/types';
 import { useStore, rowsFor } from '../store/store';
+import { fxTick } from '../lib/feedback';
 import './ExerciseCard.css';
 
 interface Props {
@@ -76,7 +77,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
               whileTap={{ scale: 0.88 }}
               className="set-done"
               aria-label="Marcar série"
-              onClick={() => toggleSetDone(treino, exIdx, i, ex.series)}
+              onClick={() => { if (!s.done) fxTick(); toggleSetDone(treino, exIdx, i, ex.series); }}
             >
               ✓
             </motion.button>

@@ -7,6 +7,7 @@ import { familyLeague, weekDates } from '../lib/league';
 import { QUESTS } from '../data/quests';
 import { PRIZES, type Prize } from '../data/roulette';
 import { waterGoal } from '../lib/diet';
+import { fxReward } from '../lib/feedback';
 import './Premios.css';
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -49,6 +50,7 @@ const Premios: React.FC = () => {
   const claimed = aProfile?.quests?.week === wk[0] ? aProfile.quests.claimed : {};
   const onClaim = (id: string, reward: number) => {
     claimQuest(id, reward);
+    fxReward();
     setToast(`Resgatado +${reward} pts 🎉`);
   };
 
@@ -65,6 +67,7 @@ const Premios: React.FC = () => {
       clearInterval(iv);
       setReel(prize);
       setSpinning(false);
+      fxReward();
       setToast(`Você ganhou ${prize.label}! ${prize.emoji}`);
     }, 1200);
   };
