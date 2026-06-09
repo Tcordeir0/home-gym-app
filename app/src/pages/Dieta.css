@@ -101,13 +101,13 @@
   text-align: center;
 }
 .diet-base {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--app-muted);
   background: var(--app-surface-2);
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 14px;
+  padding: 14px 16px;
 }
 .diet-base b {
   color: var(--ion-text-color);

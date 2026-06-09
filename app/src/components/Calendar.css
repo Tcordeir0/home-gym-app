@@ -1,0 +1,83 @@
+.cal {
+  margin-top: 4px;
+}
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cal-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.3px;
+}
+.cal-nav {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2);
+  border-radius: 11px;
+  color: var(--ion-text-color);
+  cursor: pointer;
+}
+.cal-nav:active { background: var(--app-line); }
+.cal-nav ion-icon { font-size: 16px; }
+
+.cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.cal-dow span {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--app-muted);
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  border-radius: 10px;
+}
+.cal-cell.empty { visibility: hidden; }
+.cal-cell.is-today {
+  outline: 1.5px solid var(--app-line);
+  outline-offset: -1.5px;
+}
+.cal-cell.done {
+  background: rgba(198, 255, 58, 0.1);
+  color: var(--ion-text-color);
+}
+.cal-cell.done.cardio { background: rgba(95, 168, 255, 0.12); }
+.cal-cell.done.both { background: rgba(198, 255, 58, 0.16); }
+.cal-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--brand-lime);
+}
+.cal-cell.cardio .cal-dot { background: #5fa8ff; }
+.cal-cell.both .cal-dot {
+  width: 11px;
+  background: linear-gradient(90deg, var(--brand-lime) 50%, #5fa8ff 50%);
+}
