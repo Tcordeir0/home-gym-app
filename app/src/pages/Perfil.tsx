@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
-import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle } from '@ionic/react';
+import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
-import { fxTick } from '../lib/feedback';
+import { fxTick, fxBuzzTest } from '../lib/feedback';
+import { requestNotifications, vibrationSupported } from '../lib/permissions';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
@@ -28,6 +29,8 @@ const Perfil: React.FC = () => {
   const scores = useStore((s) => s.scores);
   const feedback = useStore((s) => s.feedback);
   const setFeedback = useStore((s) => s.setFeedback);
+  const notifyOn = useStore((s) => s.notifyOn);
+  const setNotifyOn = useStore((s) => s.setNotifyOn);
   const setTheme = useStore((s) => s.setTheme);
   const setHat = useStore((s) => s.setHat);
   const setFrame = useStore((s) => s.setFrame);
@@ -49,6 +52,24 @@ const Perfil: React.FC = () => {
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
+  const [toast, setToast] = useState('');
+
+  // Vibração: pede/testa ao ATIVAR (no iOS web não existe; no app nativo usa Haptics).
+  const onVibToggle = (on: boolean) => {
+    if (on && !vibrationSupported()) {
+      setToast('Vibração não é suportada neste navegador. Instale o app pra sentir o retorno.');
+      return;
+    }
+    setFeedback(calcFeedback(somOn, on));
+    if (on) fxBuzzTest();
+  };
+  // Notificações: pede permissão ao ATIVAR; só liga se concedida.
+  const onNotifToggle = async (on: boolean) => {
+    if (!on) { setNotifyOn(false); return; }
+    const ok = await requestNotifications();
+    if (ok) { setNotifyOn(true); setToast('Notificações ativadas 🔔'); }
+    else { setNotifyOn(false); setToast('Permissão de notificação negada. Ative nas configurações do sistema.'); }
+  };
   const [accountEmail, setAccountEmail] = useState('');
   useEffect(() => { supabase.auth.getUser().then(({ data }) => setAccountEmail(data.user?.email || '')); }, []);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -409,8 +430,16 @@ const Perfil: React.FC = () => {
             <span>📳 Vibração</span>
             <IonToggle
               checked={vibOn}
-              onIonChange={(e) => setFeedback(calcFeedback(somOn, e.detail.checked))}
+              onIonChange={(e) => onVibToggle(e.detail.checked)}
               aria-label="Vibração"
+            />
+          </div>
+          <div className="ajuste-row">
+            <span>🔔 Notificações</span>
+            <IonToggle
+              checked={notifyOn}
+              onIonChange={(e) => onNotifToggle(e.detail.checked)}
+              aria-label="Notificações"
             />
           </div>
           {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
@@ -431,6 +460,7 @@ const Perfil: React.FC = () => {
           { text: 'Adicionar', handler: (d) => addCustomCardio(d.label || '') },
         ]}
       />
+      <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
     </AppPage>
   );
 };

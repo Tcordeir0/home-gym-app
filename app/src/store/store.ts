@@ -46,7 +46,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -82,7 +82,7 @@ function defaultState(): AppState {
   return {
     users: [newProfile('u1', 'Você', COLORS[0])],
     active: 'u1',
-    checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'both', appTheme: 'dark',
+    checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -101,7 +101,10 @@ function migrate(raw: Partial<AppState>): AppState {
   s.pokes = s.pokes || {}; s.session = s.session || {}; s.celebrated = s.celebrated || {};
   s.notifs = s.notifs || {}; s.setlog = s.setlog || {}; s.measures = s.measures || {}; s.daily = s.daily || {};
   if (typeof s.soundOn !== 'boolean') s.soundOn = true;
-  if (!s.feedback) s.feedback = 'both';
+  // estado pré-permissões (sem notifyOn): zera as chavinhas — começam desativadas
+  // e só ligam DEPOIS de conceder a permissão.
+  if (typeof s.notifyOn !== 'boolean') { s.notifyOn = false; s.feedback = 'none'; }
+  if (!s.feedback) s.feedback = 'none';
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -150,6 +153,7 @@ export interface Store extends AppState {
   addAndClaimProfile: (name: string) => string;
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
+  setNotifyOn: (v: boolean) => void;
   resetState: () => void;
   initForUser: (name: string) => void;
   setTheme: (t: string) => void;
@@ -227,6 +231,7 @@ export const useStore = create<Store>((set, get) => {
     ...initial,
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
+    setNotifyOn: (v) => set({ notifyOn: v }),
     resetState: () => set(defaultState()),
     initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>

@@ -126,6 +126,7 @@ export interface AppState {
   scores: Record<string, Score>;
   soundOn: boolean;
   feedback: Feedback;
+  notifyOn: boolean; // notificações ativadas (só depois de conceder permissão)
   appTheme: 'dark' | 'light';
   pokes: Record<string, Poke>;
   session: Record<string, unknown>;
