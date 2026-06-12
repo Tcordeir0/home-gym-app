@@ -188,7 +188,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   if (frame === 'mine') {
     try {
       const sw = await loadImage('/minecraft-sword.svg');
-      const sh = R * 0.62, sw2 = sh * (36 / 84);
+      const sh = R * 0.5, sw2 = sh * (40 / 54);
       ctx.drawImage(sw, cx - sw2 / 2, (ay - R + 10) - sh, sw2, sh);
     } catch { /* ok */ }
   }

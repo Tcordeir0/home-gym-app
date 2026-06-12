@@ -134,9 +134,9 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 86%;                 /* espada no topo do aro, pequena */
+  bottom: 84%;                 /* espada no topo do aro, pequena */
   width: 30%;
-  aspect-ratio: 36 / 84;
+  aspect-ratio: 40 / 54;
   transform: translateX(-50%);
   background: url('/minecraft-sword.svg') no-repeat center bottom / contain;
   z-index: 2;
