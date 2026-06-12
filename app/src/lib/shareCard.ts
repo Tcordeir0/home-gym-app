@@ -165,7 +165,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       ctx.drawImage(img, cx - dw / 2, ay - dh / 2, dw, dh);
       ctx.restore();
     } catch { /* sem foto */ }
-    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   } else {
     // base + número do nível, depois o aro por cima
     ctx.fillStyle = surfCol;
@@ -173,7 +173,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.textAlign = 'center'; ctx.fillStyle = accent;
     ctx.font = '140px Anton, sans-serif'; ctx.fillText(String(d.level), cx, ay + 46);
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif'; ctx.fillText('NÍVEL', cx, ay + 100);
-    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   }
 
   // ---- aro Tridente: tridente dourado como coroa em cima do aro (pequeno) ----
@@ -184,12 +184,13 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       ctx.drawImage(tri, cx - tw / 2, (ay - R + 12) - th, tw, th);
     } catch { /* ok */ }
   }
-  // ---- aro Minecraft: espada de diamante no topo do aro ----
+  // ---- aro Minecraft: a COROA de blocos completa envolvendo o avatar ----
   if (frame === 'mine') {
     try {
-      const sw = await loadImage('/minecraft-sword.svg');
-      const sh = R * 0.5, sw2 = sh * (40 / 54);
-      ctx.drawImage(sw, cx - sw2 / 2, (ay - R + 10) - sh, sw2, sh);
+      const wreath = await loadImage('/mine-ring.png');
+      // frações medidas do PNG: buraco centro (0.496, 0.582), raio 0.236 da largura
+      const Wimg = R / 0.236;               // largura da coroa p/ o buraco = raio do avatar
+      ctx.drawImage(wreath, cx - 0.496 * Wimg, ay - 0.582 * Wimg, Wimg, Wimg);
     } catch { /* ok */ }
   }
 

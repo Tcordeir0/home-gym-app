@@ -123,24 +123,28 @@
   50% { filter: drop-shadow(0 0 7px rgba(255, 232, 130, 0.95)) brightness(1.32); }
 }
 
-/* Aro Minecraft: anel de "blocos" (grama/terra/pedra) girando devagar +
-   espada de diamante no topo (pequena). */
+/* Aro Minecraft: a COROA de blocos completa (PNG transparente, idêntica à
+   referência) com espadas cruzadas + espada de diamante no topo. O buraco da
+   coroa abraça o avatar — a foto fica encaixada no centro, blocos em volta. */
 .av-frame-mine {
-  --ring: repeating-conic-gradient(from 0deg, #7cc93a 0deg 17deg, #5a8f28 17deg 25deg, #6b4a24 25deg 42deg, #8d8d8d 42deg 59deg, #6f6f6f 59deg 67deg);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+  --ring: transparent;
+  box-shadow: none;
+  overflow: visible;
 }
-.av-frame-mine::before { animation-duration: 16s; }
+.av-frame-mine::before { display: none; }   /* sem anel conic: a coroa é a imagem */
 .av-frame-mine::after {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 84%;                 /* espada no topo do aro, pequena */
-  width: 30%;
-  aspect-ratio: 40 / 54;
-  transform: translateX(-50%);
-  background: url('/minecraft-sword.svg') no-repeat center bottom / contain;
-  z-index: 2;
+  top: 50%;
+  width: 186%;                 /* buraco da coroa (≈47% da img) = tamanho do avatar */
+  aspect-ratio: 1;
+  /* alinha o buraco (centro 49.6%/58.2% da imagem) ao centro do avatar */
+  transform: translate(-49.6%, -58.2%);
+  background: url('/mine-ring.png') no-repeat center / contain;
+  z-index: -1;                 /* atrás do avatar (avatar dentro do buraco) */
   pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
 }
 
 /* Aro de eletricidade: anel elétrico girando rápido + faíscas (::after) + brilho piscante */

@@ -5,6 +5,8 @@ import './ThemeFX.css';
 
 const CHARS = '01ｱｲｳｴｵｶｷｸｹｺ日月火水木金土ＡＢＣＤＥＦ'.split('');
 const MATH = ['+', '−', '×', '÷', '=', 'π', '√', '∞', '%', '∑', '2', '7', '∫', 'x²', 'θ', 'φ'];
+// glifos rúnicos (estilo Alfabeto Galáctico) — partículas da mesa de encantamento
+const RUNES = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛖᛗᛚᛜᛞᛟᚷᛝᛡ'.split('');
 
 /** Texturas/animações por tema (chuva Matrix em canvas + overlays CSS + wallpapers). */
 const ThemeFX: React.FC = () => {
@@ -174,6 +176,26 @@ const ThemeFX: React.FC = () => {
                 animationDelay: `${(i * 0.6) % 7}s`,
               }}
             />
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'enchant' && (
+        <div className="fx-enchant">
+          {/* glifos do alfabeto galáctico subindo e brilhando — mesa de encantamento */}
+          {Array.from({ length: 26 }).map((_, i) => (
+            <span
+              key={i}
+              className="rune"
+              style={{
+                left: `${(i * 37 + 4) % 97}%`,
+                fontSize: `${13 + (i % 4) * 7}px`,
+                animationDuration: `${5 + (i % 5)}s`,
+                animationDelay: `${(i * 0.42) % 6}s`,
+                ['--drift' as string]: `${((i % 5) - 2) * 16}px`,
+              }}
+            >
+              {RUNES[i % RUNES.length]}
+            </span>
           ))}
         </div>
       )}
