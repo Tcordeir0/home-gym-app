@@ -1,18 +1,41 @@
-// Kill-switch do service worker do V1 (vanilla).
-// O app novo (React/Ionic) NÃO usa service worker. Como o V1 registrou um SW
-// no mesmo domínio, este arquivo substitui o antigo (mesma URL /sw.js): ele se
-// auto-desregistra, apaga os caches e recarrega — evitando servir o V1 em cache
-// depois da virada pra gym.trazzidely.com.br.
+// Service worker do Home Gym (PWA): network-first com fallback de cache.
+// - Online: usa a rede e atualiza o cache (sempre a versão mais nova).
+// - Offline: serve do cache; navegações caem no index.html (SPA).
+// - Ao ativar: apaga caches antigos (inclui os do V1) — substitui o kill-switch.
+const CACHE = 'homegym-v0_6_0';
+
 self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  let url;
+  try { url = new URL(req.url); } catch { return; }
+  if (url.origin !== self.location.origin) return; // não intercepta APIs externas (Supabase, OFF, etc.)
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
     try {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
-    } catch { /* ok */ }
-    try { await self.registration.unregister(); } catch { /* ok */ }
-    const clients = await self.clients.matchAll({ type: 'window' });
-    clients.forEach((c) => { try { c.navigate(c.url); } catch { /* ok */ } });
+      const fresh = await fetch(req);
+      if (fresh && fresh.status === 200) cache.put(req, fresh.clone());
+      return fresh;
+    } catch {
+      const cached = await cache.match(req);
+      if (cached) return cached;
+      // navegação offline → casca do app
+      if (req.mode === 'navigate') {
+        const shell = await cache.match('/index.html');
+        if (shell) return shell;
+      }
+      return Response.error();
+    }
   })());
 });
