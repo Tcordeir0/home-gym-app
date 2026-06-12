@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.6.0...v0.7.0) (2026-06-12)
+
+
+### Features
+
+* **app:** cor personalizada (RGB) + preview com foto nos temas de wallpaper ([#74](https://github.com/Tcordeir0/home-gym-app/issues/74)) ([7756277](https://github.com/Tcordeir0/home-gym-app/commit/775627782322e22cb49ed2a50c74e2a06c942028))
+* **app:** Dieta — retroativo, gráfico/histórico, calendário e conquistas ([#72](https://github.com/Tcordeir0/home-gym-app/issues/72)) ([1dcb757](https://github.com/Tcordeir0/home-gym-app/commit/1dcb757d1704a8cecd6497b2f21581a94628d84f))
+* **app:** escolha de perfil por dispositivo (claim) — base anti-trapaça ([#69](https://github.com/Tcordeir0/home-gym-app/issues/69)) ([e97835a](https://github.com/Tcordeir0/home-gym-app/commit/e97835ab0ff7ce6d13a70b1b645318497ab54f12))
+* **app:** modo leitura — só edita o SEU perfil, vê os outros sem editar (anti-trapaça) ([#71](https://github.com/Tcordeir0/home-gym-app/issues/71)) ([b58f408](https://github.com/Tcordeir0/home-gym-app/commit/b58f408b3741c4397da3702ffb142b58970b2f60))
+* **app:** PWA completo — service worker offline + instalável ([#73](https://github.com/Tcordeir0/home-gym-app/issues/73)) ([b6a75c8](https://github.com/Tcordeir0/home-gym-app/commit/b6a75c8a214120a51bdfce02ff0c3bd8679f9e5b))
+* **app:** v0.7.0 — Chá/Creator/Return, anatomia, conquistas-recompensa, permissões, aros+fx no perfil, changelog ([#76](https://github.com/Tcordeir0/home-gym-app/issues/76)) ([5c01070](https://github.com/Tcordeir0/home-gym-app/commit/5c010708f2e475aa45691989fa53a19cdff5bae9))
+
+
+### Bug Fixes
+
+* **app:** card 'Em breve' só lista o que falta e some quando tudo entrar ([#70](https://github.com/Tcordeir0/home-gym-app/issues/70)) ([b15fb00](https://github.com/Tcordeir0/home-gym-app/commit/b15fb00e3b0f12a0a093e25b38e24120fd9697cb))
+
 ## [0.5.0](https://github.com/Tcordeir0/home-gym-tracker/compare/v0.4.0...v0.5.0) (2026-06-08)
 
 
