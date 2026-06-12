@@ -18,10 +18,24 @@ type MedKey = (typeof MED_FIELDS)[number]['key'];
 const Graficos: React.FC = () => {
   const measures = useStore((s) => s.measures[s.active]) || [];
   const history = useStore((s) => s.history[s.active]) || [];
+  const daily = useStore((s) => s.daily[s.active]) || {};
 
-  const [tab, setTab] = useState<'medidas' | 'carga'>('medidas');
+  const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta'>('medidas');
   const [medField, setMedField] = useState<MedKey>('weight');
+  const [dietField, setDietField] = useState<'kcal' | 'protein'>('kcal');
   const [exName, setExName] = useState('');
+
+  // dieta: kcal/proteína por dia
+  const dietSeries = useMemo(() => {
+    return Object.keys(daily)
+      .filter((d) => (daily[d].food || []).length > 0)
+      .sort()
+      .map((d) => {
+        const food = daily[d].food || [];
+        const val = food.reduce((a, it) => a + ((dietField === 'kcal' ? it.k : it.p) * it.g) / 100, 0);
+        return { x: d, y: Math.round(val) };
+      });
+  }, [daily, dietField]);
 
   const medSeries = useMemo(
     () =>
@@ -68,13 +82,26 @@ const Graficos: React.FC = () => {
         <IonSegment
           className="gr-seg"
           value={tab}
-          onIonChange={(e) => setTab((e.detail.value as 'medidas' | 'carga') || 'medidas')}
+          onIonChange={(e) => setTab((e.detail.value as 'medidas' | 'carga' | 'dieta') || 'medidas')}
         >
           <IonSegmentButton value="medidas"><IonLabel>Medidas</IonLabel></IonSegmentButton>
           <IonSegmentButton value="carga"><IonLabel>Carga</IonLabel></IonSegmentButton>
+          <IonSegmentButton value="dieta"><IonLabel>Dieta</IonLabel></IonSegmentButton>
         </IonSegment>
 
-        {tab === 'medidas' ? (
+        {tab === 'dieta' ? (
+          dietSeries.length >= 2 ? (
+            <>
+              <div className="gr-chips">
+                <button className={'gr-chip' + (dietField === 'kcal' ? ' on' : '')} onClick={() => setDietField('kcal')}>Calorias</button>
+                <button className={'gr-chip' + (dietField === 'protein' ? ' on' : '')} onClick={() => setDietField('protein')}>Proteína</button>
+              </div>
+              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : 'g'} />
+            </>
+          ) : (
+            <p className="gr-empty">Registre a dieta em <b>2+ dias</b> pra ver a evolução de calorias/proteína aqui.</p>
+          )
+        ) : tab === 'medidas' ? (
           <>
             <div className="gr-chips">
               {MED_FIELDS.map((f) => (
