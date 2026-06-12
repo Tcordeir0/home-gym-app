@@ -107,6 +107,26 @@
 }
 
 .prem-card.soon .card-sub b { color: var(--ion-text-color); }
+.soon-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.soon-list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 14px;
+  color: var(--app-muted);
+}
+.soon-list li::before {
+  content: '🔜';
+  position: absolute;
+  left: 0;
+  font-size: 12px;
+}
 
 /* Desafios da semana */
 .quest-list {
