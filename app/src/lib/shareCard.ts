@@ -176,6 +176,23 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   }
 
+  // ---- aro Tridente: tridente dourado como coroa em cima do aro (pequeno) ----
+  if (frame === 'tridente') {
+    try {
+      const tri = await loadImage('/trident.svg');
+      const tw = R * 0.72, th = tw * 0.9;
+      ctx.drawImage(tri, cx - tw / 2, (ay - R + 12) - th, tw, th);
+    } catch { /* ok */ }
+  }
+  // ---- aro Minecraft: espada de diamante no topo do aro ----
+  if (frame === 'mine') {
+    try {
+      const sw = await loadImage('/minecraft-sword.svg');
+      const sh = R * 0.62, sw2 = sh * (36 / 84);
+      ctx.drawImage(sw, cx - sw2 / 2, (ay - R + 10) - sh, sw2, sh);
+    } catch { /* ok */ }
+  }
+
   // ---- cosmético (ícone pixel) no canto do avatar ----
   if (d.hat && d.hat !== 'none' && PIXEL_BY_ID[d.hat]) {
     const def = PIXEL_BY_ID[d.hat];

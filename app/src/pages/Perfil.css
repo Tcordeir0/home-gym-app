@@ -123,6 +123,26 @@
   50% { filter: drop-shadow(0 0 7px rgba(255, 232, 130, 0.95)) brightness(1.32); }
 }
 
+/* Aro Minecraft: anel de "blocos" (grama/terra/pedra) girando devagar +
+   espada de diamante no topo (pequena). */
+.av-frame-mine {
+  --ring: repeating-conic-gradient(from 0deg, #7cc93a 0deg 17deg, #5a8f28 17deg 25deg, #6b4a24 25deg 42deg, #8d8d8d 42deg 59deg, #6f6f6f 59deg 67deg);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+}
+.av-frame-mine::before { animation-duration: 16s; }
+.av-frame-mine::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 86%;                 /* espada no topo do aro, pequena */
+  width: 30%;
+  aspect-ratio: 36 / 84;
+  transform: translateX(-50%);
+  background: url('/minecraft-sword.svg') no-repeat center bottom / contain;
+  z-index: 2;
+  pointer-events: none;
+}
+
 /* Aro de eletricidade: anel elétrico girando rápido + faíscas (::after) + brilho piscante */
 .av-frame-electric {
   --ring: conic-gradient(from 0deg, #3a86ff, #cdeaff, #ffe23a, #ffffff, #46d6e6, #3a86ff);

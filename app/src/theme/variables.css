@@ -141,8 +141,21 @@ html[data-theme='bloco'] {
   --ion-card-background: rgba(28, 22, 14, 0.5);
   --app-surface-2: rgba(36, 28, 18, 0.5);
   --app-line: rgba(124, 201, 58, 0.18);
-  /* fonte estilo Minecraft só neste tema (nos títulos/marca/números) */
+  /* fonte estilo Minecraft no tema inteiro (títulos E corpo) */
   --font-display: 'Pixelify Sans', 'Anton', system-ui, sans-serif;
+  --ion-font-family: 'Pixelify Sans', system-ui, sans-serif;
+  --font-ui: 'Pixelify Sans', system-ui, sans-serif;
+}
+/* garante a fonte Minecraft em tudo no tema Bloco (alguns componentes fixam font-family) */
+html[data-theme='bloco'] body,
+html[data-theme='bloco'] ion-content,
+html[data-theme='bloco'] ion-input,
+html[data-theme='bloco'] ion-label,
+html[data-theme='bloco'] input,
+html[data-theme='bloco'] button,
+html[data-theme='bloco'] textarea,
+html[data-theme='bloco'] select {
+  font-family: 'Pixelify Sans', system-ui, sans-serif;
 }
 
 html[data-theme='synth'] {
