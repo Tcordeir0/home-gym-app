@@ -11,8 +11,8 @@ function iso(y: number, m: number, d: number) {
 }
 
 interface Props {
-  /** AAAA-MM-DD → tipo de marcação ('treino' | 'cardio' | 'both') */
-  marks: Record<string, 'treino' | 'cardio' | 'both'>;
+  /** AAAA-MM-DD → tipo de marcação ('treino' | 'cardio' | 'both' | 'dieta') */
+  marks: Record<string, 'treino' | 'cardio' | 'both' | 'dieta'>;
   today: string;
 }
 

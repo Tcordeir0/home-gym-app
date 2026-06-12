@@ -1,6 +1,6 @@
 // Pontos, nível e estatísticas — portado do v1.
 import type { AppState } from '../store/types';
-import { waterGoal } from './diet';
+import { waterGoal, targetsFor } from './diet';
 
 export type StatsInput = Pick<AppState, 'users' | 'history' | 'scores' | 'measures' | 'daily'>;
 
@@ -31,6 +31,8 @@ export interface Stats {
   pts: number;
   weighIns: number;
   waterDays: number;
+  dietDays: number; // dias com alimento registrado
+  proteinDays: number; // dias que bateram a meta de proteína
 }
 
 export function statsFor(state: StatsInput, uid: string): Stats {
@@ -61,5 +63,19 @@ export function statsFor(state: StatsInput, uid: string): Stats {
   let waterDays = 0;
   Object.keys(dd).forEach((date) => { if ((dd[date].waterMl || 0) >= wgoal) waterDays++; });
 
-  return { treinos, cardios, activeDays: Object.keys(days).length, streak, pts: totalPoints(state, uid), weighIns, waterDays };
+  // dieta: dias com alimento + dias que bateram a proteína
+  const dietTargets = fu ? targetsFor(fu.body, lw) : null;
+  let dietDays = 0, proteinDays = 0;
+  Object.keys(dd).forEach((date) => {
+    const food = dd[date].food || [];
+    if (food.length) {
+      dietDays++;
+      if (dietTargets) {
+        const prot = food.reduce((a, it) => a + (it.p * it.g) / 100, 0);
+        if (prot >= dietTargets.protein) proteinDays++;
+      }
+    }
+  });
+
+  return { treinos, cardios, activeDays: Object.keys(days).length, streak, pts: totalPoints(state, uid), weighIns, waterDays, dietDays, proteinDays };
 }
