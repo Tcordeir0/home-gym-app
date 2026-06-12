@@ -1,0 +1,97 @@
+/* Botão Social no header (combina com o LevelBadge) */
+.social-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.06));
+  color: var(--brand-lime);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.social-btn:active { transform: scale(0.92); }
+.social-btn ion-icon { font-size: 22px; }
+
+/* Sheet "Em breve" */
+.social-modal::part(content) {
+  border-radius: 22px 22px 0 0;
+  background: var(--ion-background-color);
+}
+.social-sheet {
+  padding: 8px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.social-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--brand-lime) 16%, transparent);
+  color: var(--brand-lime);
+  margin: 6px 0 12px;
+}
+.social-icon ion-icon { font-size: 38px; }
+.social-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  margin: 0;
+}
+.social-soon {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--brand-lime);
+  background: color-mix(in srgb, var(--brand-lime) 14%, transparent);
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+.social-lead {
+  margin: 18px 0 10px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+.social-feats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.social-feats li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.35;
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.social-feats li ion-icon {
+  font-size: 22px;
+  color: var(--brand-lime);
+  flex: 0 0 auto;
+}
+.social-close {
+  border: 0;
+  background: transparent;
+  color: var(--app-muted);
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 8px 20px;
+  cursor: pointer;
+}

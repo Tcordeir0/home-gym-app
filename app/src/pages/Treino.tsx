@@ -7,6 +7,7 @@ import DemoSheet from '../components/DemoSheet';
 import Cardio from '../components/Cardio';
 import GeneratorSheet from '../components/GeneratorSheet';
 import LevelBadge from '../components/LevelBadge';
+import Social from '../components/Social';
 import TreinoBanner from '../components/TreinoBanner';
 import { fxSuccess } from '../lib/feedback';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
@@ -59,7 +60,7 @@ const Treino: React.FC = () => {
   };
 
   return (
-    <AppPage title="Treino" brand accessory={<LevelBadge />}>
+    <AppPage title="Treino" brand accessory={<><Social /><LevelBadge /></>}>
       <TreinoBanner />
       <IonSegment
         className="treino-seg"
