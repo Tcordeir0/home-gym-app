@@ -7,6 +7,13 @@ import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { statsFor } from '../lib/stats';
+
+// itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
+const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
+const REWARD_FRAMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'frame').map((a) => a.reward!.id));
+const REWARD_DECOS = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'deco').map((a) => a.reward!.id));
 
 export interface SetRow {
   kg: string;
@@ -180,6 +187,7 @@ export interface Store extends AppState {
   claimQuest: (id: string, reward: number) => void;
   spinsAvailable: () => number;
   spinRoulette: () => { prize: Prize; index: number } | null;
+  claimAchievementRewards: () => number;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -585,7 +593,7 @@ export const useStore = create<Store>((set, get) => {
           if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
           if (prize.kind === 'frame') {
             const owned = u.cosmetics.frames || [];
-            const locked = FRAMES.filter((fr) => !fr.free && !owned.includes(fr.id));
+            const locked = FRAMES.filter((fr) => !fr.free && !owned.includes(fr.id) && !REWARD_FRAMES.has(fr.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.frames = [...owned, won.id];
@@ -593,7 +601,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else if (prize.kind === 'theme') {
             const owned = u.cosmetics.themes || [];
-            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !owned.includes(th.id));
+            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !owned.includes(th.id) && !REWARD_THEMES.has(th.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.themes = [...owned, won.id];
@@ -601,7 +609,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else {
             const owned = u.cosmetics.hats || [];
-            const locked = DECOS.filter((d) => !d.free && !owned.includes(d.id));
+            const locked = DECOS.filter((d) => !d.free && !owned.includes(d.id) && !REWARD_DECOS.has(d.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.hats = [...owned, won.id];
@@ -615,6 +623,31 @@ export const useStore = create<Store>((set, get) => {
         }
       }));
       return { prize: result, index };
+    },
+
+    // concede os itens das conquistas já atingidas que ainda não estão na conta.
+    // Retorna quantos itens novos foram desbloqueados (pra mostrar toast).
+    claimAchievementRewards: () => {
+      let granted = 0;
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], frames: [], theme: null, hat: null, frame: null };
+        const stats = statsFor(s, s.active);
+        ACHIEVEMENTS.forEach((a) => {
+          if (!a.reward || !a.test(stats)) return;
+          const { kind, id } = a.reward;
+          if (kind === 'theme') {
+            if (!u.cosmetics.themes.includes(id)) { u.cosmetics.themes.push(id); granted++; }
+          } else if (kind === 'frame') {
+            const f = u.cosmetics.frames || (u.cosmetics.frames = []);
+            if (!f.includes(id)) { f.push(id); granted++; }
+          } else if (kind === 'deco') {
+            if (!u.cosmetics.hats.includes(id)) { u.cosmetics.hats.push(id); granted++; }
+          }
+        });
+      }));
+      return granted;
     },
 
     exportState: () => {
