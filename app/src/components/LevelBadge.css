@@ -11,13 +11,17 @@
   background: transparent;
   cursor: pointer;
 }
-/* disco escuro atrás do badge: dá contraste pro arco/número em QUALQUER tema/wallpaper */
+/* disco atrás do badge: adapta ao tema (claro no Branco, escuro no Preto) e vira
+   um véu escuro nos temas com wallpaper (liquid glass) pra dar contraste. */
 .lvlb-disc {
-  fill: rgba(10, 12, 16, 0.46);
+  fill: var(--app-surface-2);
+}
+html[data-glass] .lvlb-disc {
+  fill: rgba(8, 10, 14, 0.5);
 }
 .lvlb-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.18);
+  stroke: rgba(128, 128, 128, 0.35); /* cinza neutro: visível no claro e no escuro */
   stroke-width: 4.5;
 }
 .lvlb-fg {

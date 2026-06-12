@@ -7,7 +7,8 @@ import './Roleta.css';
 
 const N = PRIZES.length;
 const SEG = 360 / N;
-const SEG_BG = ['rgba(255,255,255,0.04)', 'rgba(255,255,255,0.1)'];
+// cores dos segmentos via CSS vars (adaptam ao tema — ver Roleta.css)
+const SEG_BG = ['var(--rol-seg-a)', 'var(--rol-seg-b)'];
 
 function iconFor(p: Prize) {
   if (p.kind === 'theme') return colorPalette;
