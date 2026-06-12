@@ -160,7 +160,10 @@ const Premios: React.FC = () => {
         <IonCardContent>
           <h2 className="card-title">Em breve 🔜</h2>
           <p className="card-sub">
-            Temas com arte única, decorações de avatar, conquistas sociais e a <b>batalha de duplas 2v2</b> entre contas.
+            <b>Cutucar</b> e <b>desafios</b> entre perfis, conquistas sociais e a <b>batalha de duplas 2v2</b> entre contas.
+          </p>
+          <p className="card-sub" style={{ marginTop: 8, opacity: 0.85 }}>
+            ✅ Já no app: temas com arte única, aros e cosméticos (na roleta e no Personalizar).
           </p>
         </IonCardContent>
       </IonCard>

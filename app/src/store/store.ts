@@ -164,7 +164,7 @@ export interface Store extends AppState {
   updateActiveBody: (patch: Partial<Body>) => void;
   weightSeries: () => { x: string; y: number }[];
   addWaterToday: (ml: number) => void;
-  addFoodToday: (item: { n: string; k: number; p: number; g: number }) => void;
+  addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
   removeHistoryEntry: (idx: number) => void;
