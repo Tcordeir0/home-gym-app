@@ -57,14 +57,19 @@ const Progresso: React.FC = () => {
 
   // marcações do calendário
   const marks = useMemo(() => {
-    const out: Record<string, 'treino' | 'cardio' | 'both'> = {};
+    const out: Record<string, 'treino' | 'cardio' | 'both' | 'dieta'> = {};
     (history[active] || []).forEach((e) => {
       const kind: 'treino' | 'cardio' = e.w === 'cardio' ? 'cardio' : 'treino';
       const prev = out[e.date];
-      out[e.date] = !prev ? kind : prev === kind ? prev : 'both';
+      out[e.date] = !prev ? kind : prev === kind || prev === 'both' ? prev : 'both';
+    });
+    // dieta: marca dias com alimento registrado (treino tem prioridade no ponto)
+    const dd = daily[active] || {};
+    Object.keys(dd).forEach((date) => {
+      if ((dd[date].food || []).length && !out[date]) out[date] = 'dieta';
     });
     return out;
-  }, [history, active]);
+  }, [history, active, daily]);
 
   // sessões mais recentes primeiro, guardando o índice original
   const sessions = useMemo(() => {

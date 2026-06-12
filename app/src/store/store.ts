@@ -170,6 +170,11 @@ export interface Store extends AppState {
   addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
+  // versões por DATA (permitem registrar/editar alimentos em dias retroativos)
+  addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
+  setFoodGramsOn: (date: string, idx: number, g: number) => void;
+  removeFoodOn: (date: string, idx: number) => void;
+  dietKcalSeries: () => { x: string; y: number }[];
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
   claimQuest: (id: string, reward: number) => void;
@@ -482,6 +487,41 @@ export const useStore = create<Store>((set, get) => {
         const f = s.daily[s.active]?.[todayISO()]?.food;
         if (f) f.splice(idx, 1);
       })),
+
+    // ---- alimentos por DATA (dias retroativos) ----
+    addFoodOn: (date, item) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const uid = s.active;
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        dd[date] = dd[date] || {};
+        dd[date].food = dd[date].food || [];
+        dd[date].food!.push(item);
+      })),
+    setFoodGramsOn: (date, idx, g) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const f = s.daily[s.active]?.[date]?.food;
+        if (f && f[idx]) f[idx].g = g;
+      })),
+    removeFoodOn: (date, idx) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const f = s.daily[s.active]?.[date]?.food;
+        if (f) f.splice(idx, 1);
+      })),
+    // kcal por dia (pro gráfico de histórico da dieta)
+    dietKcalSeries: () => {
+      const s = get();
+      const dd = s.daily[s.active] || {};
+      return Object.keys(dd)
+        .filter((date) => (dd[date].food || []).length > 0)
+        .sort()
+        .map((date) => {
+          const kcal = (dd[date].food || []).reduce((a, it) => a + (it.k * it.g) / 100, 0);
+          return { x: date, y: Math.round(kcal) };
+        });
+    },
 
     addBackdated: (w, date, cardio) => {
       const s0 = get();

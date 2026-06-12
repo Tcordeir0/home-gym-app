@@ -26,9 +26,27 @@ const Diary: React.FC = () => {
   const daily = useStore((s) => s.daily);
   const active = useStore((s) => s.active);
   const latestMeasure = useStore((s) => s.latestMeasure);
-  const addFood = useStore((s) => s.addFoodToday);
-  const setGrams = useStore((s) => s.setFoodGrams);
-  const removeFood = useStore((s) => s.removeFoodToday);
+  const addFoodOn = useStore((s) => s.addFoodOn);
+  const setGramsOn = useStore((s) => s.setFoodGramsOn);
+  const removeFoodOn = useStore((s) => s.removeFoodOn);
+  // dia em foco (permite registrar em dias retroativos)
+  const [date, setDate] = useState(todayISO());
+  const today = todayISO();
+  const isToday = date === today;
+  const stepDay = (n: number) => {
+    const d = new Date(date + 'T12:00:00');
+    d.setDate(d.getDate() + n);
+    const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    if (ds <= today) setDate(ds); // não deixa ir pro futuro
+  };
+  const dateLabel = (() => {
+    if (isToday) return 'Hoje';
+    const d = new Date(date + 'T12:00:00');
+    const y = new Date(today + 'T12:00:00'); y.setDate(y.getDate() - 1);
+    const yIso = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
+    if (date === yIso) return 'Ontem';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  })();
   const [q, setQ] = useState('');
   const [bc, setBc] = useState('');
   const [online, setOnline] = useState<OffHit[]>([]);
@@ -60,13 +78,13 @@ const Diary: React.FC = () => {
     }
   };
   const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
-    addFood({ n: it.n, k: it.k, p: it.p, g: 100, liq: isBeverage(it.n, it.tags) });
+    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 100, liq: isBeverage(it.n, it.tags) });
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
   const weight = latestMeasure('weight');
   const t = targetsFor(profile.body, weight);
-  const food = daily?.[active]?.[todayISO()]?.food || [];
+  const food = daily?.[active]?.[date]?.food || [];
 
   let kcal = 0, prot = 0;
   food.forEach((it) => { kcal += (it.k * it.g) / 100; prot += (it.p * it.g) / 100; });
@@ -83,7 +101,15 @@ const Diary: React.FC = () => {
   return (
     <IonCard className="diet-card">
       <IonCardContent>
-        <h2 className="card-title">🍽️ Diário de hoje</h2>
+        <div className="diary-head">
+          <h2 className="card-title">🍽️ Diário</h2>
+          <div className="diary-date">
+            <button className="dd-arrow" onClick={() => stepDay(-1)} aria-label="Dia anterior">‹</button>
+            <button className={'dd-day' + (isToday ? '' : ' past')} onClick={() => setDate(today)}>{dateLabel}</button>
+            <button className="dd-arrow" onClick={() => stepDay(1)} disabled={isToday} aria-label="Próximo dia">›</button>
+          </div>
+        </div>
+        {!isToday && <p className="diary-retro">Registrando em <b>{dateLabel.toLowerCase()}</b> · toque na data pra voltar pra hoje.</p>}
 
         {t ? (
           <>
@@ -123,12 +149,12 @@ const Diary: React.FC = () => {
                     inputMode="numeric"
                     aria-label={it.liq ? 'Mililitros' : 'Gramas'}
                     value={it.g}
-                    onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGrams(i, g); }}
+                    onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGramsOn(date, i, g); }}
                   />
                   <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
                 </div>
                 <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
-                <button className="food-del" onClick={() => removeFood(i)} aria-label="Remover">
+                <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
                   <IonIcon icon={trashOutline} />
                 </button>
               </div>

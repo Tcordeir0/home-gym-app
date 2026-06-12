@@ -66,6 +66,7 @@
 }
 .cal-cell.done.cardio { background: rgba(95, 168, 255, 0.12); }
 .cal-cell.done.both { background: rgba(198, 255, 58, 0.16); }
+.cal-cell.done.dieta { background: rgba(255, 138, 58, 0.12); }
 .cal-dot {
   position: absolute;
   bottom: 4px;
@@ -77,6 +78,7 @@
   background: var(--brand-lime);
 }
 .cal-cell.cardio .cal-dot { background: #5fa8ff; }
+.cal-cell.dieta .cal-dot { background: #ff8a3a; }
 .cal-cell.both .cal-dot {
   width: 11px;
   background: linear-gradient(90deg, var(--brand-lime) 50%, #5fa8ff 50%);

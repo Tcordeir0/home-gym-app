@@ -1,5 +1,6 @@
 import {
   sparkles, flame, barbell, heart, calendar, flash, star, trophy, fitness, trendingUp, water,
+  restaurant, nutrition,
 } from 'ionicons/icons';
 import type { Stats } from '../lib/stats';
 
@@ -26,4 +27,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { icon: trendingUp, label: 'Acompanhando', desc: '5 pesagens', fresh: true, test: (s) => s.weighIns >= 5 },
   { icon: water, label: 'Hidratado', desc: 'meta de água num dia', fresh: true, test: (s) => s.waterDays >= 1 },
   { icon: water, label: 'Bem hidratado', desc: 'meta de água em 7 dias', fresh: true, milestone: true, test: (s) => s.waterDays >= 7 },
+  { icon: restaurant, label: 'Comeu certo', desc: '1º dia de dieta registrado', fresh: true, test: (s) => s.dietDays >= 1 },
+  { icon: restaurant, label: 'Disciplina na dieta', desc: '7 dias de dieta', fresh: true, milestone: true, test: (s) => s.dietDays >= 7 },
+  { icon: nutrition, label: 'Proteína em dia', desc: 'bateu a proteína num dia', fresh: true, test: (s) => s.proteinDays >= 1 },
+  { icon: nutrition, label: 'Máquina de proteína', desc: 'proteína em 7 dias', fresh: true, milestone: true, test: (s) => s.proteinDays >= 7 },
 ];
