@@ -124,9 +124,9 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       const dw = img.width * s, dh = img.height * s;
       ctx.drawImage(img, cx - dw / 2, 0, dw, dh);
       const veil = ctx.createLinearGradient(0, 0, 0, H);
-      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.72)`);
-      veil.addColorStop(0.5, `rgba(${br},${bg2},${bb},0.5)`);
-      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.82)`);
+      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.8)`);
+      veil.addColorStop(0.42, `rgba(${br},${bg2},${bb},0.62)`);
+      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.9)`);
       ctx.fillStyle = veil;
       ctx.fillRect(0, 0, W, H);
       drewImage = true;
@@ -152,8 +152,11 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 150);
 
   // ---- avatar: foto (círculo) OU anel de nível, com o ARO do perfil ----
-  const ay = 400, R = 140;
+  const ay = 400;
   const frame = d.frame || 'none';
+  // aros-imagem (coroas) são bem maiores que o avatar → reduzir o raio pra coroa
+  // caber entre a marca e o nome (não invadir o "TCORDEIRO").
+  const R = frame === 'mine' ? 96 : frame === 'cha' ? 110 : 140;
   const ringLw = frame === 'pokeball' ? 22 : 16;
   if (d.photo) {
     try {
