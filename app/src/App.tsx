@@ -18,8 +18,10 @@ import { useStore } from './store/store';
 import { setFeedbackMode } from './lib/feedback';
 import { supabase } from './lib/supabase';
 import { syncOnLogin, startSync, stopSync } from './lib/sync';
+import { deviceId } from './lib/device';
 import { THEMES } from './data/themes';
 import Auth from './pages/Auth';
+import ProfileSelect from './pages/ProfileSelect';
 import Treino from './pages/Treino';
 import Dieta from './pages/Dieta';
 import Progresso from './pages/Progresso';
@@ -79,6 +81,17 @@ const App: React.FC = () => {
       stopSync();
     }
   }, [uid]);
+
+  // Perfil reivindicado por ESTE aparelho (anti-trapaça). Se não tiver, mostra
+  // a tela de escolha de perfil. Se tiver, abre sempre nele.
+  const users = useStore((s) => s.users);
+  const activeId = useStore((s) => s.active);
+  const setActive = useStore((s) => s.setActive);
+  const myDev = deviceId();
+  const claimed = users.find((u) => u.claimedDevice === myDev);
+  useEffect(() => {
+    if (claimed && activeId !== claimed.id) setActive(claimed.id);
+  }, [claimed?.id, activeId]);
 
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
@@ -152,6 +165,15 @@ const App: React.FC = () => {
           <span className="brand">HOME <span className="brand-hl">GYM</span></span>
           <IonSpinner name="crescent" />
         </div>
+      </IonApp>
+    );
+  }
+  // Este aparelho ainda não escolheu um perfil → tela de escolha.
+  if (!claimed) {
+    return (
+      <IonApp>
+        <ThemeFX />
+        <ProfileSelect />
       </IonApp>
     );
   }

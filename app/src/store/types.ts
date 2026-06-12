@@ -61,6 +61,7 @@ export interface Profile {
   photo?: string;
   bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
   location?: 'casa' | 'academia'; // local de treino — alimenta o gerador
+  claimedDevice?: string | null; // id do aparelho que "reivindicou" este perfil (anti-trapaça)
 }
 
 export interface SetEntry {

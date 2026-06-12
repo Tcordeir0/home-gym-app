@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
 import { weekDates } from '../lib/league';
+import { deviceId } from '../lib/device';
 import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
@@ -138,6 +139,8 @@ function persist(state: AppState) {
 export interface Store extends AppState {
   setActive: (id: string) => void;
   addProfile: () => string;
+  claimProfile: (id: string) => void;
+  addAndClaimProfile: (name: string) => string;
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   resetState: () => void;
@@ -188,10 +191,16 @@ function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, seri
 
 export const useStore = create<Store>((set, get) => {
   const initial = loadState();
-  // perfil ativo deste APARELHO manda (privacidade)
-  const da = getDeviceActive();
-  if (da && initial.users.some((u) => u.id === da)) initial.active = da;
-  else setDeviceActive(initial.active);
+  // este APARELHO sempre abre no perfil que ele reivindicou (anti-trapaça);
+  // senão cai no último ativo do aparelho.
+  const myDev = deviceId();
+  const claimed = initial.users.find((u) => u.claimedDevice === myDev);
+  if (claimed) { initial.active = claimed.id; setDeviceActive(claimed.id); }
+  else {
+    const da = getDeviceActive();
+    if (da && initial.users.some((u) => u.id === da)) initial.active = da;
+    else setDeviceActive(initial.active);
+  }
 
   return {
     ...initial,
@@ -234,6 +243,26 @@ export const useStore = create<Store>((set, get) => {
       const id = 'u' + Date.now();
       const color = COLORS[get().users.length % COLORS.length];
       const p = newProfile(id, 'Novo perfil', color);
+      setDeviceActive(id);
+      set((s) => ({ users: [...s.users, p], active: id }));
+      return id;
+    },
+    // Este aparelho reivindica um perfil existente (e passa a abrir nele).
+    claimProfile: (id) => {
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === id);
+        if (!u) return;
+        u.claimedDevice = deviceId();
+        s.active = id;
+      }));
+      setDeviceActive(id);
+    },
+    // Cria um perfil novo já reivindicado por este aparelho.
+    addAndClaimProfile: (name) => {
+      const id = 'u' + Date.now();
+      const color = COLORS[get().users.length % COLORS.length];
+      const p = newProfile(id, (name || '').trim() || 'Novo perfil', color);
+      p.claimedDevice = deviceId();
       setDeviceActive(id);
       set((s) => ({ users: [...s.users, p], active: id }));
       return id;
