@@ -188,6 +188,7 @@ export interface Store extends AppState {
   spinsAvailable: () => number;
   spinRoulette: () => { prize: Prize; index: number } | null;
   claimAchievementRewards: () => number;
+  grantAccountThemes: (email: string) => void;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -593,7 +594,7 @@ export const useStore = create<Store>((set, get) => {
           if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
           if (prize.kind === 'frame') {
             const owned = u.cosmetics.frames || [];
-            const locked = FRAMES.filter((fr) => !fr.free && !owned.includes(fr.id) && !REWARD_FRAMES.has(fr.id));
+            const locked = FRAMES.filter((fr) => !fr.free && !fr.account && !owned.includes(fr.id) && !REWARD_FRAMES.has(fr.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.frames = [...owned, won.id];
@@ -601,7 +602,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else if (prize.kind === 'theme') {
             const owned = u.cosmetics.themes || [];
-            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !owned.includes(th.id) && !REWARD_THEMES.has(th.id));
+            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !th.account && !owned.includes(th.id) && !REWARD_THEMES.has(th.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.themes = [...owned, won.id];
@@ -648,6 +649,23 @@ export const useStore = create<Store>((set, get) => {
         });
       }));
       return granted;
+    },
+
+    // libera os temas E aros vinculados a uma CONTA (email) p/ todos os perfis dela.
+    grantAccountThemes: (email) => {
+      const mail = (email || '').trim().toLowerCase();
+      if (!mail) return;
+      const themeIds = THEMES.filter((t) => t.account && t.account.toLowerCase() === mail).map((t) => t.id);
+      const frameIds = FRAMES.filter((f) => f.account && f.account.toLowerCase() === mail).map((f) => f.id);
+      if (!themeIds.length && !frameIds.length) return;
+      set(produce((s: Store) => {
+        s.users.forEach((u) => {
+          if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], frames: [], theme: null, hat: null, frame: null };
+          themeIds.forEach((id) => { if (!u.cosmetics.themes.includes(id)) u.cosmetics.themes.push(id); });
+          const fr = u.cosmetics.frames || (u.cosmetics.frames = []);
+          frameIds.forEach((id) => { if (!fr.includes(id)) fr.push(id); });
+        });
+      }));
     },
 
     exportState: () => {

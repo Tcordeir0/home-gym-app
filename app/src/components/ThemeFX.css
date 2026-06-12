@@ -330,6 +330,53 @@
   100% { transform: translate(var(--drift), -112vh) rotate(8deg); opacity: 0; }
 }
 
+/* ===== fx mãos da Satella (tema Chá / Re:Zero) — massa de mãos se contorcendo ===== */
+.fx-hands { position: absolute; inset: 0; overflow: hidden; }
+/* a massa escura de onde as mãos saem */
+.fx-hands .hands-pool {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26vh;
+  background: linear-gradient(to top, rgba(40, 12, 70, 0.6), rgba(60, 20, 100, 0.18) 55%, transparent);
+  filter: blur(2px);
+}
+.fx-hands .shand {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 8px rgba(150, 70, 230, 0.85)) drop-shadow(0 0 18px rgba(110, 40, 190, 0.5));
+  animation-name: fx-handsway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+/* mãos emergindo das 4 bordas: o pivô fica na borda e elas se contorcem */
+.fx-hands .shand.b { bottom: -3vh; transform-origin: bottom center; }
+.fx-hands .shand.t { top: -3vh; transform-origin: top center; }
+.fx-hands .shand.l { left: -2vw; transform-origin: left center; }
+.fx-hands .shand.r { right: -2vw; transform-origin: right center; }
+@keyframes fx-handsway {
+  0%, 100% { transform: rotate(var(--r0, -8deg)); opacity: 0.4; }
+  50% { transform: rotate(var(--r1, 8deg)); opacity: 0.68; }
+}
+/* 愛している — frase da Satella, sussurro roxo subindo */
+.fx-hands .aishiteru {
+  position: absolute;
+  bottom: -8vh;
+  color: #e8c4ff;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(170, 90, 240, 0.95), 0 0 18px rgba(120, 50, 200, 0.6);
+  opacity: 0;
+  white-space: nowrap;
+  animation-name: fx-aishiteru;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes fx-aishiteru {
+  0% { transform: translateY(0) scale(0.92); opacity: 0; }
+  20% { opacity: 0.85; }
+  75% { opacity: 0.5; }
+  100% { transform: translateY(-112vh) scale(1.08); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .theme-fx,
   .theme-fx::before { animation: none !important; }
@@ -340,6 +387,8 @@
   .heart,
   .flake,
   .rune,
+  .shand,
+  .aishiteru,
   .fx-electric .bolt,
   .fx-electric .spark,
   .fx-miasma .wisp { display: none; }

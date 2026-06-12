@@ -199,6 +199,56 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'hands' && (
+        <div className="fx-hands">
+          {/* a massa escura de onde as mãos emergem (Satella) */}
+          <div className="hands-pool" />
+          {/* mãos emergindo das 4 bordas e se CONTORCENDO (base° + sway de rotação) */}
+          {([
+            { e: 'b', n: 10, base: 0 },
+            { e: 't', n: 7, base: 180 },
+            { e: 'l', n: 6, base: 90 },
+            { e: 'r', n: 6, base: -90 },
+          ] as const).flatMap((cfg) =>
+            Array.from({ length: cfg.n }).map((_, i) => {
+              const sway = 7 + (i % 3) * 6;
+              const along = ((i * 53 + 7) % 90) + 4; // % ao longo da borda
+              const horiz = cfg.e === 'b' || cfg.e === 't';
+              return (
+                <img
+                  key={cfg.e + i}
+                  className={'shand reach ' + cfg.e}
+                  src="/satella-hand.svg"
+                  alt=""
+                  style={{
+                    [horiz ? 'left' : 'top']: `${along}%`,
+                    width: `${40 + (i % 4) * 22}px`,
+                    ['--r0' as string]: `${cfg.base - sway}deg`,
+                    ['--r1' as string]: `${cfg.base + sway}deg`,
+                    animationDuration: `${2.6 + (i % 4) * 0.7}s`,
+                    animationDelay: `-${(i * 0.43) % 5}s`,
+                  }}
+                />
+              );
+            }),
+          )}
+          {/* 愛している — a frase marcada da Satella, sussurrada no fundo */}
+          {Array.from({ length: 4 }).map((_, i) => (
+            <span
+              key={'t' + i}
+              className="aishiteru"
+              style={{
+                left: `${12 + i * 23}%`,
+                fontSize: `${15 + (i % 3) * 9}px`,
+                animationDuration: `${9 + (i % 4)}s`,
+                animationDelay: `-${(i * 1.7) % 8}s`,
+              }}
+            >
+              愛している
+            </span>
+          ))}
+        </div>
+      )}
       {themeObj?.fx === 'snow' && (
         <div className="fx-snow">
           {Array.from({ length: 40 }).map((_, i) => (

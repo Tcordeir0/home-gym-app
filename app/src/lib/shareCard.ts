@@ -165,7 +165,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       ctx.drawImage(img, cx - dw / 2, ay - dh / 2, dw, dh);
       ctx.restore();
     } catch { /* sem foto */ }
-    if (frame !== 'mine') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   } else {
     // base + número do nível, depois o aro por cima
     ctx.fillStyle = surfCol;
@@ -173,7 +173,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.textAlign = 'center'; ctx.fillStyle = accent;
     ctx.font = '140px Anton, sans-serif'; ctx.fillText(String(d.level), cx, ay + 46);
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif'; ctx.fillText('NÍVEL', cx, ay + 100);
-    if (frame !== 'mine') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   }
 
   // ---- aro Tridente: tridente dourado como coroa em cima do aro (pequeno) ----
@@ -191,6 +191,14 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       // frações medidas do PNG: buraco centro (0.496, 0.582), raio 0.236 da largura
       const Wimg = R / 0.236;               // largura da coroa p/ o buraco = raio do avatar
       ctx.drawImage(wreath, cx - 0.496 * Wimg, ay - 0.582 * Wimg, Wimg, Wimg);
+    } catch { /* ok */ }
+  }
+  // ---- aro Pecados (Chá): coroa de caveiras dos 7 pecados ----
+  if (frame === 'cha') {
+    try {
+      const wreath = await loadImage('/cha-ring.png');
+      const Wimg = R / 0.261;               // buraco centrado (0.5, 0.5), raio 0.261
+      ctx.drawImage(wreath, cx - 0.5 * Wimg, ay - 0.5 * Wimg, Wimg, Wimg);
     } catch { /* ok */ }
   }
 

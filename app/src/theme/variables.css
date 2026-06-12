@@ -343,6 +343,23 @@ html[data-theme='creator'] {
   --app-line: rgba(176, 107, 255, 0.2);
 }
 
+/* Chá — wallpaper do pôr-do-sol (あなたとお茶を) + mãos roxas da Satella.
+   Accent quente do céu; cards vidro translúcido; toque roxo nas linhas. */
+html[data-theme='cha'] {
+  --ion-color-primary: #ff9e6b;
+  --ion-color-primary-contrast: #1a1012;
+  --brand-lime: #ff9e6b;
+  --ion-background-color: #181222;
+  --ion-background-color-rgb: 24, 18, 34;
+  --ion-text-color: #f6ece6;
+  --ion-toolbar-background: rgba(24, 18, 34, 0.5);
+  --ion-tab-bar-background: rgba(18, 13, 26, 0.62);
+  --ion-item-background: rgba(40, 28, 52, 0.46);
+  --ion-card-background: rgba(40, 28, 52, 0.46);
+  --app-surface-2: rgba(54, 38, 68, 0.5);
+  --app-line: rgba(150, 90, 210, 0.22);
+}
+
 /* Splash curto enquanto carrega a sessão */
 .app-splash {
   position: fixed;

@@ -6,6 +6,7 @@ export interface Frame {
   id: string;
   name: string;
   free: boolean;
+  account?: string; // liberado p/ todos os perfis desta conta (email) — não cai na roleta
   // duas cores que representam o aro no seletor (swatch radial)
   swatch: [string, string];
 }
@@ -15,6 +16,7 @@ export const FRAMES: Frame[] = [
   { id: 'electric', name: 'Eletricidade', free: true, swatch: ['#8ec8ff', '#ffe14d'] },
   { id: 'tridente', name: 'Tridente', free: true, swatch: ['#fff3c4', '#c89b2a'] },
   { id: 'mine', name: 'Minecraft', free: false, swatch: ['#7cc93a', '#6b4a24'] },
+  { id: 'cha', name: 'Pecados', free: false, account: 'talysmatheus12@gmail.com', swatch: ['#caa6ff', '#2a1840'] },
   { id: 'pokeball', name: 'Pokébola', free: false, swatch: ['#e23b3b', '#f4f6f8'] },
   { id: 'return', name: 'Return', free: false, swatch: ['#c0392b', '#1a0e10'] },
   { id: 'neon', name: 'Neon', free: false, swatch: ['#00e5ff', '#c800ff'] },
