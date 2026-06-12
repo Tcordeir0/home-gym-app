@@ -19,3 +19,33 @@
   backdrop-filter: saturate(170%) blur(18px);
   border-bottom: 1px solid var(--app-line);
 }
+
+/* Banner de modo leitura (vendo o perfil de outro) */
+.ro-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 16px 8px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: rgba(255, 196, 0, 0.14);
+  border: 1px solid rgba(255, 196, 0, 0.32);
+  color: #e7b73a;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ro-banner span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.ro-banner b { color: var(--ion-text-color); }
+.ro-banner ion-icon { font-size: 15px; flex: 0 0 auto; }
+.ro-banner button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--brand-lime);
+  color: var(--ion-color-primary-contrast);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}

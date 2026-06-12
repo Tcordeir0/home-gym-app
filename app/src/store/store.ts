@@ -189,6 +189,13 @@ function ensureRow(s: AppState, uid: string, treino: string, exIdx: number, seri
   return sl[uid][treino][exIdx];
 }
 
+/** Anti-trapaça: só o aparelho que REIVINDICOU o perfil ativo pode editá-lo.
+ *  Ao visualizar o perfil de outro (modo leitura), as mutações viram no-op. */
+export function ownsActive(s: AppState): boolean {
+  const u = s.users.find((x) => x.id === s.active);
+  return !!u && u.claimedDevice === deviceId();
+}
+
 export const useStore = create<Store>((set, get) => {
   const initial = loadState();
   // este APARELHO sempre abre no perfil que ele reivindicou (anti-trapaça);
@@ -210,6 +217,7 @@ export const useStore = create<Store>((set, get) => {
     initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
@@ -218,6 +226,7 @@ export const useStore = create<Store>((set, get) => {
       })),
     setHat: (id) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
@@ -226,6 +235,7 @@ export const useStore = create<Store>((set, get) => {
       })),
     setFrame: (id) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
@@ -234,6 +244,7 @@ export const useStore = create<Store>((set, get) => {
       })),
     setThemePhoto: (on) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
@@ -269,6 +280,7 @@ export const useStore = create<Store>((set, get) => {
     },
     deleteProfile: (id) => {
       if (get().users.length <= 1) return; // mantém ao menos 1 perfil
+      if (get().users.find((u) => u.id === id)?.claimedDevice !== deviceId()) return; // só apaga o seu
       set(produce((s: Store) => {
         s.users = s.users.filter((u) => u.id !== id);
         const maps: (keyof AppState)[] = ['checks', 'history', 'scores', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily'];
@@ -279,19 +291,24 @@ export const useStore = create<Store>((set, get) => {
     },
 
     updateProfile: (id, patch) =>
-      set((s) => ({ users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) })),
+      set((s) => {
+        if (s.users.find((u) => u.id === id)?.claimedDevice !== deviceId()) return s; // só edita o seu perfil
+        return { users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) };
+      }),
 
     setSetField: (treino, exIdx, setIdx, field, v, series) =>
-      set(produce((s: Store) => { ensureRow(s, s.active, treino, exIdx, series)[setIdx][field] = v; })),
+      set(produce((s: Store) => { if (!ownsActive(s)) return; ensureRow(s, s.active, treino, exIdx, series)[setIdx][field] = v; })),
 
     toggleSetDone: (treino, exIdx, setIdx, series) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const r = ensureRow(s, s.active, treino, exIdx, series)[setIdx];
         r.done = !r.done;
       })),
 
     completeWorkout: (treino, exs) => {
       const s0 = get();
+      if (!ownsActive(s0)) return 'empty';
       const uid = s0.active;
       const today = todayISO();
       const hist = s0.history[uid] || [];
@@ -334,6 +351,7 @@ export const useStore = create<Store>((set, get) => {
 
     addCardio: (label, emoji) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const today = todayISO();
         const h = (s.history[uid] = s.history[uid] || []);
@@ -356,6 +374,7 @@ export const useStore = create<Store>((set, get) => {
 
     setWeightToday: (kg) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const t = todayISO();
         const arr = (s.measures[uid] = s.measures[uid] || []);
@@ -366,6 +385,7 @@ export const useStore = create<Store>((set, get) => {
 
     setMeasureField: (field, value) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const t = todayISO();
         const arr = (s.measures[uid] = s.measures[uid] || []);
@@ -376,6 +396,7 @@ export const useStore = create<Store>((set, get) => {
 
     setProgressPhoto: (dataUrl) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const t = todayISO();
         const arr = (s.measures[uid] = s.measures[uid] || []);
@@ -386,6 +407,7 @@ export const useStore = create<Store>((set, get) => {
 
     removeProgressPhoto: (date) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const arr = s.measures[s.active];
         if (!arr) return;
         const e = arr.find((m) => m.date === date);
@@ -412,6 +434,7 @@ export const useStore = create<Store>((set, get) => {
 
     updateActiveBody: (patch) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (u) u.body = { ...u.body, ...patch };
       })),
@@ -427,6 +450,7 @@ export const useStore = create<Store>((set, get) => {
 
     addWaterToday: (ml) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const t = todayISO();
         const dd = (s.daily[uid] = s.daily[uid] || {});
@@ -436,6 +460,7 @@ export const useStore = create<Store>((set, get) => {
 
     addFoodToday: (item) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const t = todayISO();
         const dd = (s.daily[uid] = s.daily[uid] || {});
@@ -446,18 +471,21 @@ export const useStore = create<Store>((set, get) => {
 
     setFoodGrams: (idx, g) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const f = s.daily[s.active]?.[todayISO()]?.food;
         if (f && f[idx]) f[idx].g = g;
       })),
 
     removeFoodToday: (idx) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const f = s.daily[s.active]?.[todayISO()]?.food;
         if (f) f.splice(idx, 1);
       })),
 
     addBackdated: (w, date, cardio) => {
       const s0 = get();
+      if (!ownsActive(s0)) return 'dup';
       const uid = s0.active;
       const hist = s0.history[uid] || [];
       if (w !== 'cardio' && hist.some((e) => e.date === date && e.w === w)) return 'dup';
@@ -476,6 +504,7 @@ export const useStore = create<Store>((set, get) => {
 
     claimQuest: (id, reward) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const u = s.users.find((x) => x.id === uid);
         if (!u) return;
@@ -499,6 +528,7 @@ export const useStore = create<Store>((set, get) => {
     },
 
     spinRoulette: () => {
+      if (!ownsActive(get())) return null;
       if (get().spinsAvailable() <= 0) return null;
       const prize = pickPrize();
       const index = PRIZES.indexOf(prize);
@@ -567,6 +597,7 @@ export const useStore = create<Store>((set, get) => {
 
     removeHistoryEntry: (idx) =>
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
         const uid = s.active;
         const list = s.history[uid];
         if (!list || !list[idx]) return;

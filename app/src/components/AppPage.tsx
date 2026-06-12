@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonIcon } from '@ionic/react';
 import type { ReactNode } from 'react';
 import type { ScrollDetail } from '@ionic/core';
+import { eyeOutline } from 'ionicons/icons';
 import ProfileBar from './ProfileBar';
+import { useStore, ownsActive } from '../store/store';
+import { deviceId } from '../lib/device';
 import './AppPage.css';
 
 interface Props {
@@ -22,6 +25,12 @@ const AppPage: React.FC<Props> = ({ title, brand, accessory, children }) => {
     const s = e.detail.scrollTop > 44;
     setScrolled((prev) => (prev === s ? prev : s));
   };
+
+  // Modo leitura: vendo o perfil de outro (não reivindicado por este aparelho).
+  const owns = useStore(ownsActive);
+  const activeName = useStore((s) => s.users.find((u) => u.id === s.active)?.name || '');
+  const myId = useStore((s) => s.users.find((u) => u.claimedDevice === deviceId())?.id);
+  const setActive = useStore((s) => s.setActive);
 
   return (
     <IonPage>
@@ -50,6 +59,12 @@ const AppPage: React.FC<Props> = ({ title, brand, accessory, children }) => {
           </IonToolbar>
         </IonHeader>
         <ProfileBar />
+        {!owns && (
+          <div className="ro-banner">
+            <span><IonIcon icon={eyeOutline} /> Vendo <b>{activeName}</b> — modo leitura</span>
+            {myId && <button onClick={() => setActive(myId)}>Voltar ao meu</button>}
+          </div>
+        )}
         <div className="page-body">{children}</div>
       </IonContent>
     </IonPage>
