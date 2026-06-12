@@ -1,0 +1,61 @@
+/* Camada de fx do tema dentro da pílula — recortada na forma da pílula, atrás do conteúdo */
+.pill-fx {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.pill-fx .pf {
+  position: absolute;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* mãos da Satella (Chá) — na base, contorcendo */
+.pill-fx .p-hand {
+  bottom: -4px;
+  transform-origin: bottom center;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 4px rgba(150, 70, 230, 0.9));
+  animation-name: pf-sway;
+  animation-duration: 3s;
+}
+@keyframes pf-sway { 0%, 100% { transform: rotate(-13deg); opacity: 0.4; } 50% { transform: rotate(13deg); opacity: 0.62; } }
+
+/* runas (Bloco) e símbolos (Math) subindo */
+.pill-fx .p-rune {
+  bottom: -10px;
+  color: #eafff0;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(140, 201, 58, 0.9);
+  animation-name: pf-rise;
+  animation-duration: 3.4s;
+}
+.pill-fx .p-rune.math { color: #cdefff; text-shadow: 0 0 5px rgba(95, 224, 232, 0.9); }
+
+/* corações (Love) subindo */
+.pill-fx .p-heart { bottom: -10px; color: #ff6bc4; text-shadow: 0 0 5px rgba(255, 107, 196, 0.8); animation-name: pf-rise; animation-duration: 3.2s; }
+
+/* bolhas (Aquático) subindo */
+.pill-fx .p-bubble { bottom: -8px; border-radius: 50%; background: rgba(180, 240, 255, 0.5); box-shadow: 0 0 4px rgba(120, 220, 255, 0.6); animation-name: pf-rise; animation-duration: 3.6s; }
+
+/* neve caindo */
+.pill-fx .p-flake { top: -8px; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px rgba(220, 240, 255, 0.8); opacity: 0; animation-name: pf-fall; animation-duration: 3.4s; }
+
+/* vaga-lumes / faíscas piscando */
+.pill-fx .p-fly { width: 4px; height: 4px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 6px #ffd166; animation-name: pf-blink; animation-duration: 2.4s; }
+.pill-fx .p-spark { width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 5px #ffe23a, 0 0 8px #8ec8ff; animation-name: pf-blink; animation-duration: 1.4s; }
+
+/* miasma (Return) — pulso vermelho + névoa */
+.pill-fx .p-pulse { inset: 0; background: radial-gradient(circle at 50% 60%, rgba(192, 57, 43, 0.4), transparent 70%); animation-name: pf-pulse; animation-duration: 2.2s; }
+.pill-fx .p-wisp { bottom: -8px; width: 10px; height: 10px; border-radius: 50%; background: rgba(120, 20, 30, 0.5); filter: blur(3px); animation-name: pf-rise; animation-duration: 4s; }
+
+@keyframes pf-rise { 0% { transform: translateY(120%); opacity: 0; } 25% { opacity: 0.85; } 80% { opacity: 0.5; } 100% { transform: translateY(-130%); opacity: 0; } }
+@keyframes pf-fall { 0% { transform: translateY(-120%); opacity: 0; } 25% { opacity: 0.85; } 80% { opacity: 0.6; } 100% { transform: translateY(130%); opacity: 0; } }
+@keyframes pf-blink { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 50% { opacity: 0.9; transform: scale(1); } }
+@keyframes pf-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.5; } }
+
+@media (prefers-reduced-motion: reduce) { .pill-fx { display: none; } }

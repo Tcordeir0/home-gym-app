@@ -63,7 +63,8 @@
 }
 /* o anel: gradiente recortado em máscara (só a borda aparece) */
 .perfil-av-wrap::before,
-.frame-prev::before {
+.frame-prev::before,
+.profile-av-wrap::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -77,14 +78,14 @@
   z-index: -1;
 }
 .av-frame-none::before { display: none; }
-.perfil-av-wrap.av-frame-none { padding: 0; }
+.perfil-av-wrap.av-frame-none, .profile-av-wrap.av-frame-none { padding: 0; }
 
 @keyframes av-ringspin { to { transform: rotate(1turn); } }
 @keyframes av-glowpulse {
   0%, 100% { box-shadow: 0 0 10px 0 var(--glow, transparent); }
   50% { box-shadow: 0 0 20px 3px var(--glow, transparent); }
 }
-:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball):not(.av-frame-return)::before { animation: av-ringspin 5s linear infinite; }
+:is(.perfil-av-wrap, .frame-prev, .profile-av-wrap)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball):not(.av-frame-return)::before { animation: av-ringspin 5s linear infinite; }
 
 .av-frame-neon { --ring: conic-gradient(from 0deg, #00e5ff, #7a5cff, #c800ff, #00e5ff); box-shadow: 0 0 14px rgba(0, 200, 255, 0.45); }
 .av-frame-gold { --ring: conic-gradient(from 0deg, #fff1b8, #ffd166, #b8860b, #ffe27a, #fff1b8); box-shadow: 0 0 12px rgba(255, 200, 80, 0.4); }
@@ -177,7 +178,7 @@
   --glow: rgba(110, 190, 255, 0.7);
   animation: av-glowpulse 1.3s ease-in-out infinite;
 }
-:is(.perfil-av-wrap, .frame-prev).av-frame-electric::before { animation-duration: 1.3s; }
+:is(.perfil-av-wrap, .frame-prev, .profile-av-wrap).av-frame-electric::before { animation-duration: 1.3s; }
 .av-frame-electric::after {
   content: '';
   position: absolute;

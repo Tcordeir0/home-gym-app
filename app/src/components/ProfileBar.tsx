@@ -3,6 +3,7 @@ import { IonIcon } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { useStore } from '../store/store';
 import PixelIcon from './PixelIcon';
+import PillFX from './PillFX';
 import './ProfileBar.css';
 
 /** Pílulas de perfil (trocáveis) + adicionar. Perfil ativo é por aparelho. */
@@ -21,7 +22,8 @@ const ProfileBar: React.FC = () => {
           className={'profile-pill' + (u.id === active ? ' active' : '')}
           onClick={() => setActive(u.id)}
         >
-          <span className="profile-av-wrap">
+          <PillFX theme={u.cosmetics?.theme} />
+          <span className={'profile-av-wrap av-frame-' + (u.cosmetics?.frame || 'none')}>
             {u.photo ? (
               <img className="profile-av" src={u.photo} alt="" />
             ) : (
