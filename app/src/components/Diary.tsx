@@ -14,6 +14,13 @@ const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(
 const GRAMS_PER_SPOON = 15;
 const spoons = (g: number) => Math.max(1, Math.round(g / GRAMS_PER_SPOON));
 
+// Bebida → conta em ml (não g). Densidade ≈ 1, então kcal/100g ≈ kcal/100ml.
+const isBeverage = (name: string, tags?: string) => {
+  if (tags && normTxt(tags).includes('bebida')) return true;
+  const n = normTxt(name);
+  return /(agua|suco|refri|coca|\bcola\b|cerveja|cafe|\bcha\b|leite|vitamina|smoothie|guarana|limonada|gatorade|energetico|isotonico|whisky|vinho|cha gelado|achocolatado)/.test(n);
+};
+
 const Diary: React.FC = () => {
   const profile = useActiveProfile();
   const daily = useStore((s) => s.daily);
@@ -52,8 +59,8 @@ const Diary: React.FC = () => {
       setOnlineMsg('Sem conexão pra buscar o código agora.');
     }
   };
-  const pick = (it: { n: string; k: number; p: number }) => {
-    addFood({ n: it.n, k: it.k, p: it.p, g: 100 });
+  const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
+    addFood({ n: it.n, k: it.k, p: it.p, g: 100, liq: isBeverage(it.n, it.tags) });
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
@@ -103,18 +110,22 @@ const Diary: React.FC = () => {
               <div className="food-row" key={i}>
                 <div className="food-main">
                   <div className="food-name">{it.n}</div>
-                  <div className="food-spoons">≈ {spoons(it.g)} {spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa</div>
+                  <div className="food-spoons">
+                    {it.liq
+                      ? (it.g >= 1000 ? `≈ ${(it.g / 1000).toFixed(it.g % 1000 === 0 ? 0 : 1)} L` : `${it.g} ml`)
+                      : `≈ ${spoons(it.g)} ${spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa`}
+                  </div>
                 </div>
                 <div className="food-g-wrap">
                   <input
                     className="food-g"
                     type="number"
                     inputMode="numeric"
-                    aria-label="Gramas"
+                    aria-label={it.liq ? 'Mililitros' : 'Gramas'}
                     value={it.g}
                     onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGrams(i, g); }}
                   />
-                  <span className="food-g-unit">g</span>
+                  <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
                 </div>
                 <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
                 <button className="food-del" onClick={() => removeFood(i)} aria-label="Remover">
@@ -139,7 +150,7 @@ const Diary: React.FC = () => {
         {hits.length > 0 && (
           <div className="food-results">
             {hits.map((f, i) => (
-              <button className="food-hit" key={i} onClick={() => pick({ n: f.n, k: f.kcal, p: f.p })}>
+              <button className="food-hit" key={i} onClick={() => pick({ n: f.n, k: f.kcal, p: f.p, tags: f.tags })}>
                 <span className="food-hit-n">{f.n}</span>
                 <span className="food-hit-k">{f.kcal} kcal · {f.p}g prot</span>
                 <IonIcon className="food-hit-add" icon={addOutline} />

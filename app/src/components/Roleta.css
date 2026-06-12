@@ -34,6 +34,13 @@
   border: 5px solid var(--app-line);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.04);
   transition: transform 3.6s cubic-bezier(0.16, 1, 0.3, 1);
+  /* cores dos segmentos (claras no escuro / escuras no claro pra sempre aparecer) */
+  --rol-seg-a: rgba(255, 255, 255, 0.05);
+  --rol-seg-b: rgba(255, 255, 255, 0.12);
+}
+html[data-theme='light'] .rol2-wheel {
+  --rol-seg-a: rgba(0, 0, 0, 0.05);
+  --rol-seg-b: rgba(0, 0, 0, 0.12);
 }
 .rol2-ico {
   position: absolute;

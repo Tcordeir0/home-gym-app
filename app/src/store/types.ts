@@ -87,9 +87,10 @@ export interface Measure {
 
 export interface FoodItem {
   n: string; // nome
-  k: number; // kcal/100g
+  k: number; // kcal/100g (≈ /100ml em bebidas)
   p: number; // proteína/100g
-  g: number; // gramas
+  g: number; // quantidade (g, ou ml se liq)
+  liq?: boolean; // bebida → exibe em ml (não g)
 }
 
 export interface DailyEntry {
