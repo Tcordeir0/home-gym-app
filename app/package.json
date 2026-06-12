@@ -28,6 +28,7 @@
     "immer": "^11.1.8",
     "ionicons": "^7.4.0",
     "react": "19.0.0",
+    "react-body-highlighter": "^2.0.5",
     "react-dom": "19.0.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",

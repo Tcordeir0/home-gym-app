@@ -1,10 +1,24 @@
 import { useMemo, useState } from 'react';
+import Model, { type IExerciseData, type Muscle, type IMuscleStats } from 'react-body-highlighter';
 import { useStore } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
 import './Anatomia.css';
 
 type Group = 'chest' | 'back' | 'legs' | 'glutes' | 'shoulders' | 'arms' | 'core';
 const GROUPS: Group[] = ['chest', 'back', 'shoulders', 'arms', 'core', 'legs', 'glutes'];
+
+// nossos grupos → músculos do modelo anatômico (react-body-highlighter)
+const GROUP_MUSCLES: Record<Group, Muscle[]> = {
+  chest: ['chest'],
+  back: ['trapezius', 'upper-back', 'lower-back'],
+  shoulders: ['front-deltoids', 'back-deltoids'],
+  arms: ['biceps', 'triceps', 'forearm'],
+  core: ['abs', 'obliques'],
+  legs: ['quadriceps', 'hamstring', 'calves'],
+  glutes: ['gluteal'],
+};
+const MUSCLE_GROUP: Partial<Record<Muscle, Group>> = {};
+(Object.keys(GROUP_MUSCLES) as Group[]).forEach((g) => GROUP_MUSCLES[g].forEach((m) => (MUSCLE_GROUP[m] = g)));
 
 // dica de coach por grupo (PT-BR)
 const TIPS: Record<Group, string> = {
@@ -17,65 +31,34 @@ const TIPS: Record<Group, string> = {
   glutes: 'Hip thrust e stiff ativam o glúteo com carga.',
 };
 
-// formas do corpo (viewBox 220x470). t=rect|ell, g=grupo muscular, mod=ajuste por sexo
-type Shape =
-  | { t: 'rect'; g: Group; x: number; y: number; w: number; h: number; rx: number; mod?: 'sh' | 'waist' | 'hip' }
-  | { t: 'ell'; g: Group; cx: number; cy: number; rx: number; ry: number; mod?: 'sh' | 'waist' | 'hip' };
-
-const FRONT: Shape[] = [
-  { t: 'ell', g: 'shoulders', cx: 70, cy: 98, rx: 19, ry: 15, mod: 'sh' },
-  { t: 'ell', g: 'shoulders', cx: 150, cy: 98, rx: 19, ry: 15, mod: 'sh' },
-  { t: 'rect', g: 'chest', x: 66, y: 106, w: 34, h: 32, rx: 12 },
-  { t: 'rect', g: 'chest', x: 120, y: 106, w: 34, h: 32, rx: 12 },
-  { t: 'rect', g: 'arms', x: 44, y: 102, w: 20, h: 64, rx: 10 },
-  { t: 'rect', g: 'arms', x: 156, y: 102, w: 20, h: 64, rx: 10 },
-  { t: 'rect', g: 'arms', x: 42, y: 168, w: 18, h: 58, rx: 9 },
-  { t: 'rect', g: 'arms', x: 160, y: 168, w: 18, h: 58, rx: 9 },
-  { t: 'rect', g: 'core', x: 80, y: 142, w: 60, h: 84, rx: 16, mod: 'waist' },
-  { t: 'rect', g: 'legs', x: 76, y: 230, w: 28, h: 108, rx: 13 },
-  { t: 'rect', g: 'legs', x: 116, y: 230, w: 28, h: 108, rx: 13 },
-  { t: 'rect', g: 'legs', x: 80, y: 344, w: 22, h: 74, rx: 11 },
-  { t: 'rect', g: 'legs', x: 118, y: 344, w: 22, h: 74, rx: 11 },
-];
-
-const BACK: Shape[] = [
-  { t: 'ell', g: 'shoulders', cx: 70, cy: 98, rx: 19, ry: 15, mod: 'sh' },
-  { t: 'ell', g: 'shoulders', cx: 150, cy: 98, rx: 19, ry: 15, mod: 'sh' },
-  { t: 'rect', g: 'back', x: 70, y: 102, w: 80, h: 64, rx: 18 },
-  { t: 'rect', g: 'back', x: 84, y: 168, w: 52, h: 44, rx: 14, mod: 'waist' },
-  { t: 'rect', g: 'arms', x: 44, y: 102, w: 20, h: 64, rx: 10 },
-  { t: 'rect', g: 'arms', x: 156, y: 102, w: 20, h: 64, rx: 10 },
-  { t: 'rect', g: 'arms', x: 42, y: 168, w: 18, h: 58, rx: 9 },
-  { t: 'rect', g: 'arms', x: 160, y: 168, w: 18, h: 58, rx: 9 },
-  { t: 'rect', g: 'glutes', x: 80, y: 214, w: 28, h: 44, rx: 16, mod: 'hip' },
-  { t: 'rect', g: 'glutes', x: 112, y: 214, w: 28, h: 44, rx: 16, mod: 'hip' },
-  { t: 'rect', g: 'legs', x: 76, y: 262, w: 28, h: 82, rx: 13 },
-  { t: 'rect', g: 'legs', x: 116, y: 262, w: 28, h: 82, rx: 13 },
-  { t: 'rect', g: 'legs', x: 80, y: 350, w: 22, h: 66, rx: 11 },
-  { t: 'rect', g: 'legs', x: 118, y: 350, w: 22, h: 66, rx: 11 },
-];
-
-const C = 110; // eixo central do corpo
-// escala uma coordenada/largura em torno do centro (silhueta masc/fem)
-function scaleX(v: number, f: number) { return C + (v - C) * f; }
-function modFactor(mod: Shape['mod'], sex: 'm' | 'f') {
-  if (sex === 'm' || !mod) return 1;
-  return mod === 'sh' ? 0.84 : mod === 'waist' ? 0.86 : 1.2; // ombro estreito, cintura fina, quadril largo
+// mistura dois hex (t=0 → a, t=1 → b)
+function toRGB(c: string): [number, number, number] {
+  let h = c.replace('#', '').trim();
+  if (h.length === 3) h = h.split('').map((x) => x + x).join('');
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
+}
+function mix(a: string, b: string, t: number): string {
+  const A = toRGB(a), B = toRGB(b);
+  return '#' + [0, 1, 2].map((i) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0')).join('');
 }
 
 const Anatomia: React.FC = () => {
   const history = useStore((s) => s.history[s.active]) || [];
   const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
-  const profSex = useStore((s) => s.users.find((u) => u.id === s.active)?.body?.sex) || 'm';
 
-  const [view, setView] = useState<'front' | 'back'>('front');
-  const [sex, setSex] = useState<'m' | 'f'>(profSex === 'f' ? 'f' : 'm');
+  const [view, setView] = useState<'anterior' | 'posterior'>('anterior');
   const [sel, setSel] = useState<Group | null>(null);
 
-  // cor de destaque do tema atual (lida em runtime; re-lê quando muda o tema)
-  const accent = useMemo(() => {
-    if (typeof document === 'undefined') return '#c6ff3a';
-    return getComputedStyle(document.documentElement).getPropertyValue('--brand-lime').trim() || '#c6ff3a';
+  // cores do tema (lidas em runtime; re-lê quando muda o tema)
+  const { bodyColor, shades } = useMemo(() => {
+    const root = typeof document !== 'undefined' ? getComputedStyle(document.documentElement) : null;
+    const accent = (root?.getPropertyValue('--brand-lime').trim()) || '#c6ff3a';
+    const base = (root?.getPropertyValue('--app-line').trim()) || '#2a2f3a';
+    const body = /^#?[0-9a-f]{3,6}$/i.test(base) ? base : '#2a2f3a';
+    return {
+      bodyColor: body.startsWith('#') ? body : '#' + body,
+      shades: [0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(body.startsWith('#') ? body : '#2a2f3a', accent.startsWith('#') ? accent : '#c6ff3a', t)),
+    };
   }, [theme]);
 
   // séries por grupo nos últimos 30 dias
@@ -98,53 +81,45 @@ const Anatomia: React.FC = () => {
     return { counts: c, total: tot, intensity: inten };
   }, [history]);
 
-  // músculo mais negligenciado (foco da semana)
-  const weakest = useMemo(() => {
-    return GROUPS.slice().sort((a, b) => counts[a] - counts[b])[0];
+  // dados pro modelo: 1 entrada por grupo treinado, frequência = nível 1..5 (índice de cor)
+  const data: IExerciseData[] = useMemo(() => {
+    const max = Math.max(1, ...GROUPS.map((g) => counts[g]));
+    return GROUPS.filter((g) => counts[g] > 0).map((g) => ({
+      name: GROUP_LABEL[g],
+      muscles: GROUP_MUSCLES[g],
+      frequency: Math.max(1, Math.ceil((counts[g] / max) * 5)),
+    }));
   }, [counts]);
 
-  const shapes = view === 'front' ? FRONT : BACK;
+  const weakest = useMemo(() => GROUPS.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
+
+  const onMuscle = (m: IMuscleStats) => {
+    const g = MUSCLE_GROUP[m.muscle];
+    if (g) setSel(g === sel ? null : g);
+  };
 
   return (
     <div className="anat">
-      <div className="anat-segs">
-        <div className="anat-seg">
-          <button className={view === 'front' ? 'on' : ''} onClick={() => setView('front')}>Frente</button>
-          <button className={view === 'back' ? 'on' : ''} onClick={() => setView('back')}>Costas</button>
-        </div>
-        <div className="anat-seg">
-          <button className={sex === 'm' ? 'on' : ''} onClick={() => setSex('m')}>♂</button>
-          <button className={sex === 'f' ? 'on' : ''} onClick={() => setSex('f')}>♀</button>
-        </div>
+      <div className="anat-seg">
+        <button className={view === 'anterior' ? 'on' : ''} onClick={() => setView('anterior')}>Frente</button>
+        <button className={view === 'posterior' ? 'on' : ''} onClick={() => setView('posterior')}>Costas</button>
       </div>
 
       {total === 0 ? (
         <p className="anat-empty">Registre treinos pra ver quais músculos você mais trabalhou (últimos 30 dias).</p>
       ) : null}
 
-      <svg className="anat-svg" viewBox="0 0 220 470" role="img" aria-label="Mapa muscular">
-        {/* cabeça + pescoço (neutros) */}
-        <ellipse className="anat-base" cx={C} cy={36} rx={24} ry={27} />
-        <rect className="anat-base" x={100} y={58} width={20} height={14} rx={6} />
-        {shapes.map((sp, i) => {
-          const f = modFactor(sp.mod, sex);
-          const op = 0.12 + intensity[sp.g] * 0.85;
-          const on = sel === sp.g;
-          const common = {
-            className: 'anat-m' + (on ? ' sel' : ''),
-            style: { fill: accent, fillOpacity: op } as React.CSSProperties,
-            onClick: () => setSel(sp.g === sel ? null : sp.g),
-          };
-          if (sp.t === 'ell') {
-            return <ellipse key={i} {...common} cx={scaleX(sp.cx, f)} cy={sp.cy} rx={sp.rx * (sp.mod === 'sh' ? f : 1)} ry={sp.ry} />;
-          }
-          const x2 = scaleX(sp.x, f);
-          const w2 = scaleX(sp.x + sp.w, f) - x2;
-          return <rect key={i} {...common} x={x2} y={sp.y} width={w2} height={sp.h} rx={sp.rx} />;
-        })}
-      </svg>
+      <div className="anat-model">
+        <Model
+          type={view}
+          data={data}
+          bodyColor={bodyColor}
+          highlightedColors={shades}
+          onClick={onMuscle}
+          style={{ width: '100%', maxWidth: 250 }}
+        />
+      </div>
 
-      {/* painel do músculo selecionado OU foco da semana */}
       {sel ? (
         <div className="anat-panel">
           <div className="anat-panel-top">
@@ -162,7 +137,6 @@ const Anatomia: React.FC = () => {
         </div>
       ) : null}
 
-      {/* legenda: barras por grupo */}
       <div className="anat-legend">
         {GROUPS.map((g) => (
           <button
@@ -172,7 +146,7 @@ const Anatomia: React.FC = () => {
           >
             <span className="anat-bar-l">{GROUP_LABEL[g]}</span>
             <span className="anat-bar-track">
-              <span className="anat-bar-fill" style={{ width: `${Math.round(intensity[g] * 100)}%`, background: accent }} />
+              <span className="anat-bar-fill" style={{ width: `${Math.round(intensity[g] * 100)}%`, background: shades[Math.max(0, Math.ceil(intensity[g] * 5) - 1)] }} />
             </span>
             <span className="anat-bar-n">{counts[g]}</span>
           </button>
