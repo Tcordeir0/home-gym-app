@@ -228,6 +228,32 @@
   border-color: var(--ion-text-color);
   box-shadow: 0 0 0 2px var(--ion-background-color) inset;
 }
+/* swatch de cor personalizada (RGB) — arco-íris que abre o seletor nativo */
+.perfil-color-custom {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(#ff4d4d, #ffd24d, #4dff7a, #3ad1ff, #7a5cff, #ff4dd2, #ff4d4d);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.perfil-color-custom input[type='color'] {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.pc-plus {
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
 .perfil-link {
   margin-top: 14px;
   background: transparent;
@@ -512,6 +538,14 @@
   justify-content: flex-end;
   gap: 4px;
   padding: 8px;
+}
+/* temas com wallpaper mostram a FOTO como preview */
+.theme-prev.has-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 45%);
+  pointer-events: none;
 }
 .theme-prev i {
   height: 10px;

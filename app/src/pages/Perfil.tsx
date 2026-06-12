@@ -172,6 +172,19 @@ const Perfil: React.FC = () => {
                 aria-label={'Cor ' + c}
               />
             ))}
+            {/* cor personalizada (RGB) — abre o seletor nativo de cores */}
+            <label
+              className={'perfil-color perfil-color-custom' + (!COLORS.includes(profile.color) ? ' on' : '')}
+              style={!COLORS.includes(profile.color) ? { background: profile.color } : undefined}
+              aria-label="Cor personalizada"
+            >
+              <input
+                type="color"
+                value={profile.color}
+                onChange={(e) => updateProfile(profile.id, { color: e.target.value })}
+              />
+              {COLORS.includes(profile.color) && <span className="pc-plus">+</span>}
+            </label>
           </div>
 
           <h3 className="pers-h">Tema</h3>
@@ -185,9 +198,16 @@ const Perfil: React.FC = () => {
                   className={'theme-card' + (sel ? ' sel' : '') + (ok ? '' : ' locked')}
                   onClick={() => { if (ok) setTheme(th.id); }}
                 >
-                  <span className="theme-prev" style={{ background: th.swatch[0] }}>
-                    <i style={{ background: th.swatch[1] }} />
-                    <i style={{ background: th.swatch[2] }} />
+                  <span
+                    className={'theme-prev' + (th.image ? ' has-img' : '')}
+                    style={th.image
+                      ? { backgroundImage: `url(${th.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                      : { background: th.swatch[0] }}
+                  >
+                    {!th.image && <>
+                      <i style={{ background: th.swatch[1] }} />
+                      <i style={{ background: th.swatch[2] }} />
+                    </>}
                     {!ok && <span className="theme-lock"><IonIcon icon={lockClosed} /></span>}
                     {sel && <span className="theme-check"><IonIcon icon={checkmark} /></span>}
                   </span>
