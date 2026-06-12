@@ -14,48 +14,104 @@
   will-change: transform, opacity;
 }
 
-/* mãos da Satella (Chá) — na base, contorcendo */
+/* mãos da Satella (Chá) — na base, contorcendo (alcançam até o meio) */
 .pill-fx .p-hand {
-  bottom: -4px;
+  bottom: -3px;
   transform-origin: bottom center;
-  opacity: 0.55;
   filter: drop-shadow(0 0 4px rgba(150, 70, 230, 0.9));
   animation-name: pf-sway;
   animation-duration: 3s;
 }
-@keyframes pf-sway { 0%, 100% { transform: rotate(-13deg); opacity: 0.4; } 50% { transform: rotate(13deg); opacity: 0.62; } }
+@keyframes pf-sway { 0%, 100% { transform: rotate(-14deg); opacity: 0.42; } 50% { transform: rotate(14deg); opacity: 0.66; } }
 
-/* runas (Bloco) e símbolos (Math) subindo */
+/* runas (Bloco) e símbolos (Math) flutuando espalhados */
 .pill-fx .p-rune {
-  bottom: -10px;
   color: #eafff0;
   font-weight: 700;
-  text-shadow: 0 0 5px rgba(140, 201, 58, 0.9);
-  animation-name: pf-rise;
-  animation-duration: 3.4s;
+  text-shadow: 0 0 5px rgba(140, 201, 58, 0.95);
+  animation-name: pf-floatup;
+  animation-duration: 3.2s;
 }
-.pill-fx .p-rune.math { color: #cdefff; text-shadow: 0 0 5px rgba(95, 224, 232, 0.9); }
+.pill-fx .p-rune.math { color: #cdefff; text-shadow: 0 0 5px rgba(95, 224, 232, 0.95); }
 
-/* corações (Love) subindo */
-.pill-fx .p-heart { bottom: -10px; color: #ff6bc4; text-shadow: 0 0 5px rgba(255, 107, 196, 0.8); animation-name: pf-rise; animation-duration: 3.2s; }
+/* corações (Love) */
+.pill-fx .p-heart { color: #ff6bc4; text-shadow: 0 0 5px rgba(255, 107, 196, 0.85); animation-name: pf-floatup; animation-duration: 3s; }
 
-/* bolhas (Aquático) subindo */
-.pill-fx .p-bubble { bottom: -8px; border-radius: 50%; background: rgba(180, 240, 255, 0.5); box-shadow: 0 0 4px rgba(120, 220, 255, 0.6); animation-name: pf-rise; animation-duration: 3.6s; }
+/* bolhas (Aquático) */
+.pill-fx .p-bubble { border-radius: 50%; background: rgba(180, 240, 255, 0.55); box-shadow: 0 0 4px rgba(120, 220, 255, 0.7); animation-name: pf-floatup; animation-duration: 3.4s; }
 
-/* neve caindo */
-.pill-fx .p-flake { top: -8px; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px rgba(220, 240, 255, 0.8); opacity: 0; animation-name: pf-fall; animation-duration: 3.4s; }
+/* neve (Snow) — caindo devagar */
+.pill-fx .p-flake { width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px rgba(220, 240, 255, 0.9); animation-name: pf-floatdown; animation-duration: 3.4s; }
 
-/* vaga-lumes / faíscas piscando */
-.pill-fx .p-fly { width: 4px; height: 4px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 6px #ffd166; animation-name: pf-blink; animation-duration: 2.4s; }
-.pill-fx .p-spark { width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 5px #ffe23a, 0 0 8px #8ec8ff; animation-name: pf-blink; animation-duration: 1.4s; }
+/* vaga-lumes (Sítio) — piscam espalhados */
+.pill-fx .p-fly { width: 4px; height: 4px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 6px #ffd166; animation-name: pf-twinkle; animation-duration: 2.2s; }
+
+/* elétrico — raios (zigzag) descendo do topo + faíscas */
+.pill-fx .p-bolt {
+  top: -2px;
+  width: auto;
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: #cde8ff;
+  stroke-width: 1;
+  filter: drop-shadow(0 0 4px #8ec8ff) drop-shadow(0 0 7px #ffe14d);
+  animation-name: pf-bolt;
+  animation-timing-function: steps(1, end);
+  animation-duration: 2.4s;
+}
+.pill-fx .p-spark { width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 5px #ffe23a, 0 0 8px #8ec8ff; animation-name: pf-twinkle; animation-duration: 1.4s; }
 
 /* miasma (Return) — pulso vermelho + névoa */
-.pill-fx .p-pulse { inset: 0; background: radial-gradient(circle at 50% 60%, rgba(192, 57, 43, 0.4), transparent 70%); animation-name: pf-pulse; animation-duration: 2.2s; }
-.pill-fx .p-wisp { bottom: -8px; width: 10px; height: 10px; border-radius: 50%; background: rgba(120, 20, 30, 0.5); filter: blur(3px); animation-name: pf-rise; animation-duration: 4s; }
+.pill-fx .p-pulse { inset: 0; background: radial-gradient(circle at 50% 55%, rgba(192, 57, 43, 0.4), transparent 70%); animation-name: pf-pulse; animation-duration: 2.2s; }
+.pill-fx .p-wisp { width: 9px; height: 9px; border-radius: 50%; background: rgba(120, 20, 30, 0.55); filter: blur(3px); animation-name: pf-floatup; animation-duration: 3.6s; }
 
-@keyframes pf-rise { 0% { transform: translateY(120%); opacity: 0; } 25% { opacity: 0.85; } 80% { opacity: 0.5; } 100% { transform: translateY(-130%); opacity: 0; } }
-@keyframes pf-fall { 0% { transform: translateY(-120%); opacity: 0; } 25% { opacity: 0.85; } 80% { opacity: 0.6; } 100% { transform: translateY(130%); opacity: 0; } }
-@keyframes pf-blink { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 50% { opacity: 0.9; transform: scale(1); } }
+@keyframes pf-floatup { 0%, 100% { transform: translateY(7px); opacity: 0.22; } 50% { transform: translateY(-7px); opacity: 0.85; } }
+@keyframes pf-floatdown { 0%, 100% { transform: translateY(-7px); opacity: 0.22; } 50% { transform: translateY(7px); opacity: 0.8; } }
+@keyframes pf-twinkle { 0%, 100% { opacity: 0.12; transform: scale(0.6); } 50% { opacity: 0.9; transform: scale(1); } }
 @keyframes pf-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.5; } }
+@keyframes pf-bolt { 0%, 100% { opacity: 0; } 6% { opacity: 1; } 12% { opacity: 0.15; } 18% { opacity: 0.9; } 26% { opacity: 0; } }
+
+/* matrix — chuva digital verde */
+.pill-fx .p-matrix { color: #00ff66; font-family: monospace; font-weight: 700; text-shadow: 0 0 5px #00ff66; animation-name: pf-floatdown; animation-duration: 2.6s; }
+
+/* ===== temas com animação de FUNDO (sem partícula) — reaplicados no pill ===== */
+.pill-fx.bg-cyber { background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(55, 230, 255, 0.11) 2px 3px); animation: pf-scan 3s linear infinite; }
+@keyframes pf-scan { to { background-position-y: 30px; } }
+
+.pill-fx.bg-sunset { background: radial-gradient(circle at 50% 120%, rgba(255, 122, 77, 0.42), transparent 62%); animation: pf-glow 3.4s ease-in-out infinite; }
+@keyframes pf-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.95; } }
+
+.pill-fx.bg-synth {
+  background: radial-gradient(circle at 50% 112%, rgba(255, 47, 208, 0.3), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255, 47, 208, 0.16) 0 1px, transparent 1px 9px);
+  background-size: 100% 100%, 100% 10px;
+  animation: pf-up 1.4s linear infinite;
+}
+@keyframes pf-up { to { background-position: 0 0, 0 10px; } }
+
+.pill-fx.bg-cosmos {
+  background-image:
+    radial-gradient(1.4px 1.4px at 20% 30%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 70% 20%, #cdb8ff, transparent),
+    radial-gradient(1.2px 1.2px at 45% 66%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 86% 50%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 60% 86%, #b8c8ff, transparent),
+    radial-gradient(1.4px 1.4px at 12% 76%, #fff, transparent);
+  animation: pf-glow 3.6s ease-in-out infinite;
+}
+
+.pill-fx.bg-ouro { background: linear-gradient(115deg, transparent 30%, rgba(255, 210, 77, 0.32) 48%, transparent 64%); background-size: 260% 100%; animation: pf-shine 3.5s linear infinite; }
+@keyframes pf-shine { to { background-position: -220% 0; } }
+
+.pill-fx.bg-checker { background-image: repeating-conic-gradient(rgba(42, 209, 255, 0.14) 0 25%, transparent 0 50%); background-size: 22px 22px; animation: pf-roll 3s linear infinite; }
+@keyframes pf-roll { to { background-position: 44px 0; } }
+
+.pill-fx.bg-arcade {
+  background-image:
+    radial-gradient(2px 2px at 50% 50%, rgba(255, 225, 77, 0.45), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255, 46, 136, 0.08) 0 2px, transparent 2px 4px);
+  background-size: 18px 18px, 100% 4px;
+  animation: pf-pellet 2.6s linear infinite;
+}
+@keyframes pf-pellet { to { background-position: 0 18px, 0 0; } }
 
 @media (prefers-reduced-motion: reduce) { .pill-fx { display: none; } }
