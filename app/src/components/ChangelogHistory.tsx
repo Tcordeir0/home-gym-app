@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IonModal, IonIcon } from '@ionic/react';
-import { sparkles, build, trashOutline, closeOutline } from 'ionicons/icons';
+import { sparkles, build, trashOutline, closeOutline, documentTextOutline } from 'ionicons/icons';
 import { CHANGELOG, type ChangelogEntry } from '../data/changelog';
 import './WhatsNew.css';
 import './ChangelogHistory.css';
@@ -23,7 +23,7 @@ const ChangelogHistory: React.FC = () => {
   return (
     <>
       <button className="clh-btn" onClick={() => setOpen(true)} aria-label="Novidades e histórico">
-        <IonIcon icon={sparkles} />
+        <IonIcon icon={documentTextOutline} />
       </button>
       <IonModal isOpen={open} onDidDismiss={() => setOpen(false)} className="clh-modal">
         <div className="clh-top">

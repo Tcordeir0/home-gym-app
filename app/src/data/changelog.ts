@@ -37,4 +37,29 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Avisos de "Em breve" de coisas que já estão prontas',
     ],
   },
+  {
+    version: '0.6.0',
+    date: '2026-06-10',
+    added: [
+      'Login e conta na nuvem — seus dados sincronizam entre aparelhos',
+      'App reorganizado em 5 abas no estilo iOS',
+      'Sistema de temas com papel de parede e efeito "liquid glass"',
+      'Cosméticos e aros de avatar',
+      'Roleta de prêmios e desafios semanais (quests)',
+      'Liga da família com ranking semanal',
+    ],
+    fixed: [
+      'Vários ajustes de layout e desempenho no estilo iOS',
+    ],
+  },
+  {
+    version: '0.5.0',
+    date: '2026-06-09',
+    added: [
+      'Reconstrução do app em React/Ionic',
+      'Treino completo: A/B/C, séries com kg × reps, gerador de treino e demonstrações',
+      'Dieta: calculadora de calorias, balança com gráfico, hidratação e diário de alimentos',
+      'Progresso: medidas, fotos, gráficos e conquistas',
+    ],
+  },
 ];
