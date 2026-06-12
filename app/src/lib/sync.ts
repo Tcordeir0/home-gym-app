@@ -91,9 +91,12 @@ export async function syncOnLogin(): Promise<void> {
     } else {
       // SEM estado remoto pra essa conta.
       if (fresh || switched) {
-        // Conta nova (ou troca pra conta sem dados) → 1 perfil com o nome do cadastro.
+        // Conta nova (ou troca pra conta sem dados) → 1 perfil com o nome do cadastro,
+        // já reivindicado por este aparelho (não precisa escolher).
         adopting = true;
         useStore.getState().initForUser(name);
+        const only = useStore.getState().users[0];
+        if (only) useStore.getState().claimProfile(only.id);
         adopting = false;
         setMod(0);
       }
