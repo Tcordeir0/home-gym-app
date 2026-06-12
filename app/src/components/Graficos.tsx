@@ -3,6 +3,7 @@ import {
   IonCard, IonCardContent, IonSegment, IonSegmentButton, IonLabel, IonSelect, IonSelectOption,
 } from '@ionic/react';
 import LineChart from './LineChart';
+import Anatomia from './Anatomia';
 import { useStore } from '../store/store';
 import './Graficos.css';
 
@@ -20,7 +21,7 @@ const Graficos: React.FC = () => {
   const history = useStore((s) => s.history[s.active]) || [];
   const daily = useStore((s) => s.daily[s.active]) || {};
 
-  const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta'>('medidas');
+  const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta' | 'anatomia'>('medidas');
   const [medField, setMedField] = useState<MedKey>('weight');
   const [dietField, setDietField] = useState<'kcal' | 'protein'>('kcal');
   const [exName, setExName] = useState('');
@@ -82,14 +83,17 @@ const Graficos: React.FC = () => {
         <IonSegment
           className="gr-seg"
           value={tab}
-          onIonChange={(e) => setTab((e.detail.value as 'medidas' | 'carga' | 'dieta') || 'medidas')}
+          onIonChange={(e) => setTab((e.detail.value as 'medidas' | 'carga' | 'dieta' | 'anatomia') || 'medidas')}
         >
           <IonSegmentButton value="medidas"><IonLabel>Medidas</IonLabel></IonSegmentButton>
           <IonSegmentButton value="carga"><IonLabel>Carga</IonLabel></IonSegmentButton>
           <IonSegmentButton value="dieta"><IonLabel>Dieta</IonLabel></IonSegmentButton>
+          <IonSegmentButton value="anatomia"><IonLabel>Anatomia</IonLabel></IonSegmentButton>
         </IonSegment>
 
-        {tab === 'dieta' ? (
+        {tab === 'anatomia' ? (
+          <Anatomia />
+        ) : tab === 'dieta' ? (
           dietSeries.length >= 2 ? (
             <>
               <div className="gr-chips">
