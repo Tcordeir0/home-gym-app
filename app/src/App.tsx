@@ -89,9 +89,12 @@ const App: React.FC = () => {
   const setActive = useStore((s) => s.setActive);
   const myDev = deviceId();
   const claimed = users.find((u) => u.claimedDevice === myDev);
+  // Abre no perfil reivindicado SÓ quando ele aparece/muda (login, claim, troca de
+  // conta). Depois disso o usuário pode trocar pra VER outros perfis (modo leitura).
   useEffect(() => {
-    if (claimed && activeId !== claimed.id) setActive(claimed.id);
-  }, [claimed?.id, activeId]);
+    if (claimed) setActive(claimed.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimed?.id]);
 
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
