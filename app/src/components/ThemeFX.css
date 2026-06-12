@@ -275,6 +275,40 @@
   50% { opacity: 1; transform: scale(1.15); }
 }
 
+/* ===== fx miasma (tema Return / Return by Death) ===== */
+.fx-miasma { position: absolute; inset: 0; overflow: hidden; }
+/* pulso vermelho vindo das bordas, como uma batida cardíaca/morte */
+.miasma-pulse {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(150, 20, 18, 0.0) 60%, rgba(150, 20, 18, 0.32) 100%);
+  animation: fx-deathbeat 2.6s ease-in-out infinite;
+}
+@keyframes fx-deathbeat {
+  0%, 100% { opacity: 0.25; }
+  18% { opacity: 0.7; }
+  30% { opacity: 0.3; }
+  44% { opacity: 0.85; }
+  60% { opacity: 0.25; }
+}
+.fx-miasma .wisp {
+  position: absolute;
+  bottom: -12%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(40, 10, 30, 0.55), rgba(10, 4, 10, 0) 70%);
+  filter: blur(3px);
+  opacity: 0;
+  animation-name: fx-wisp;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+@keyframes fx-wisp {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { opacity: 0.7; }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-115vh) scale(1.3); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .theme-fx,
   .theme-fx::before { animation: none !important; }
@@ -285,5 +319,7 @@
   .heart,
   .flake,
   .fx-electric .bolt,
-  .fx-electric .spark { display: none; }
+  .fx-electric .spark,
+  .fx-miasma .wisp { display: none; }
+  .miasma-pulse { animation: none !important; opacity: 0.3; }
 }

@@ -241,7 +241,7 @@ const Perfil: React.FC = () => {
               );
             })}
           </div>
-          {(['poke', 'mario', 'mine'] as Pack[]).map((pk) => (
+          {(['anime', 'poke', 'mario', 'mine'] as Pack[]).map((pk) => (
             <div key={pk}>
               <h4 className="pers-pack">{PACK_LABELS[pk]}</h4>
               <div className="deco-grid">

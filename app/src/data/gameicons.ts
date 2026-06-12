@@ -2,7 +2,7 @@
 // sprites de marca. Servem de cosméticos (badge do avatar). 3 packs temáticos.
 // Cada ícone é uma grade de 12 linhas × 12 colunas; cada char vira um pixel.
 
-export type Pack = 'poke' | 'mario' | 'mine';
+export type Pack = 'poke' | 'mario' | 'mine' | 'anime';
 
 export interface PixelIconDef {
   id: string;
@@ -454,6 +454,82 @@ export const PIXEL_ICONS: PixelIconDef[] = [
     '............',
     '............',
   ]},
+
+  // ---------- Pack Anime (cosméticos de anime — Re:Zero / Return by Death) ----------
+  { id: 'caveira', name: 'Caveira', pack: 'anime', grid: [
+    '...KKKKKK...',
+    '..KWWWWWWK..',
+    '.KWWWWWWWWK.',
+    'KWWWWWWWWWWK',
+    'KWKKWWWWKKWK',
+    'KWKKWWWWKKWK',
+    'KWWWWWWWWWWK',
+    'KWWWWKKWWWWK',
+    '.KWWWWWWWWK.',
+    '.KWKWKWKWKK.',
+    '..KKKKKKKK..',
+    '............',
+  ]},
+  // Coração apertado pela sombra — o "Return by Death"
+  { id: 'coracao_morte', name: 'Coração (RbD)', pack: 'anime', grid: [
+    '..KK..KK....',
+    '.KRRKKRRK...',
+    'KRRRRRRRRK..',
+    'KRRDRRRRRK..',
+    'KRRRDRRRRK..',
+    'KsKRDRRRK...',
+    '.KsKDRRK....',
+    '..KsKRK.....',
+    '...KKK......',
+    '............',
+    '............',
+    '............',
+  ]},
+  // Relógio que rebobina — o tempo voltando
+  { id: 'relogio', name: 'Relógio', pack: 'anime', grid: [
+    '...KKKK.....',
+    '..KWWWWK....',
+    '.KWWKWWWK...',
+    'KWWWKWWWWK..',
+    'KWWWKWWWWK..',
+    'KWWWKKKKWK..',
+    'KWWWWWWWWK..',
+    'KWWWWWWWWK..',
+    '.KWWWWWWK...',
+    '..KWWWWK....',
+    '...KKKK.....',
+    '............',
+  ]},
+  // Adaga — a faca da arte do tema
+  { id: 'adaga', name: 'Adaga', pack: 'anime', grid: [
+    '........KK..',
+    '.......KSK..',
+    '......KSSK..',
+    '.....KSSK...',
+    '....KSSK....',
+    '...KSSK.....',
+    '..KSSK......',
+    '.KNNNNNK....',
+    '..KNNK......',
+    '..KNNK......',
+    '...KK.......',
+    '............',
+  ]},
+  // Cristal espiritual (Emilia / Puck)
+  { id: 'cristal', name: 'Cristal', pack: 'anime', grid: [
+    '....KK......',
+    '...KCCK.....',
+    '..KCCCCK....',
+    '.KCCWCCCK...',
+    'KCCCCCCCCK..',
+    '.KCCCCCCK...',
+    '..KCCCCK....',
+    '...KCCK.....',
+    '....KK......',
+    '............',
+    '............',
+    '............',
+  ]},
 ];
 
 export const PIXEL_BY_ID: Record<string, PixelIconDef> =
@@ -463,4 +539,5 @@ export const PACK_LABELS: Record<Pack, string> = {
   poke: 'Poké',
   mario: 'Mario',
   mine: 'Mine',
+  anime: 'Anime',
 };

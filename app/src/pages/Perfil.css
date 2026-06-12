@@ -82,7 +82,7 @@
   0%, 100% { box-shadow: 0 0 10px 0 var(--glow, transparent); }
   50% { box-shadow: 0 0 20px 3px var(--glow, transparent); }
 }
-:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball)::before { animation: av-ringspin 5s linear infinite; }
+:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball):not(.av-frame-return)::before { animation: av-ringspin 5s linear infinite; }
 
 .av-frame-neon { --ring: conic-gradient(from 0deg, #00e5ff, #7a5cff, #c800ff, #00e5ff); box-shadow: 0 0 14px rgba(0, 200, 255, 0.45); }
 .av-frame-gold { --ring: conic-gradient(from 0deg, #fff1b8, #ffd166, #b8860b, #ffe27a, #fff1b8); box-shadow: 0 0 12px rgba(255, 200, 80, 0.4); }
@@ -154,6 +154,22 @@
 @keyframes pb-bot {
   0%, 36%, 100% { transform: translateY(0); }
   50%, 60% { transform: translateY(3px); }
+}
+
+/* Aro Return (Return by Death): um "cometa" carmesim avança e RETROCEDE de
+   repente — o tempo voltando — com um pulso vermelho de morte. */
+.av-frame-return {
+  --ring: conic-gradient(from -90deg, #e0483a 0deg, #8a1f18 70deg, rgba(120, 20, 16, 0) 150deg, rgba(120, 20, 16, 0) 360deg);
+  --glow: rgba(210, 50, 40, 0.6);
+  animation: av-glowpulse 1.6s ease-in-out infinite;
+}
+.av-frame-return::before { animation: av-rewind 3.4s cubic-bezier(0.7, 0, 0.35, 1) infinite; }
+@keyframes av-rewind {
+  0% { transform: rotate(0deg); }
+  68% { transform: rotate(338deg); }   /* avança o tempo */
+  70% { transform: rotate(360deg); }
+  71% { transform: rotate(0deg); }      /* MORRE e RETORNA ao início */
+  100% { transform: rotate(0deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -157,6 +157,26 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'miasma' && (
+        <div className="fx-miasma">
+          {/* pulso vermelho — o "aperto no coração" do Return by Death */}
+          <div className="miasma-pulse" />
+          {/* névoa da Bruxa subindo (sombra/miasma) */}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={i}
+              className="wisp"
+              style={{
+                left: `${(i * 61 + 5) % 98}%`,
+                width: `${24 + (i % 4) * 12}px`,
+                height: `${24 + (i % 4) * 12}px`,
+                animationDuration: `${7 + (i % 5)}s`,
+                animationDelay: `${(i * 0.6) % 7}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {themeObj?.fx === 'snow' && (
         <div className="fx-snow">
           {Array.from({ length: 40 }).map((_, i) => (
