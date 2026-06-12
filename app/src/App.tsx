@@ -28,6 +28,7 @@ import Progresso from './pages/Progresso';
 import Premios from './pages/Premios';
 import Perfil from './pages/Perfil';
 import LevelUp from './components/LevelUp';
+import WhatsNew from './components/WhatsNew';
 import ThemeFX from './components/ThemeFX';
 
 /* Core CSS required for Ionic components to work properly */
@@ -185,6 +186,7 @@ const App: React.FC = () => {
   <IonApp>
     <ThemeFX />
     <LevelUp />
+    <WhatsNew />
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>

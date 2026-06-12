@@ -6,6 +6,7 @@ import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
+import ChangelogHistory from '../components/ChangelogHistory';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
@@ -117,7 +118,7 @@ const Perfil: React.FC = () => {
   };
 
   return (
-    <AppPage title="Perfil">
+    <AppPage title="Perfil" accessory={<ChangelogHistory />}>
       {/* Identidade */}
       <IonCard className="perfil-card">
         <IonCardContent>

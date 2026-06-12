@@ -1,0 +1,68 @@
+/* botão no header do Perfil */
+.clh-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.06));
+  color: var(--brand-lime);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.clh-btn:active { transform: scale(0.92); }
+.clh-btn ion-icon { font-size: 20px; }
+
+/* modal de histórico */
+.clh-modal::part(content) { background: var(--ion-background-color); }
+.clh-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--app-line);
+}
+.clh-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin: 0;
+}
+.clh-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.06));
+  color: var(--ion-text-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.clh-close ion-icon { font-size: 20px; }
+.clh-body {
+  overflow-y: auto;
+  height: 100%;
+  padding: 16px 20px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.clh-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.clh-ver {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+.clh-date {
+  font-size: 13px;
+  color: var(--app-muted);
+  font-weight: 600;
+}
