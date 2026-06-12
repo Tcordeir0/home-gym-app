@@ -593,7 +593,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else if (prize.kind === 'theme') {
             const owned = u.cosmetics.themes || [];
-            const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
+            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !owned.includes(th.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.themes = [...owned, won.id];

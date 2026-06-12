@@ -13,6 +13,7 @@ export interface Frame {
 export const FRAMES: Frame[] = [
   { id: 'none', name: 'Sem aro', free: true, swatch: ['#2a2f3a', '#2a2f3a'] },
   { id: 'electric', name: 'Eletricidade', free: true, swatch: ['#8ec8ff', '#ffe14d'] },
+  { id: 'tridente', name: 'Tridente', free: true, swatch: ['#fff3c4', '#c89b2a'] },
   { id: 'pokeball', name: 'Pokébola', free: false, swatch: ['#e23b3b', '#f4f6f8'] },
   { id: 'return', name: 'Return', free: false, swatch: ['#c0392b', '#1a0e10'] },
   { id: 'neon', name: 'Neon', free: false, swatch: ['#00e5ff', '#c800ff'] },

@@ -4,6 +4,7 @@ export interface Theme {
   name: string;
   emoji: string;
   free: boolean; // grátis (Preto/Branco) ou prêmio da roleta
+  exclusive?: boolean; // só o tester (TCORDEIRO/talysmatheus12) — não cai na roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
   fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma'; // partículas por cima da arte
@@ -16,7 +17,7 @@ export const THEMES: Theme[] = [
   { id: 'matrix', name: 'Matrix', emoji: '🟩', free: false, swatch: ['#04080a', '#0c1a0e', '#39ff88'] },
   { id: 'sunset', name: 'Sunset', emoji: '🌅', free: false, swatch: ['#140d12', '#251621', '#ff7a4d'] },
   { id: 'grafite', name: 'Grafite', emoji: '⚙️', free: false, swatch: ['#0f1013', '#1e2128', '#e8eaee'] },
-  { id: 'bloco', name: 'Bloco', emoji: '⛏️', free: false, swatch: ['#15110c', '#211a12', '#7cc93a'] },
+  { id: 'bloco', name: 'Bloco', emoji: '⛏️', free: false, swatch: ['#1a140d', '#241a12', '#7cc93a'], image: '/themes/bloco.jpg' },
   { id: 'synth', name: 'Synthwave', emoji: '🌆', free: false, swatch: ['#0d0420', '#1a0b33', '#ff2fd0'] },
   { id: 'cosmos', name: 'Cosmos', emoji: '🌌', free: false, swatch: ['#060414', '#0e0a22', '#8b6bff'] },
   { id: 'ouro', name: 'Ouro', emoji: '👑', free: false, swatch: ['#0c0a06', '#16120a', '#ffd24d'] },
@@ -29,6 +30,7 @@ export const THEMES: Theme[] = [
   { id: 'snow', name: 'Snow', emoji: '❄️', free: false, swatch: ['#0c1a2c', '#13283f', '#8fd0ff'], image: '/themes/snow.png', fx: 'snow' },
   { id: 'eletrico', name: 'Elétrico', emoji: '⚡', free: false, swatch: ['#0c1830', '#15294a', '#ffe14d'], image: '/themes/eletrico.png', fx: 'electric' },
   { id: 'return', name: 'Return', emoji: '🔁', free: false, swatch: ['#0a0b0c', '#16181a', '#aac47e'], image: '/themes/return.jpg', fx: 'miasma' },
+  { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg' },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);
@@ -39,7 +41,10 @@ export function isTester(name?: string): boolean {
   return (name || '').trim().toUpperCase() === 'TCORDEIRO';
 }
 
-/** Tema desbloqueado? Grátis sempre; premium precisa estar em cosmetics.themes; tester libera tudo. */
+/** Tema desbloqueado? Grátis sempre; premium precisa estar em cosmetics.themes;
+ *  exclusivo só o tester; tester libera tudo. */
 export function themeUnlocked(id: string, unlocked: string[], name?: string): boolean {
-  return isTester(name) || FREE_THEMES.includes(id) || unlocked.includes(id);
+  if (isTester(name)) return true;
+  if (THEMES.find((t) => t.id === id)?.exclusive) return false; // só o Talys
+  return FREE_THEMES.includes(id) || unlocked.includes(id);
 }
