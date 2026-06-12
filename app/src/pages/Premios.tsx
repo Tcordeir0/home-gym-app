@@ -178,7 +178,7 @@ const Premios: React.FC = () => {
         </IonCard>
       )}
 
-      <IonToast isOpen={!!toast} message={toast} duration={2000} position="bottom" onDidDismiss={() => setToast('')} />
+      <IonToast isOpen={!!toast} message={toast} duration={2000} position="top" onDidDismiss={() => setToast('')} />
     </AppPage>
   );
 };

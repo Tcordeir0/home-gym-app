@@ -1,7 +1,7 @@
 {
   "name": "home-gym",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,9 +12,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.0",
     "@capacitor/app": "8.1.0",
     "@capacitor/core": "8.4.0",
     "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "^8.4.0",
     "@capacitor/keyboard": "8.0.3",
     "@capacitor/status-bar": "8.0.2",
     "@ionic/react": "^8.5.0",
@@ -26,6 +28,7 @@
     "immer": "^11.1.8",
     "ionicons": "^7.4.0",
     "react": "19.0.0",
+    "react-body-highlighter": "^2.0.5",
     "react-dom": "19.0.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",

@@ -1,0 +1,22 @@
+<svg width="100" height="90" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tg" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#fff3c0"/>
+      <stop offset=".42" stop-color="#ffd24d"/>
+      <stop offset=".72" stop-color="#d99e22"/>
+      <stop offset="1" stop-color="#946708"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#tg)" stroke="#6e5210" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- haste central + base (tigela que vira o topo do aro) -->
+    <path d="M45 22 h10 v46 q-5 6 -10 0 z"/>
+    <!-- ponta central -->
+    <polygon points="50,2 39,21 61,21"/>
+    <!-- prong esquerdo: curva pra fora e a ponta volta pra cima -->
+    <path d="M46 64 C 30 58 21 45 23 24 l 8 1 c -1 16 6 28 19 33 z"/>
+    <polygon points="21,9 15,27 33,23"/>
+    <!-- prong direito (espelho) -->
+    <path d="M54 64 C 70 58 79 45 77 24 l -8 1 c 1 16 -6 28 -19 33 z"/>
+    <polygon points="79,9 85,27 67,23"/>
+  </g>
+</svg>

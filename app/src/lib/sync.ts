@@ -104,6 +104,9 @@ export async function syncOnLogin(): Promise<void> {
       await pushNow();
     }
 
+    // libera temas vinculados à conta (ex: 'Chá' p/ todos os perfis do Talys)
+    if (user?.email) useStore.getState().grantAccountThemes(user.email);
+
     try { localStorage.setItem(UID_KEY, uid); localStorage.removeItem(FRESH_KEY); } catch { /* ok */ }
   } catch { /* nunca trava o app por causa do sync */ }
 }

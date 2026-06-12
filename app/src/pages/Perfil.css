@@ -8,8 +8,10 @@
 /* Identidade */
 .perfil-head {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  text-align: center;
+  gap: 12px;
 }
 .perfil-av {
   position: relative;
@@ -61,7 +63,8 @@
 }
 /* o anel: gradiente recortado em máscara (só a borda aparece) */
 .perfil-av-wrap::before,
-.frame-prev::before {
+.frame-prev::before,
+.profile-av-wrap::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -75,14 +78,14 @@
   z-index: -1;
 }
 .av-frame-none::before { display: none; }
-.perfil-av-wrap.av-frame-none { padding: 0; }
+.perfil-av-wrap.av-frame-none, .profile-av-wrap.av-frame-none { padding: 0; }
 
 @keyframes av-ringspin { to { transform: rotate(1turn); } }
 @keyframes av-glowpulse {
   0%, 100% { box-shadow: 0 0 10px 0 var(--glow, transparent); }
   50% { box-shadow: 0 0 20px 3px var(--glow, transparent); }
 }
-:is(.perfil-av-wrap, .frame-prev)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball)::before { animation: av-ringspin 5s linear infinite; }
+:is(.perfil-av-wrap, .frame-prev, .profile-av-wrap)[class*='av-frame-']:not(.av-frame-none):not(.av-frame-pokeball):not(.av-frame-return)::before { animation: av-ringspin 5s linear infinite; }
 
 .av-frame-neon { --ring: conic-gradient(from 0deg, #00e5ff, #7a5cff, #c800ff, #00e5ff); box-shadow: 0 0 14px rgba(0, 200, 255, 0.45); }
 .av-frame-gold { --ring: conic-gradient(from 0deg, #fff1b8, #ffd166, #b8860b, #ffe27a, #fff1b8); box-shadow: 0 0 12px rgba(255, 200, 80, 0.4); }
@@ -97,13 +100,85 @@
 .av-frame-ocean { --ring: conic-gradient(from 0deg, #aef2ff, #3ad1ff, #1d4ed8, #3ad1ff); box-shadow: 0 0 13px rgba(60, 160, 255, 0.45); }
 .av-frame-ember { --ring: conic-gradient(from 0deg, #ffb04d, #ff8a3a, #7a1010, #ff8a3a); --glow: rgba(220, 90, 20, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
 
+/* Aro Tridente: anel de ouro polido + um TRIDENTE dourado de verdade no topo,
+   reluzente (brilho pulsando, como metal nobre lustrado). */
+.av-frame-tridente {
+  --ring: conic-gradient(from 0deg, #fff6d0, #ffd24d, #b8860b, #ffe88a, #fff6d0);
+  box-shadow: 0 0 14px rgba(255, 205, 80, 0.5);
+  overflow: visible;
+}
+.av-frame-tridente::before { animation-duration: 6s; }
+.av-frame-tridente::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 88%;                 /* base do tridente no TOPO do aro; pontas acima (coroa) */
+  width: 52%;
+  aspect-ratio: 100 / 90;
+  transform: translateX(-50%);
+  background: url('/trident.svg') no-repeat center bottom / contain;
+  z-index: 2;
+  pointer-events: none;
+  animation: tri-shine 2.6s ease-in-out infinite;
+}
+@keyframes tri-shine {
+  0%, 100% { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) brightness(1); }
+  50% { filter: drop-shadow(0 0 7px rgba(255, 232, 130, 0.95)) brightness(1.32); }
+}
+
+/* Aro Minecraft: a COROA de blocos completa (PNG transparente, idêntica à
+   referência) com espadas cruzadas + espada de diamante no topo. O buraco da
+   coroa abraça o avatar — a foto fica encaixada no centro, blocos em volta. */
+.av-frame-mine {
+  --ring: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.av-frame-mine::before { display: none; }   /* sem anel conic: a coroa é a imagem */
+.av-frame-mine::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 186%;                 /* buraco da coroa (≈47% da img) = tamanho do avatar */
+  aspect-ratio: 1;
+  /* alinha o buraco (centro 49.6%/58.2% da imagem) ao centro do avatar */
+  transform: translate(-49.6%, -58.2%);
+  background: url('/mine-ring.png') no-repeat center / contain;
+  z-index: -1;                 /* atrás do avatar (avatar dentro do buraco) */
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+/* Aro Pecados (tema Chá / Re:Zero): a coroa dos 7 pecados (caveiras) como imagem
+   completa, com a foto encaixada no centro. Brilho roxo da Satella. */
+.av-frame-cha {
+  --ring: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.av-frame-cha::before { display: none; }
+.av-frame-cha::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 172%;                 /* buraco (≈52% da img) = tamanho do avatar */
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: url('/cha-ring.png') no-repeat center / contain;
+  z-index: -1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(150, 70, 230, 0.6));
+}
+
 /* Aro de eletricidade: anel elétrico girando rápido + faíscas (::after) + brilho piscante */
 .av-frame-electric {
   --ring: conic-gradient(from 0deg, #3a86ff, #cdeaff, #ffe23a, #ffffff, #46d6e6, #3a86ff);
   --glow: rgba(110, 190, 255, 0.7);
   animation: av-glowpulse 1.3s ease-in-out infinite;
 }
-:is(.perfil-av-wrap, .frame-prev).av-frame-electric::before { animation-duration: 1.3s; }
+:is(.perfil-av-wrap, .frame-prev, .profile-av-wrap).av-frame-electric::before { animation-duration: 1.3s; }
 .av-frame-electric::after {
   content: '';
   position: absolute;
@@ -154,6 +229,22 @@
 @keyframes pb-bot {
   0%, 36%, 100% { transform: translateY(0); }
   50%, 60% { transform: translateY(3px); }
+}
+
+/* Aro Return (Return by Death): um "cometa" carmesim avança e RETROCEDE de
+   repente — o tempo voltando — com um pulso vermelho de morte. */
+.av-frame-return {
+  --ring: conic-gradient(from -90deg, #e0483a 0deg, #8a1f18 70deg, rgba(120, 20, 16, 0) 150deg, rgba(120, 20, 16, 0) 360deg);
+  --glow: rgba(210, 50, 40, 0.6);
+  animation: av-glowpulse 1.6s ease-in-out infinite;
+}
+.av-frame-return::before { animation: av-rewind 3.4s cubic-bezier(0.7, 0, 0.35, 1) infinite; }
+@keyframes av-rewind {
+  0% { transform: rotate(0deg); }
+  68% { transform: rotate(338deg); }   /* avança o tempo */
+  70% { transform: rotate(360deg); }
+  71% { transform: rotate(0deg); }      /* MORRE e RETORNA ao início */
+  100% { transform: rotate(0deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -254,8 +345,15 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   pointer-events: none;
 }
+.perfil-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 16px;
+}
 .perfil-link {
-  margin-top: 14px;
   background: transparent;
   border: 0;
   color: var(--app-muted);
@@ -269,7 +367,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 14px;
   background: transparent;
   border: 0;
   color: #ff6b6b;
@@ -283,18 +380,21 @@
   font-size: 16px;
 }
 .perfil-id {
-  flex: 1;
+  width: 100%;
   min-width: 0;
+  text-align: center;
 }
 .perfil-name {
   --background: transparent;
   --padding-start: 0;
+  --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 2px;
   font-family: var(--font-display);
   font-size: 24px;
   letter-spacing: 0.3px;
   min-height: 0;
+  text-align: center;
 }
 .perfil-lvl {
   display: block;

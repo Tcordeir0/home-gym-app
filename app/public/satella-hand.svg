@@ -1,0 +1,13 @@
+<svg width="64" height="100" viewBox="0 0 64 100" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#170b29">
+    <!-- palma -->
+    <path d="M17 54 Q16 88 32 90 Q48 88 47 54 Q47 46 39 46 L25 46 Q17 46 17 54 Z"/>
+    <!-- dedos pontudos (garras de bruxa, leve curva) -->
+    <path d="M18 56 L11 15 Q13 11 17 14 L24 54 Z"/>
+    <path d="M26 54 L23 5 Q26 0 29 5 L32 53 Z"/>
+    <path d="M34 53 L37 8 Q40 4 41 10 L41 54 Z"/>
+    <path d="M42 55 L48 19 Q51 16 51 22 L48 56 Z"/>
+    <!-- polegar pontudo -->
+    <path d="M17 58 L4 41 Q2 37 7 38 L21 53 Z"/>
+  </g>
+</svg>

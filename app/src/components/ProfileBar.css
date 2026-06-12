@@ -2,7 +2,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 2px 16px 10px;
+  padding: 12px 16px;
   scrollbar-width: none;
 }
 .profile-bar::-webkit-scrollbar {
@@ -38,11 +38,21 @@ html[data-glass] .profile-pill.active {
   -webkit-backdrop-filter: blur(11px) saturate(1.1);
   backdrop-filter: blur(11px) saturate(1.1);
 }
+.profile-pill { position: relative; overflow: visible; }
+.profile-name { position: relative; z-index: 1; }
 .profile-av-wrap {
   position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  isolation: isolate;
 }
+/* aros-imagem (coroas) menores na barra — o avatar é só 26px */
+.profile-av-wrap.av-frame-mine::after { width: 168%; }
+.profile-av-wrap.av-frame-cha::after { width: 156%; }
+.profile-av-wrap.av-frame-tridente::after { width: 44%; }
 .av-deco {
   position: absolute;
   top: -6px;

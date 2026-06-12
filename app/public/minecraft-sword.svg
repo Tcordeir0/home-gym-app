@@ -1,0 +1,14 @@
+<svg width="40" height="54" viewBox="0 0 40 54" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- ponta -->
+  <rect x="15" y="2" width="10" height="5" fill="#8af3e6"/>
+  <!-- lâmina (3 tons = sombra pixel) -->
+  <rect x="12" y="7" width="5" height="22" fill="#8af3e6"/>
+  <rect x="17" y="7" width="6" height="22" fill="#4aedd9"/>
+  <rect x="23" y="7" width="5" height="22" fill="#27a597"/>
+  <!-- guarda -->
+  <rect x="5" y="29" width="30" height="6" fill="#9a6a32"/>
+  <rect x="5" y="32" width="30" height="3" fill="#6b4a24"/>
+  <!-- cabo -->
+  <rect x="15" y="35" width="5" height="15" fill="#9a6a32"/>
+  <rect x="20" y="35" width="5" height="15" fill="#6b4a24"/>
+</svg>

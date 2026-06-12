@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IonCard, IonCardContent, IonIcon, IonAlert, IonToast } from '@ionic/react';
-import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline } from 'ionicons/icons';
+import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline, giftOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
 import Medidas from '../components/Medidas';
@@ -9,7 +9,7 @@ import FotoProgresso from '../components/FotoProgresso';
 import Ferramentas from '../components/Ferramentas';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
-import { ACHIEVEMENTS } from '../data/achievements';
+import { ACHIEVEMENTS, rewardLabel } from '../data/achievements';
 import { shareProgress } from '../lib/shareCard';
 import { familyLeague } from '../lib/league';
 import type { HistoryEntry } from '../store/types';
@@ -79,6 +79,14 @@ const Progresso: React.FC = () => {
   }, [history, active]);
 
   const unlocked = ACHIEVEMENTS.filter((a) => a.test(stats)).length;
+
+  // concede automaticamente os itens das conquistas já atingidas
+  const claimAchievementRewards = useStore((s) => s.claimAchievementRewards);
+  useEffect(() => {
+    const n = claimAchievementRewards();
+    if (n > 0) setToast(`🎁 ${n} recompensa${n > 1 ? 's' : ''} de conquista desbloqueada${n > 1 ? 's' : ''}! Veja no Perfil.`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats.treinos, stats.streak, stats.pts, stats.dietDays]);
 
   const onShare = async () => {
     try {
@@ -179,10 +187,13 @@ const Progresso: React.FC = () => {
             {ACHIEVEMENTS.map((a, i) => {
               const got = a.test(stats);
               return (
-                <div key={i} className={'ach' + (got ? ' got' : '') + (got && a.milestone ? ' gold' : '')}>
+                <div key={i} className={'ach' + (got ? ' got' : '') + (got && a.milestone ? ' gold' : '') + (a.reward ? ' has-reward' : '')}>
                   <IonIcon icon={got ? a.icon : lockClosed} />
                   <span className="ach-l">{a.label}</span>
                   <span className="ach-d">{a.desc}</span>
+                  {a.reward && (
+                    <span className="ach-reward"><IonIcon icon={giftOutline} />{rewardLabel(a.reward)}</span>
+                  )}
                 </div>
               );
             })}
@@ -270,7 +281,7 @@ const Progresso: React.FC = () => {
         isOpen={!!toast}
         message={toast}
         duration={2200}
-        position="bottom"
+        position="top"
         onDidDismiss={() => setToast('')}
       />
     </AppPage>

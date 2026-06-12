@@ -7,6 +7,13 @@ import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
+import { ACHIEVEMENTS } from '../data/achievements';
+import { statsFor } from '../lib/stats';
+
+// itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
+const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
+const REWARD_FRAMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'frame').map((a) => a.reward!.id));
+const REWARD_DECOS = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'deco').map((a) => a.reward!.id));
 
 export interface SetRow {
   kg: string;
@@ -39,7 +46,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -75,7 +82,7 @@ function defaultState(): AppState {
   return {
     users: [newProfile('u1', 'Você', COLORS[0])],
     active: 'u1',
-    checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'both', appTheme: 'dark',
+    checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -94,7 +101,10 @@ function migrate(raw: Partial<AppState>): AppState {
   s.pokes = s.pokes || {}; s.session = s.session || {}; s.celebrated = s.celebrated || {};
   s.notifs = s.notifs || {}; s.setlog = s.setlog || {}; s.measures = s.measures || {}; s.daily = s.daily || {};
   if (typeof s.soundOn !== 'boolean') s.soundOn = true;
-  if (!s.feedback) s.feedback = 'both';
+  // estado pré-permissões (sem notifyOn): zera as chavinhas — começam desativadas
+  // e só ligam DEPOIS de conceder a permissão.
+  if (typeof s.notifyOn !== 'boolean') { s.notifyOn = false; s.feedback = 'none'; }
+  if (!s.feedback) s.feedback = 'none';
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -143,6 +153,7 @@ export interface Store extends AppState {
   addAndClaimProfile: (name: string) => string;
   deleteProfile: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
+  setNotifyOn: (v: boolean) => void;
   resetState: () => void;
   initForUser: (name: string) => void;
   setTheme: (t: string) => void;
@@ -180,6 +191,8 @@ export interface Store extends AppState {
   claimQuest: (id: string, reward: number) => void;
   spinsAvailable: () => number;
   spinRoulette: () => { prize: Prize; index: number } | null;
+  claimAchievementRewards: () => number;
+  grantAccountThemes: (email: string) => void;
   exportState: () => string;
   importState: (json: string) => boolean;
 }
@@ -218,6 +231,7 @@ export const useStore = create<Store>((set, get) => {
     ...initial,
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
+    setNotifyOn: (v) => set({ notifyOn: v }),
     resetState: () => set(defaultState()),
     initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>
@@ -585,7 +599,7 @@ export const useStore = create<Store>((set, get) => {
           if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
           if (prize.kind === 'frame') {
             const owned = u.cosmetics.frames || [];
-            const locked = FRAMES.filter((fr) => !fr.free && !owned.includes(fr.id));
+            const locked = FRAMES.filter((fr) => !fr.free && !fr.account && !owned.includes(fr.id) && !REWARD_FRAMES.has(fr.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.frames = [...owned, won.id];
@@ -593,7 +607,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else if (prize.kind === 'theme') {
             const owned = u.cosmetics.themes || [];
-            const locked = THEMES.filter((th) => !th.free && !owned.includes(th.id));
+            const locked = THEMES.filter((th) => !th.free && !th.exclusive && !th.account && !owned.includes(th.id) && !REWARD_THEMES.has(th.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.themes = [...owned, won.id];
@@ -601,7 +615,7 @@ export const useStore = create<Store>((set, get) => {
             } else { sc.byDay[t] = (sc.byDay[t] || 0) + 30; result = { id: 'p30b', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 0 }; }
           } else {
             const owned = u.cosmetics.hats || [];
-            const locked = DECOS.filter((d) => !d.free && !owned.includes(d.id));
+            const locked = DECOS.filter((d) => !d.free && !owned.includes(d.id) && !REWARD_DECOS.has(d.id));
             if (locked.length) {
               const won = locked[Math.floor(Math.random() * locked.length)];
               u.cosmetics.hats = [...owned, won.id];
@@ -615,6 +629,48 @@ export const useStore = create<Store>((set, get) => {
         }
       }));
       return { prize: result, index };
+    },
+
+    // concede os itens das conquistas já atingidas que ainda não estão na conta.
+    // Retorna quantos itens novos foram desbloqueados (pra mostrar toast).
+    claimAchievementRewards: () => {
+      let granted = 0;
+      set(produce((s: Store) => {
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], frames: [], theme: null, hat: null, frame: null };
+        const stats = statsFor(s, s.active);
+        ACHIEVEMENTS.forEach((a) => {
+          if (!a.reward || !a.test(stats)) return;
+          const { kind, id } = a.reward;
+          if (kind === 'theme') {
+            if (!u.cosmetics.themes.includes(id)) { u.cosmetics.themes.push(id); granted++; }
+          } else if (kind === 'frame') {
+            const f = u.cosmetics.frames || (u.cosmetics.frames = []);
+            if (!f.includes(id)) { f.push(id); granted++; }
+          } else if (kind === 'deco') {
+            if (!u.cosmetics.hats.includes(id)) { u.cosmetics.hats.push(id); granted++; }
+          }
+        });
+      }));
+      return granted;
+    },
+
+    // libera os temas E aros vinculados a uma CONTA (email) p/ todos os perfis dela.
+    grantAccountThemes: (email) => {
+      const mail = (email || '').trim().toLowerCase();
+      if (!mail) return;
+      const themeIds = THEMES.filter((t) => t.account && t.account.toLowerCase() === mail).map((t) => t.id);
+      const frameIds = FRAMES.filter((f) => f.account && f.account.toLowerCase() === mail).map((f) => f.id);
+      if (!themeIds.length && !frameIds.length) return;
+      set(produce((s: Store) => {
+        s.users.forEach((u) => {
+          if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], frames: [], theme: null, hat: null, frame: null };
+          themeIds.forEach((id) => { if (!u.cosmetics.themes.includes(id)) u.cosmetics.themes.push(id); });
+          const fr = u.cosmetics.frames || (u.cosmetics.frames = []);
+          frameIds.forEach((id) => { if (!fr.includes(id)) fr.push(id); });
+        });
+      }));
     },
 
     exportState: () => {

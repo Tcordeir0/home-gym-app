@@ -124,9 +124,9 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       const dw = img.width * s, dh = img.height * s;
       ctx.drawImage(img, cx - dw / 2, 0, dw, dh);
       const veil = ctx.createLinearGradient(0, 0, 0, H);
-      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.72)`);
-      veil.addColorStop(0.5, `rgba(${br},${bg2},${bb},0.5)`);
-      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.82)`);
+      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.8)`);
+      veil.addColorStop(0.42, `rgba(${br},${bg2},${bb},0.62)`);
+      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.9)`);
       ctx.fillStyle = veil;
       ctx.fillRect(0, 0, W, H);
       drewImage = true;
@@ -152,8 +152,11 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 150);
 
   // ---- avatar: foto (círculo) OU anel de nível, com o ARO do perfil ----
-  const ay = 400, R = 140;
+  const ay = 400;
   const frame = d.frame || 'none';
+  // aros-imagem (coroas) são bem maiores que o avatar → reduzir o raio pra coroa
+  // caber entre a marca e o nome (não invadir o "TCORDEIRO").
+  const R = frame === 'mine' ? 96 : frame === 'cha' ? 110 : 140;
   const ringLw = frame === 'pokeball' ? 22 : 16;
   if (d.photo) {
     try {
@@ -165,7 +168,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       ctx.drawImage(img, cx - dw / 2, ay - dh / 2, dw, dh);
       ctx.restore();
     } catch { /* sem foto */ }
-    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   } else {
     // base + número do nível, depois o aro por cima
     ctx.fillStyle = surfCol;
@@ -173,7 +176,33 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.textAlign = 'center'; ctx.fillStyle = accent;
     ctx.font = '140px Anton, sans-serif'; ctx.fillText(String(d.level), cx, ay + 46);
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif'; ctx.fillText('NÍVEL', cx, ay + 100);
-    drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+  }
+
+  // ---- aro Tridente: tridente dourado como coroa em cima do aro (pequeno) ----
+  if (frame === 'tridente') {
+    try {
+      const tri = await loadImage('/trident.svg');
+      const tw = R * 0.72, th = tw * 0.9;
+      ctx.drawImage(tri, cx - tw / 2, (ay - R + 12) - th, tw, th);
+    } catch { /* ok */ }
+  }
+  // ---- aro Minecraft: a COROA de blocos completa envolvendo o avatar ----
+  if (frame === 'mine') {
+    try {
+      const wreath = await loadImage('/mine-ring.png');
+      // frações medidas do PNG: buraco centro (0.496, 0.582), raio 0.236 da largura
+      const Wimg = R / 0.236;               // largura da coroa p/ o buraco = raio do avatar
+      ctx.drawImage(wreath, cx - 0.496 * Wimg, ay - 0.582 * Wimg, Wimg, Wimg);
+    } catch { /* ok */ }
+  }
+  // ---- aro Pecados (Chá): coroa de caveiras dos 7 pecados ----
+  if (frame === 'cha') {
+    try {
+      const wreath = await loadImage('/cha-ring.png');
+      const Wimg = R / 0.261;               // buraco centrado (0.5, 0.5), raio 0.261
+      ctx.drawImage(wreath, cx - 0.5 * Wimg, ay - 0.5 * Wimg, Wimg, Wimg);
+    } catch { /* ok */ }
   }
 
   // ---- cosmético (ícone pixel) no canto do avatar ----

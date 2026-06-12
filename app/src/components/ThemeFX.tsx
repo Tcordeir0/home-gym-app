@@ -5,6 +5,8 @@ import './ThemeFX.css';
 
 const CHARS = '01ｱｲｳｴｵｶｷｸｹｺ日月火水木金土ＡＢＣＤＥＦ'.split('');
 const MATH = ['+', '−', '×', '÷', '=', 'π', '√', '∞', '%', '∑', '2', '7', '∫', 'x²', 'θ', 'φ'];
+// glifos rúnicos (estilo Alfabeto Galáctico) — partículas da mesa de encantamento
+const RUNES = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛖᛗᛚᛜᛞᛟᚷᛝᛡ'.split('');
 
 /** Texturas/animações por tema (chuva Matrix em canvas + overlays CSS + wallpapers). */
 const ThemeFX: React.FC = () => {
@@ -152,6 +154,129 @@ const ThemeFX: React.FC = () => {
                 top: `${(i * 31 + 8) % 94}%`,
                 animationDuration: `${1.4 + (i % 4) * 0.5}s`,
                 animationDelay: `${(i * 0.27) % 4}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'miasma' && (
+        <div className="fx-miasma">
+          {/* pulso vermelho — o "aperto no coração" do Return by Death */}
+          <div className="miasma-pulse" />
+          {/* névoa da Bruxa subindo (sombra/miasma) */}
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={i}
+              className="wisp"
+              style={{
+                left: `${(i * 61 + 5) % 98}%`,
+                width: `${24 + (i % 4) * 12}px`,
+                height: `${24 + (i % 4) * 12}px`,
+                animationDuration: `${7 + (i % 5)}s`,
+                animationDelay: `${(i * 0.6) % 7}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'enchant' && (
+        <div className="fx-enchant">
+          {/* glifos do alfabeto galáctico subindo e brilhando — mesa de encantamento */}
+          {Array.from({ length: 26 }).map((_, i) => (
+            <span
+              key={i}
+              className="rune"
+              style={{
+                left: `${(i * 37 + 4) % 97}%`,
+                fontSize: `${13 + (i % 4) * 7}px`,
+                animationDuration: `${5 + (i % 5)}s`,
+                animationDelay: `${(i * 0.42) % 6}s`,
+                ['--drift' as string]: `${((i % 5) - 2) * 16}px`,
+              }}
+            >
+              {RUNES[i % RUNES.length]}
+            </span>
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'hands' && (
+        <div className="fx-hands">
+          {/* a massa escura de onde as mãos emergem (Satella) */}
+          <div className="hands-pool" />
+          {/* mãos emergindo das 4 bordas e se CONTORCENDO (base° + sway de rotação) */}
+          {([
+            { e: 'b', n: 10, base: 0 },
+            { e: 't', n: 7, base: 180 },
+            { e: 'l', n: 6, base: 90 },
+            { e: 'r', n: 6, base: -90 },
+          ] as const).flatMap((cfg) =>
+            Array.from({ length: cfg.n }).map((_, i) => {
+              const sway = 7 + (i % 3) * 6;
+              const along = ((i * 53 + 7) % 90) + 4; // % ao longo da borda
+              const horiz = cfg.e === 'b' || cfg.e === 't';
+              return (
+                <img
+                  key={cfg.e + i}
+                  className={'shand reach ' + cfg.e}
+                  src="/satella-hand.svg"
+                  alt=""
+                  style={{
+                    [horiz ? 'left' : 'top']: `${along}%`,
+                    width: `${40 + (i % 4) * 22}px`,
+                    ['--r0' as string]: `${cfg.base - sway}deg`,
+                    ['--r1' as string]: `${cfg.base + sway}deg`,
+                    animationDuration: `${2.6 + (i % 4) * 0.7}s`,
+                    animationDelay: `-${(i * 0.43) % 5}s`,
+                  }}
+                />
+              );
+            }),
+          )}
+          {/* 愛している — a frase marcada da Satella, sussurrada no fundo */}
+          {Array.from({ length: 4 }).map((_, i) => (
+            <span
+              key={'t' + i}
+              className="aishiteru"
+              style={{
+                left: `${12 + i * 23}%`,
+                fontSize: `${15 + (i % 3) * 9}px`,
+                animationDuration: `${9 + (i % 4)}s`,
+                animationDelay: `-${(i * 1.7) % 8}s`,
+              }}
+            >
+              愛している
+            </span>
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'creator' && (
+        <div className="fx-creator">
+          {/* o "reluzente" — brilho varrendo a tela */}
+          <div className="creator-shimmer" />
+          {/* fagulhas roxas de criação subindo (o builder/Talys) */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <span
+              key={'s' + i}
+              className="cspark"
+              style={{
+                left: `${(i * 53 + 5) % 97}%`,
+                width: `${4 + (i % 4) * 3}px`,
+                height: `${4 + (i % 4) * 3}px`,
+                animationDuration: `${6 + (i % 5)}s`,
+                animationDelay: `${(i * 0.5) % 7}s`,
+              }}
+            />
+          ))}
+          {/* estrelas douradas piscando (ambição/cosmos, casa com o tridente) */}
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span
+              key={'g' + i}
+              className="cstar"
+              style={{
+                left: `${(i * 61 + 9) % 96}%`,
+                top: `${(i * 37 + 7) % 92}%`,
+                animationDuration: `${2.5 + (i % 4)}s`,
+                animationDelay: `${(i * 0.4) % 5}s`,
               }}
             />
           ))}

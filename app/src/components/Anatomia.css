@@ -1,0 +1,100 @@
+.anat { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* alternador frente/costas */
+.anat-seg {
+  display: inline-flex;
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--app-line, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  padding: 3px;
+}
+.anat-seg button {
+  border: 0;
+  background: transparent;
+  color: var(--ion-text-color, #fff);
+  opacity: 0.55;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+.anat-seg button.on {
+  opacity: 1;
+  background: color-mix(in srgb, var(--brand-lime) 22%, transparent);
+  color: var(--brand-lime);
+}
+
+.anat-empty {
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.65;
+  margin: 4px 8px;
+}
+
+/* o modelo anatômico (react-body-highlighter) */
+.anat-model {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35));
+}
+.anat-model svg { cursor: pointer; }
+.anat-model svg path { transition: fill 0.2s ease; }
+/* músculo apertado: o modelo inteiro ganha um pulso de brilho na cor do tema */
+.anat-model.sel { animation: anat-glow 1.3s ease-in-out infinite; }
+@keyframes anat-glow {
+  0%, 100% { filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35)); }
+  50% { filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 9px var(--brand-lime)); }
+}
+@media (prefers-reduced-motion: reduce) { .anat-model.sel { animation: none; } }
+
+/* painel de detalhe / foco */
+.anat-panel {
+  width: 100%;
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--app-line, rgba(255, 255, 255, 0.08));
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.anat-panel.focus { border-color: color-mix(in srgb, var(--brand-lime) 40%, transparent); }
+.anat-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.anat-panel-top b { font-size: 15px; }
+.anat-panel-top span { font-size: 13px; color: var(--brand-lime); font-weight: 700; white-space: nowrap; }
+.anat-panel p { margin: 0; font-size: 13px; opacity: 0.8; line-height: 1.4; }
+
+/* legenda em barras */
+.anat-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.anat-bar {
+  display: grid;
+  grid-template-columns: 64px 1fr 26px;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.anat-bar.on { background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); }
+.anat-bar-l { text-align: left; font-size: 13px; font-weight: 600; opacity: 0.85; }
+.anat-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--app-line, rgba(255, 255, 255, 0.1));
+  overflow: hidden;
+}
+.anat-bar-fill { display: block; height: 100%; border-radius: 999px; transition: width 0.4s ease; min-width: 2px; }
+.anat-bar-n { text-align: right; font-size: 12px; font-weight: 700; color: var(--brand-lime); }
+
+@media (prefers-reduced-motion: reduce) {
+  .anat-bar-fill, .anat-seg button { transition: none; }
+}
