@@ -47,6 +47,15 @@ const PillFX: React.FC<{ theme?: string | null }> = ({ theme }) => {
       </span>
     );
   }
+  // Creator (Talys) — fagulhas roxas subindo + estrelas douradas
+  if (fx === 'creator') {
+    return (
+      <span className="pill-fx pfx-creator" aria-hidden="true">
+        {POS.slice(0, 4).map(([x, y], i) => <span key={'s' + i} className="pf p-cspark" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `-${i * 0.5}s` }} />)}
+        {POS.slice(2, 5).map(([x, y], i) => <span key={'g' + i} className="pf p-cstar" style={{ left: `${(x + 8) % 92}%`, top: `${Math.max(8, y - 10)}%`, animationDelay: `-${i * 0.4}s` }} />)}
+      </span>
+    );
+  }
   // partículas espalhadas (runas, símbolos, corações, bolhas, neve, vaga-lumes)
   if (fx === 'enchant' || fx === 'math' || fx === 'hearts' || fx === 'bubbles' || fx === 'snow' || fx === 'fireflies') {
     const n = fx === 'fireflies' ? 5 : 6;

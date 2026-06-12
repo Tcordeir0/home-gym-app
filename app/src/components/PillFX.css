@@ -70,6 +70,10 @@
 @keyframes pf-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.5; } }
 @keyframes pf-bolt { 0%, 100% { opacity: 0; } 6% { opacity: 1; } 12% { opacity: 0.15; } 18% { opacity: 0.9; } 26% { opacity: 0; } }
 
+/* Creator (Talys) — fagulhas roxas + estrelas douradas */
+.pill-fx .p-cspark { width: 5px; height: 5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e6c8ff, #9a5cff); box-shadow: 0 0 6px rgba(150, 90, 255, 0.95); animation-name: pf-floatup; animation-duration: 3.2s; }
+.pill-fx .p-cstar { width: 3px; height: 3px; border-radius: 50%; background: #ffe27a; box-shadow: 0 0 5px #ffd166; animation-name: pf-twinkle; animation-duration: 2.2s; }
+
 /* matrix — chuva digital verde */
 .pill-fx .p-matrix { color: #00ff66; font-family: monospace; font-weight: 700; text-shadow: 0 0 5px #00ff66; animation-name: pf-floatdown; animation-duration: 2.6s; }
 

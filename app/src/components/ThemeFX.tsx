@@ -249,6 +249,39 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'creator' && (
+        <div className="fx-creator">
+          {/* o "reluzente" — brilho varrendo a tela */}
+          <div className="creator-shimmer" />
+          {/* fagulhas roxas de criação subindo (o builder/Talys) */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <span
+              key={'s' + i}
+              className="cspark"
+              style={{
+                left: `${(i * 53 + 5) % 97}%`,
+                width: `${4 + (i % 4) * 3}px`,
+                height: `${4 + (i % 4) * 3}px`,
+                animationDuration: `${6 + (i % 5)}s`,
+                animationDelay: `${(i * 0.5) % 7}s`,
+              }}
+            />
+          ))}
+          {/* estrelas douradas piscando (ambição/cosmos, casa com o tridente) */}
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span
+              key={'g' + i}
+              className="cstar"
+              style={{
+                left: `${(i * 61 + 9) % 96}%`,
+                top: `${(i * 37 + 7) % 92}%`,
+                animationDuration: `${2.5 + (i % 4)}s`,
+                animationDelay: `${(i * 0.4) % 5}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {themeObj?.fx === 'snow' && (
         <div className="fx-snow">
           {Array.from({ length: 40 }).map((_, i) => (

@@ -8,7 +8,7 @@ export interface Theme {
   account?: string; // liberado p/ TODOS os perfis desta conta (email) — não cai na roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator'; // partículas por cima da arte
 }
 
 export const THEMES: Theme[] = [
@@ -31,7 +31,7 @@ export const THEMES: Theme[] = [
   { id: 'snow', name: 'Snow', emoji: '❄️', free: false, swatch: ['#0c1a2c', '#13283f', '#8fd0ff'], image: '/themes/snow.png', fx: 'snow' },
   { id: 'eletrico', name: 'Elétrico', emoji: '⚡', free: false, swatch: ['#0c1830', '#15294a', '#ffe14d'], image: '/themes/eletrico.png', fx: 'electric' },
   { id: 'return', name: 'Return', emoji: '🔁', free: false, swatch: ['#0a0b0c', '#16181a', '#aac47e'], image: '/themes/return.jpg', fx: 'miasma' },
-  { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg' },
+  { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg', fx: 'creator' },
   { id: 'cha', name: 'Chá', emoji: '🍵', free: false, account: 'talysmatheus12@gmail.com', swatch: ['#181222', '#241a33', '#ff9e6b'], image: '/themes/cha.jpg', fx: 'hands' },
 ];
 

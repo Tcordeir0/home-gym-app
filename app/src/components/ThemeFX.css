@@ -330,6 +330,42 @@
   100% { transform: translate(var(--drift), -112vh) rotate(8deg); opacity: 0; }
 }
 
+/* ===== fx Creator (tema do Talys) — fagulhas roxas + estrelas douradas + reluzente ===== */
+.fx-creator { position: absolute; inset: 0; overflow: hidden; }
+.fx-creator .creator-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(200, 150, 255, 0.1) 50%, transparent 62%);
+  background-size: 280% 280%;
+  animation: fx-shimmer 6s linear infinite;
+}
+.fx-creator .cspark {
+  position: absolute;
+  bottom: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e6c8ff, #9a5cff);
+  box-shadow: 0 0 8px rgba(150, 90, 255, 0.9), 0 0 16px rgba(120, 60, 230, 0.5);
+  opacity: 0;
+  animation-name: fx-cspark;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+@keyframes fx-cspark {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  15% { opacity: 0.95; }
+  80% { opacity: 0.5; }
+  100% { transform: translateY(-112vh) scale(1.1); opacity: 0; }
+}
+.fx-creator .cstar {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #ffe27a;
+  box-shadow: 0 0 6px #ffd166, 0 0 11px rgba(255, 210, 100, 0.6);
+  animation-name: fx-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
 /* ===== fx mãos da Satella (tema Chá / Re:Zero) — massa de mãos se contorcendo ===== */
 .fx-hands { position: absolute; inset: 0; overflow: hidden; }
 /* a massa escura de onde as mãos saem */
