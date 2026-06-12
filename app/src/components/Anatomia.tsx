@@ -55,9 +55,12 @@ const Anatomia: React.FC = () => {
     const accent = (root?.getPropertyValue('--brand-lime').trim()) || '#c6ff3a';
     const base = (root?.getPropertyValue('--app-line').trim()) || '#2a2f3a';
     const body = /^#?[0-9a-f]{3,6}$/i.test(base) ? base : '#2a2f3a';
+    const b = body.startsWith('#') ? body : '#2a2f3a';
+    const ac = accent.startsWith('#') ? accent : '#c6ff3a';
     return {
       bodyColor: body.startsWith('#') ? body : '#' + body,
-      shades: [0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(body.startsWith('#') ? body : '#2a2f3a', accent.startsWith('#') ? accent : '#c6ff3a', t)),
+      // 5 tons normais (freq 1-5) + 1 "glow" bem claro (freq 6) p/ o músculo selecionado
+      shades: [...[0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(b, ac, t)), mix(ac, '#ffffff', 0.6)],
     };
   }, [theme]);
 
@@ -81,15 +84,16 @@ const Anatomia: React.FC = () => {
     return { counts: c, total: tot, intensity: inten };
   }, [history]);
 
-  // dados pro modelo: 1 entrada por grupo treinado, frequência = nível 1..5 (índice de cor)
+  // dados pro modelo: 1 entrada por grupo treinado, frequência = nível 1..5 (índice de cor).
+  // o grupo SELECIONADO recebe freq 6 = "glow" (mostra que está sendo apertado).
   const data: IExerciseData[] = useMemo(() => {
     const max = Math.max(1, ...GROUPS.map((g) => counts[g]));
-    return GROUPS.filter((g) => counts[g] > 0).map((g) => ({
+    return GROUPS.filter((g) => counts[g] > 0 || g === sel).map((g) => ({
       name: GROUP_LABEL[g],
       muscles: GROUP_MUSCLES[g],
-      frequency: Math.max(1, Math.ceil((counts[g] / max) * 5)),
+      frequency: g === sel ? 6 : Math.max(1, Math.ceil((counts[g] / max) * 5)),
     }));
-  }, [counts]);
+  }, [counts, sel]);
 
   const weakest = useMemo(() => GROUPS.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
 
@@ -109,7 +113,7 @@ const Anatomia: React.FC = () => {
         <p className="anat-empty">Registre treinos pra ver quais músculos você mais trabalhou (últimos 30 dias).</p>
       ) : null}
 
-      <div className="anat-model">
+      <div className={'anat-model' + (sel ? ' sel' : '')}>
         <Model
           type={view}
           data={data}

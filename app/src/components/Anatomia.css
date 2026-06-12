@@ -41,6 +41,14 @@
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35));
 }
 .anat-model svg { cursor: pointer; }
+.anat-model svg path { transition: fill 0.2s ease; }
+/* músculo apertado: o modelo inteiro ganha um pulso de brilho na cor do tema */
+.anat-model.sel { animation: anat-glow 1.3s ease-in-out infinite; }
+@keyframes anat-glow {
+  0%, 100% { filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35)); }
+  50% { filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 9px var(--brand-lime)); }
+}
+@media (prefers-reduced-motion: reduce) { .anat-model.sel { animation: none; } }
 
 /* painel de detalhe / foco */
 .anat-panel {

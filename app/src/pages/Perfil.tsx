@@ -123,15 +123,19 @@ const Perfil: React.FC = () => {
             </div>
           </div>
 
-          {profile.photo && (
-            <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
-              Remover foto
-            </button>
-          )}
-          {users.length > 1 && (
-            <button className="perfil-del" onClick={() => setDelOpen(true)}>
-              <IonIcon icon={trashOutline} /> Excluir perfil
-            </button>
+          {(profile.photo || users.length > 1) && (
+            <div className="perfil-actions">
+              {profile.photo && (
+                <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
+                  Remover foto
+                </button>
+              )}
+              {users.length > 1 && (
+                <button className="perfil-del" onClick={() => setDelOpen(true)}>
+                  <IonIcon icon={trashOutline} /> Excluir perfil
+                </button>
+              )}
+            </div>
           )}
         </IonCardContent>
       </IonCard>

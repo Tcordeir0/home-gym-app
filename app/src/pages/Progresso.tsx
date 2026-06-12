@@ -281,7 +281,7 @@ const Progresso: React.FC = () => {
         isOpen={!!toast}
         message={toast}
         duration={2200}
-        position="bottom"
+        position="top"
         onDidDismiss={() => setToast('')}
       />
     </AppPage>
