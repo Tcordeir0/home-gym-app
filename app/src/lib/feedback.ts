@@ -10,6 +10,11 @@ const native = Capacitor.isNativePlatform();
 let mode: Feedback = 'none';
 export function setFeedbackMode(m: Feedback) { mode = m || 'none'; }
 
+// volume mestre (0–1), por perfil — sincronizado pelo App a partir do perfil ativo.
+let volume = 0.7;
+export function setVolume(v: number) { volume = Math.max(0, Math.min(1, v)); }
+export function getVolume() { return volume; }
+
 const soundOn = () => mode === 'both' || mode === 'sound';
 const vibrateOn = () => mode === 'both' || mode === 'vibrate';
 
@@ -26,8 +31,9 @@ function beep(freq: number, dur: number, vol = 0.3) {
     o.type = 'triangle'; o.frequency.value = freq;
     o.connect(g); g.connect(actx.destination);
     const t = actx.currentTime;
+    const v = Math.max(0.0002, vol * volume); // aplica o volume mestre do perfil
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(vol, t + 0.012); // ataque rápido
+    g.gain.exponentialRampToValueAtTime(v, t + 0.012); // ataque rápido
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur); // decay
     o.start(t);
     o.stop(t + dur + 0.02);

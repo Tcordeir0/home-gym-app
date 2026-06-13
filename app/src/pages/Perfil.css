@@ -697,6 +697,33 @@
   font-size: 15px;
   font-weight: 600;
 }
+.vol-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 55%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--app-line);
+  outline: none;
+  cursor: pointer;
+}
+.vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--brand-lime);
+  border: 2px solid var(--ion-background-color);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--brand-lime) 60%, transparent);
+}
+.vol-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--brand-lime);
+  border: 2px solid var(--ion-background-color);
+}
 .perfil-account {
   margin: 14px 0 10px;
   font-size: 13px;

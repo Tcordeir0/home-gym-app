@@ -60,6 +60,7 @@ export interface Profile {
   level?: number;
   photo?: string;
   bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
+  volume?: number; // volume dos sons (0–1) deste perfil
   location?: 'casa' | 'academia'; // local de treino — alimenta o gerador
   claimedDevice?: string | null; // id do aparelho que "reivindicou" este perfil (anti-trapaça)
 }

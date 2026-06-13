@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IonIcon, IonModal, IonToast, IonSpinner } from '@ionic/react';
 import { people, peopleOutline, handLeftOutline, chatbubblesOutline, closeOutline, sendOutline, personAddOutline, checkmark, close as closeIcon, arrowBack } from 'ionicons/icons';
 import { supabase } from '../lib/supabase';
@@ -9,8 +9,12 @@ import './Social.css';
 type Tab = 'amigos' | 'cutucar' | 'chat';
 
 const SocialPanel: React.FC = () => {
-  const myName = useStore((s) => s.users.find((u) => u.id === s.active)?.name || 'Eu');
-  const myProfiles = useStore((s) => s.users.map((u) => ({ id: u.id, name: u.name, color: u.color })));
+  // ⚠️ selecionar referências ESTÁVEIS do store (mapear aqui dentro do seletor cria
+  // um array novo a cada render → loop infinito "getSnapshot should be cached").
+  const users = useStore((s) => s.users);
+  const activeId = useStore((s) => s.active);
+  const myName = useMemo(() => users.find((u) => u.id === activeId)?.name || 'Eu', [users, activeId]);
+  const myProfiles = useMemo(() => users.map((u) => ({ id: u.id, name: u.name, color: u.color })), [users]);
 
   const [tab, setTab] = useState<Tab>('amigos');
   const [uid, setUid] = useState('');

@@ -15,7 +15,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import type { Session } from '@supabase/supabase-js';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore } from './store/store';
-import { setFeedbackMode } from './lib/feedback';
+import { setFeedbackMode, setVolume } from './lib/feedback';
 import { supabase } from './lib/supabase';
 import { syncOnLogin, startSync, stopSync } from './lib/sync';
 import { deviceId } from './lib/device';
@@ -100,6 +100,9 @@ const App: React.FC = () => {
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
   useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
+  // volume dos sons é POR PERFIL (cada um regula o seu).
+  const profVolume = useStore((s) => s.users.find((u) => u.id === s.active)?.volume);
+  useEffect(() => { setVolume(profVolume ?? 0.7); }, [profVolume]);
 
   // Aplica o tema do perfil ativo + accent pela cor do perfil (nos temas grátis).
   const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');

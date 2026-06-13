@@ -8,14 +8,16 @@ export interface Prize {
   weight: number;
 }
 
+// Pesos: itens (tema/cosmético/aro) têm MUITO mais chance que pontos —
+// os pontos ajudam pouco e o que diverte é desbloquear coisa nova.
 export const PRIZES: Prize[] = [
-  { id: 'p5', label: '+5 pts', emoji: '🍀', kind: 'pts', value: 5, weight: 20 },
-  { id: 'p10', label: '+10 pts', emoji: '⭐', kind: 'pts', value: 10, weight: 22 },
-  { id: 'theme', label: 'Tema novo!', emoji: '🎨', kind: 'theme', value: 0, weight: 14 },
-  { id: 'deco', label: 'Decoração!', emoji: '✨', kind: 'deco', value: 0, weight: 13 },
-  { id: 'frame', label: 'Aro novo!', emoji: '⭕', kind: 'frame', value: 0, weight: 14 },
-  { id: 'p30', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 16 },
-  { id: 'p50', label: '+50 pts', emoji: '💎', kind: 'pts', value: 50, weight: 10 },
+  { id: 'theme', label: 'Tema novo!', emoji: '🎨', kind: 'theme', value: 0, weight: 24 },
+  { id: 'frame', label: 'Aro novo!', emoji: '⭕', kind: 'frame', value: 0, weight: 24 },
+  { id: 'deco', label: 'Decoração!', emoji: '✨', kind: 'deco', value: 0, weight: 22 },
+  { id: 'p10', label: '+10 pts', emoji: '⭐', kind: 'pts', value: 10, weight: 9 },
+  { id: 'p30', label: '+30 pts', emoji: '💠', kind: 'pts', value: 30, weight: 9 },
+  { id: 'p50', label: '+50 pts', emoji: '💎', kind: 'pts', value: 50, weight: 7 },
+  { id: 'p5', label: '+5 pts', emoji: '🍀', kind: 'pts', value: 5, weight: 5 },
 ];
 
 /** Sorteia um prêmio por peso. */

@@ -427,6 +427,19 @@ const Perfil: React.FC = () => {
               aria-label="Som"
             />
           </div>
+          {somOn && (
+            <div className="ajuste-row">
+              <span>🔉 Volume</span>
+              <input
+                className="vol-range"
+                type="range" min={0} max={100}
+                value={Math.round((profile.volume ?? 0.7) * 100)}
+                onChange={(e) => updateProfile(profile.id, { volume: Number(e.target.value) / 100 })}
+                onPointerUp={() => fxTick()}
+                aria-label="Volume do som"
+              />
+            </div>
+          )}
           <div className="ajuste-row">
             <span>📳 Vibração</span>
             <IonToggle
