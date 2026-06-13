@@ -350,27 +350,10 @@ const ThemeFX: React.FC = () => {
         </div>
       )}
       {themeObj?.fx === 'butterflies' && (
-        <div className="fx-butterflies">
-          {Array.from({ length: 13 }).map((_, i) => (
-            <span
-              key={i}
-              className="bfly"
-              style={{
-                left: `${(i * 53 + 6) % 96}%`,
-                ['--sz' as string]: `${0.7 + (i % 4) * 0.18}`,
-                ['--flap' as string]: `${0.22 + (i % 3) * 0.05}s`,
-                animationDuration: `${8 + (i % 5)}s`,
-                animationDelay: `-${(i * 0.7) % 9}s`,
-              }}
-            >
-              <span className="glow" />
-              <span className="w ul" />
-              <span className="w ur" />
-              <span className="w ll" />
-              <span className="w lr" />
-            </span>
-          ))}
-        </div>
+        <video className="fx-vbutterfly" autoPlay loop muted playsInline aria-hidden="true">
+          <source src="/themes/butterfly.mov" type="video/quicktime" />
+          <source src="/themes/butterfly.webm" type="video/webm" />
+        </video>
       )}
       {themeObj?.fx === 'witch' && (
         <>
@@ -379,25 +362,11 @@ const ThemeFX: React.FC = () => {
             <div className="ghost g1" />
             <div className="ghost g2" />
           </div>
-          {/* borboletas verde-branco com brilho verde-lima */}
-          <div className="fx-butterflies green">
-            {Array.from({ length: 13 }).map((_, i) => (
-              <span
-                key={i}
-                className="bfly"
-                style={{
-                  left: `${(i * 53 + 6) % 96}%`,
-                  ['--sz' as string]: `${0.7 + (i % 4) * 0.18}`,
-                  ['--flap' as string]: `${0.22 + (i % 3) * 0.05}s`,
-                  animationDuration: `${8 + (i % 5)}s`,
-                  animationDelay: `-${(i * 0.7) % 9}s`,
-                }}
-              >
-                <span className="w l" />
-                <span className="w r" />
-              </span>
-            ))}
-          </div>
+          {/* borboletas reais (vídeo) tingidas de verde-lima */}
+          <video className="fx-vbutterfly green" autoPlay loop muted playsInline aria-hidden="true">
+            <source src="/themes/butterfly.mov" type="video/quicktime" />
+            <source src="/themes/butterfly.webm" type="video/webm" />
+          </video>
         </>
       )}
     </div>

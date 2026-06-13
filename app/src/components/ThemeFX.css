@@ -654,3 +654,8 @@
   100% { opacity: 0; transform: scale(1.35) rotate(14deg); }
 }
 @media (prefers-reduced-motion: reduce) { .fx-blood .drip, .fx-blood .splat { animation: none; opacity: 0.5; } .fx-blood .blood-vig, .fx-blood .blood-floor { animation: none; opacity: 0.6; } }
+
+/* ===== Borboletas em VÍDEO (animação real, green screen removido) ===== */
+.fx-vbutterfly { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+/* Bruxa: tinge as borboletas azuis pra verde-lima */
+.fx-vbutterfly.green { filter: hue-rotate(-122deg) saturate(1.5) brightness(1.08); }
