@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IonSegment, IonSegmentButton, IonLabel, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
@@ -30,6 +31,7 @@ const Treino: React.FC = () => {
   const [seg, setSeg] = useState<Seg>('A');
   const [demo, setDemo] = useState<Exercise | null>(null);
   const [toast, setToast] = useState('');
+  const [listRef] = useAutoAnimate<HTMLDivElement>();
 
   const exercises: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
   const labels = plan.labels || { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
@@ -85,9 +87,11 @@ const Treino: React.FC = () => {
         </div>
       )}
 
-      {exercises.map((ex, i) => (
-        <ExerciseCard key={seg + i} ex={ex} treino={seg} exIdx={i} onDemo={setDemo} />
-      ))}
+      <div ref={listRef}>
+        {exercises.map((ex, i) => (
+          <ExerciseCard key={seg + i} ex={ex} treino={seg} exIdx={i} onDemo={setDemo} />
+        ))}
+      </div>
 
       {seg !== 'warm' && (
         <motion.button whileTap={{ scale: 0.97 }} className="treino-done" onClick={onComplete}>

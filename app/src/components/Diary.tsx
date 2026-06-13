@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { trashOutline, addOutline } from 'ionicons/icons';
 import { cloudOutline, cameraOutline } from 'ionicons/icons';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor } from '../lib/diet';
@@ -29,6 +30,7 @@ const Diary: React.FC = () => {
   const addFoodOn = useStore((s) => s.addFoodOn);
   const setGramsOn = useStore((s) => s.setFoodGramsOn);
   const removeFoodOn = useStore((s) => s.removeFoodOn);
+  const [listRef] = useAutoAnimate<HTMLDivElement>();
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
   const today = todayISO();
@@ -130,7 +132,7 @@ const Diary: React.FC = () => {
           <p className="card-sub">Preencha a calculadora (idade, altura, peso) pra ver sua meta aqui.</p>
         )}
 
-        <div className="diary-list">
+        <div className="diary-list" ref={listRef}>
           {food.length ? (
             food.map((it, i) => (
               <div className="food-row" key={i}>
