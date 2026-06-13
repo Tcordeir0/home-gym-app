@@ -205,10 +205,10 @@ const ThemeFX: React.FC = () => {
           <div className="hands-pool" />
           {/* mãos emergindo das 4 bordas e se CONTORCENDO (base° + sway de rotação) */}
           {([
-            { e: 'b', n: 10, base: 0 },
-            { e: 't', n: 7, base: 180 },
-            { e: 'l', n: 6, base: 90 },
-            { e: 'r', n: 6, base: -90 },
+            { e: 'b', n: 6, base: 0 },
+            { e: 't', n: 4, base: 180 },
+            { e: 'l', n: 3, base: 90 },
+            { e: 'r', n: 3, base: -90 },
           ] as const).flatMap((cfg) =>
             Array.from({ length: cfg.n }).map((_, i) => {
               const sway = 7 + (i % 3) * 6;
