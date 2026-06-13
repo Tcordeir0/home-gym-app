@@ -100,10 +100,28 @@
 .av-frame-ocean { --ring: conic-gradient(from 0deg, #aef2ff, #3ad1ff, #1d4ed8, #3ad1ff); box-shadow: 0 0 13px rgba(60, 160, 255, 0.45); }
 .av-frame-ember { --ring: conic-gradient(from 0deg, #ffb04d, #ff8a3a, #7a1010, #ff8a3a); --glow: rgba(220, 90, 20, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
 /* aros temáticos dos temas novos */
-.av-frame-hollow { --ring: conic-gradient(from 0deg, #d6fbff, #5fd1ff, #15405e, #5fd1ff, #d6fbff); --glow: rgba(95, 209, 255, 0.55); animation: av-glowpulse 2.6s ease-in-out infinite; }
+/* Aro Hollow Knight (arte do Talys): moldura gótica + vessel + borboletas como imagem */
+.av-frame-hollow { --ring: transparent; box-shadow: none; overflow: visible; }
+.av-frame-hollow::before { display: none; }
+.av-frame-hollow::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 212%; aspect-ratio: 1; transform: translate(-50%, -47.4%);
+  background: url('/hollow-ring.png') no-repeat center / contain;
+  z-index: -1; pointer-events: none;
+  filter: drop-shadow(0 0 9px rgba(95, 209, 255, 0.45));
+}
 .av-frame-aranha { --ring: conic-gradient(from 0deg, #ff3b3b, #160000, #ff3b3b, #160000); box-shadow: 0 0 13px rgba(255, 59, 59, 0.5); }
 .av-frame-aranha::before { animation-duration: 6s; }
-.av-frame-code { --ring: conic-gradient(from 0deg, #b6ffd9, #39ff88, #0a8a4a, #1affd1, #39ff88); --glow: rgba(57, 255, 136, 0.5); animation: av-glowpulse 2s ease-in-out infinite; }
+/* Aro Code (arte do Talys): moldura hacker (Anonymous, código, cérebro) como imagem */
+.av-frame-code { --ring: transparent; box-shadow: none; overflow: visible; }
+.av-frame-code::before { display: none; }
+.av-frame-code::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 236%; aspect-ratio: 1; transform: translate(-50%, -45.9%);
+  background: url('/code-ring.png') no-repeat center / contain;
+  z-index: -1; pointer-events: none;
+  filter: drop-shadow(0 0 9px rgba(57, 255, 136, 0.4));
+}
 .av-frame-vice { --ring: conic-gradient(from 0deg, #ff4da6, #ffd24d, #37e6ff, #ff4da6); box-shadow: 0 0 15px rgba(255, 77, 166, 0.5); }
 .av-frame-vice::before { animation-duration: 4s; }
 .av-frame-miami { --ring: conic-gradient(from 0deg, #ff5cc8, #ff7a4d, #7a5cff, #ff5cc8); box-shadow: 0 0 15px rgba(255, 92, 200, 0.5); }
