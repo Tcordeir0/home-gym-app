@@ -304,6 +304,19 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'glitch' && themeObj.image && (
+        <div className="fx-glitch" style={{ ['--wp' as string]: `url("${themeObj.image}")` }}>
+          {/* tipo 1: split cromático RGB (2 cópias do wallpaper tintadas) */}
+          <div className="glx-r" />
+          <div className="glx-c" />
+          {/* tipo 2: tearing — fatias do wallpaper deslocadas */}
+          <div className="glx-slices"><i /><i /><i /><i /></div>
+          {/* tipo 3: ruído/static */}
+          <div className="glx-noise" />
+          {/* tipo 4: signal roll/jump (scanlines + salto) */}
+          <div className="glx-roll" />
+        </div>
+      )}
       {themeObj?.fx === 'butterflies' && (
         <div className="fx-butterflies">
           {Array.from({ length: 13 }).map((_, i) => (

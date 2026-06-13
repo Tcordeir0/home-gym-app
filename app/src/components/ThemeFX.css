@@ -511,3 +511,60 @@
   .fx-butterflies .w.l { transform: rotateY(42deg); }
   .fx-butterflies .w.r { transform: rotateY(-42deg); }
 }
+
+/* ===== Glitch (tema Code) — 4 tipos full-screen em bursts (loop 5s, profissional) ===== */
+.fx-glitch { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.fx-glitch > *, .glx-slices i { position: absolute; inset: 0; }
+.glx-r, .glx-c, .glx-slices i, .glx-roll { background-image: var(--wp); background-size: cover; background-position: center; }
+
+/* TIPO 1 — RGB split (cromático): 2 cópias tintadas deslocadas */
+.glx-r, .glx-c { opacity: 0; mix-blend-mode: screen; will-change: transform, opacity; }
+.glx-r { background-image: var(--wp), linear-gradient(#ff0044, #ff0044); background-blend-mode: multiply; animation: glxR 5s steps(1, end) infinite; }
+.glx-c { background-image: var(--wp), linear-gradient(#00ffd0, #00ffd0); background-blend-mode: multiply; animation: glxC 5s steps(1, end) infinite; }
+@keyframes glxR {
+  0%, 19% { opacity: 0; transform: translateX(0); }
+  20% { opacity: .85; transform: translateX(-9px); } 23% { transform: translateX(7px); } 26% { opacity: .85; transform: translateX(-5px); } 28% { opacity: 0; }
+  89% { opacity: .8; transform: translateX(-7px); } 93% { opacity: 0; } 100% { opacity: 0; }
+}
+@keyframes glxC {
+  0%, 19% { opacity: 0; transform: translateX(0); }
+  20% { opacity: .85; transform: translateX(9px); } 23% { transform: translateX(-7px); } 26% { opacity: .85; transform: translateX(5px); } 28% { opacity: 0; }
+  89% { opacity: .8; transform: translateX(7px); } 93% { opacity: 0; } 100% { opacity: 0; }
+}
+
+/* TIPO 2 — tearing: 4 fatias do wallpaper clipadas, deslocadas */
+.glx-slices { opacity: 0; animation: glxSlicesOn 5s steps(1, end) infinite; }
+@keyframes glxSlicesOn { 0%,44%{opacity:0} 45%{opacity:1} 57%{opacity:0} 100%{opacity:0} }
+.glx-slices i:nth-child(1) { clip-path: inset(8% 0 78% 0); animation: glxTearA 5s steps(1, end) infinite; }
+.glx-slices i:nth-child(2) { clip-path: inset(30% 0 52% 0); animation: glxTearB 5s steps(1, end) infinite; }
+.glx-slices i:nth-child(3) { clip-path: inset(56% 0 28% 0); animation: glxTearC 5s steps(1, end) infinite; }
+.glx-slices i:nth-child(4) { clip-path: inset(76% 0 4% 0);  animation: glxTearD 5s steps(1, end) infinite; }
+@keyframes glxTearA { 0%,45%{transform:translateX(0)} 47%{transform:translateX(-14%)} 50%{transform:translateX(6%)} 53%{transform:translateX(-9%)} 57%{transform:translateX(0)} 100%{transform:translateX(0)} }
+@keyframes glxTearB { 0%,45%{transform:translateX(0)} 47%{transform:translateX(12%)} 50%{transform:translateX(-8%)} 53%{transform:translateX(15%)} 57%{transform:translateX(0)} 100%{transform:translateX(0)} }
+@keyframes glxTearC { 0%,45%{transform:translateX(0)} 47%{transform:translateX(-10%)} 50%{transform:translateX(13%)} 53%{transform:translateX(-6%)} 57%{transform:translateX(0)} 100%{transform:translateX(0)} }
+@keyframes glxTearD { 0%,45%{transform:translateX(0)} 47%{transform:translateX(16%)} 50%{transform:translateX(-12%)} 53%{transform:translateX(7%)} 57%{transform:translateX(0)} 100%{transform:translateX(0)} }
+
+/* TIPO 3 — static/ruído (SVG turbulence) */
+.glx-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px; mix-blend-mode: screen; opacity: 0; animation: glxNoise 5s steps(1, end) infinite;
+}
+@keyframes glxNoise {
+  0%,66%{opacity:0; background-position:0 0}
+  67%{opacity:.5; background-position:30px 12px} 69%{opacity:.18; background-position:-20px 40px} 71%{opacity:.55; background-position:60px -25px} 74%{opacity:0}
+  90%{opacity:.35; background-position:10px 80px} 92%{opacity:0} 100%{opacity:0}
+}
+
+/* TIPO 4 — signal roll/jump: cópia que salta atrás de scanlines */
+.glx-roll {
+  opacity: 0; mix-blend-mode: screen;
+  -webkit-mask-image: repeating-linear-gradient(0deg, #000 0 2px, transparent 2px 4px);
+  mask-image: repeating-linear-gradient(0deg, #000 0 2px, transparent 2px 4px);
+  animation: glxRoll 5s steps(1, end) infinite;
+}
+@keyframes glxRoll {
+  0%,85%{opacity:0; transform:translateY(0)}
+  86%{opacity:.65; transform:translateY(-3%)} 88%{opacity:.5; transform:translateY(4%)} 90%{opacity:.75; transform:translateY(-6%)} 93%{opacity:.4; transform:translateY(2%)} 96%{opacity:0}
+  100%{opacity:0}
+}
+@media (prefers-reduced-motion: reduce) { .fx-glitch > * { animation: none !important; opacity: 0 !important; } }

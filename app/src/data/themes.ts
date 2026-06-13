@@ -8,7 +8,7 @@ export interface Theme {
   account?: string; // liberado p/ TODOS os perfis desta conta (email) — não cai na roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator' | 'butterflies'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator' | 'butterflies' | 'glitch'; // partículas por cima da arte
 }
 
 // Conta do dono (Talys) — usada pra liberar temas/aros vinculados à conta e o Creator.
@@ -38,7 +38,7 @@ export const THEMES: Theme[] = [
   // ===== Temas novos (onda 1: wallpaper + glass + fx) =====
   { id: 'hollow', name: 'Hollow', emoji: '🦋', free: false, swatch: ['#0a1622', '#13263b', '#5fd1ff'], image: '/themes/hollow.jpg', fx: 'butterflies' },
   { id: 'aranha', name: 'Aranha', emoji: '🕸️', free: false, swatch: ['#0d0d0e', '#1c1c1f', '#ff3b3b'], image: '/themes/aranha.jpg' },
-  { id: 'code', name: 'Code', emoji: '👨‍💻', free: false, swatch: ['#06090d', '#0e1622', '#39ff88'], image: '/themes/code.jpg', fx: 'math' },
+  { id: 'code', name: 'Code', emoji: '👨‍💻', free: false, swatch: ['#06090d', '#0e1622', '#39ff88'], image: '/themes/code.jpg', fx: 'glitch' },
   { id: 'vice', name: 'Vice', emoji: '🌴', free: false, swatch: ['#1a0a1c', '#2a1030', '#ff4da6'], image: '/themes/vice.jpg' },
   { id: 'miami', name: 'Miami', emoji: '🌇', free: false, swatch: ['#170b2a', '#241040', '#ff5cc8'], image: '/themes/miami.jpg' },
   { id: 'bruxa', name: 'Bruxa', emoji: '🦋', free: false, swatch: ['#160a1e', '#241433', '#ff5b8a'], image: '/themes/bruxa.jpg', fx: 'miasma' },
