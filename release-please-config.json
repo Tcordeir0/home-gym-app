@@ -5,7 +5,7 @@
       "release-type": "simple",
       "package-name": "home-gym-tracker",
       "include-component-in-tag": false,
-      "extra-files": ["index.html"]
+      "extra-files": ["index.html", "app/src/lib/version.ts"]
     }
   }
 }

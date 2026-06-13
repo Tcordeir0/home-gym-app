@@ -194,6 +194,7 @@ export interface Store extends AppState {
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
   removeFoodOn: (date: string, idx: number) => void;
   moveFoodOn: (fromDate: string, idx: number, toDate: string) => void;
+  copyDietFromPrev: (toDate: string) => boolean;
   dietKcalSeries: () => { x: string; y: number }[];
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
@@ -598,6 +599,26 @@ export const useStore = create<Store>((set, get) => {
         dd[toDate].food = dd[toDate].food || [];
         dd[toDate].food!.push(item);
       })),
+    // copia os alimentos do dia ANTERIOR mais recente com comida → poupa tempo, depois edita
+    copyDietFromPrev: (toDate) => {
+      let ok = false;
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const uid = s.active;
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        const prev = Object.keys(dd)
+          .filter((d) => d < toDate && (dd[d].food || []).length > 0)
+          .sort();
+        const src = prev.length ? dd[prev[prev.length - 1]].food || [] : [];
+        if (!src.length) return;
+        dd[toDate] = dd[toDate] || {};
+        dd[toDate].food = dd[toDate].food || [];
+        src.forEach((it) => dd[toDate].food!.push({ ...it }));
+        ok = true;
+      }));
+      return ok;
+    },
+
     // kcal por dia (pro gráfico de histórico da dieta)
     dietKcalSeries: () => {
       const s = get();
