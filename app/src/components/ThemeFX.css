@@ -568,3 +568,29 @@
   100%{opacity:0}
 }
 @media (prefers-reduced-motion: reduce) { .fx-glitch > * { animation: none !important; opacity: 0 !important; } }
+
+/* ===== Witch (tema Bruxa) — fantasma glitchado da Echidna + borboletas verdes ===== */
+.fx-witchghost { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.fx-witchghost .ghost {
+  position: absolute; inset: 0;
+  background-image: var(--ghost); background-size: cover; background-position: center top;
+  mix-blend-mode: screen; opacity: 0; will-change: opacity, transform;
+}
+.fx-witchghost .g1 { animation: ghostFlick 10s steps(1, end) infinite; }
+.fx-witchghost .g2 { background-image: var(--ghost), linear-gradient(#3aff8a, #3aff8a); background-blend-mode: multiply; animation: ghostFlick2 10s steps(1, end) infinite; }
+@keyframes ghostFlick {
+  0%, 68% { opacity: 0; transform: translateX(0); }
+  70% { opacity: .30; transform: translateX(-5px); } 71% { opacity: .06; }
+  73% { opacity: .34; transform: translateX(6px); } 75% { opacity: .12; }
+  77% { opacity: .28; transform: translateX(-3px); } 80% { opacity: .05; } 82% { opacity: 0; } 100% { opacity: 0; }
+}
+@keyframes ghostFlick2 {
+  0%, 68% { opacity: 0; transform: translateX(0); }
+  70% { opacity: .20; transform: translateX(7px); } 72% { opacity: .05; }
+  74% { opacity: .24; transform: translateX(-8px); } 76% { opacity: .1; }
+  78% { opacity: .18; transform: translateX(5px); } 82% { opacity: 0; } 100% { opacity: 0; }
+}
+/* borboletas verde-branco com brilho verde-lima */
+.fx-butterflies.green .w { background: radial-gradient(120% 95% at 50% 38%, #f4fff0, #b6ff7a 50%, #4f9a2e 88%); box-shadow: 0 0 8px rgba(170, 255, 100, 0.9); }
+.fx-butterflies.green .bfly::after { background: linear-gradient(#f4fff0, #3a7a1e); box-shadow: 0 0 4px rgba(170, 255, 100, 0.85); }
+@media (prefers-reduced-motion: reduce) { .fx-witchghost .ghost { animation: none; opacity: 0; } }

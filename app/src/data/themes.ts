@@ -8,7 +8,7 @@ export interface Theme {
   account?: string; // liberado p/ TODOS os perfis desta conta (email) — não cai na roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator' | 'butterflies' | 'glitch'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator' | 'butterflies' | 'glitch' | 'witch'; // partículas por cima da arte
 }
 
 // Conta do dono (Talys) — usada pra liberar temas/aros vinculados à conta e o Creator.
@@ -41,7 +41,7 @@ export const THEMES: Theme[] = [
   { id: 'code', name: 'Code', emoji: '👨‍💻', free: false, swatch: ['#06090d', '#0e1622', '#39ff88'], image: '/themes/code.jpg', fx: 'glitch' },
   { id: 'vice', name: 'Vice', emoji: '🌴', free: false, swatch: ['#1a0a1c', '#2a1030', '#ff4da6'], image: '/themes/vice.jpg' },
   { id: 'miami', name: 'Miami', emoji: '🌇', free: false, swatch: ['#170b2a', '#241040', '#ff5cc8'], image: '/themes/miami.jpg' },
-  { id: 'bruxa', name: 'Bruxa', emoji: '🦋', free: false, swatch: ['#160a1e', '#241433', '#ff5b8a'], image: '/themes/bruxa.jpg', fx: 'miasma' },
+  { id: 'bruxa', name: 'Bruxa', emoji: '🦋', free: false, swatch: ['#0e1a10', '#16241a', '#b6ff7a'], image: '/themes/bruxa.jpg', fx: 'witch' },
   { id: 'homelander', name: 'Sete', emoji: '🦅', free: false, swatch: ['#0a0a0c', '#16131a', '#d62b3a'], image: '/themes/homelander.jpg', fx: 'electric' },
   { id: 'pi', name: 'Pi', emoji: '🔴', free: false, swatch: ['#0a0a0a', '#161616', '#e23b3b'], image: '/themes/pi.jpg', fx: 'math' },
   { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg', fx: 'creator' },

@@ -337,6 +337,34 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'witch' && (
+        <>
+          {/* fantasma glitchado da Echidna (aparece/some piscando, verde-branco) */}
+          <div className="fx-witchghost" style={{ ['--ghost' as string]: 'url("/themes/bruxa-ghost.png")' }}>
+            <div className="ghost g1" />
+            <div className="ghost g2" />
+          </div>
+          {/* borboletas verde-branco com brilho verde-lima */}
+          <div className="fx-butterflies green">
+            {Array.from({ length: 13 }).map((_, i) => (
+              <span
+                key={i}
+                className="bfly"
+                style={{
+                  left: `${(i * 53 + 6) % 96}%`,
+                  ['--sz' as string]: `${0.7 + (i % 4) * 0.18}`,
+                  ['--flap' as string]: `${0.22 + (i % 3) * 0.05}s`,
+                  animationDuration: `${8 + (i % 5)}s`,
+                  animationDelay: `-${(i * 0.7) % 9}s`,
+                }}
+              >
+                <span className="w l" />
+                <span className="w r" />
+              </span>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
