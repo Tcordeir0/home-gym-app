@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useLocation } from 'react-router-dom';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline, warningOutline } from 'ionicons/icons';
@@ -30,6 +31,10 @@ import './Perfil.css';
 const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // domingo → sábado
 
 const Perfil: React.FC = () => {
+  const routeLoc = useLocation();
+  // portal vai pro <body>, então só renderiza o botão quando ESTA aba está ativa
+  // (senão "Salvar alterações" vazaria por cima de Prêmios/Treino/etc.)
+  const onPerfil = routeLoc.pathname.startsWith('/perfil');
   const profile = useActiveProfile();
   const updateProfile = useStore((s) => s.updateProfile);
   const deleteProfile = useStore((s) => s.deleteProfile);
@@ -507,8 +512,9 @@ const Perfil: React.FC = () => {
       />
       <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
       {/* via PORTAL pro body: garante fixed no viewport (dentro do ion-content
-          o fixed ancora num container transformado e flutua no meio) */}
-      {createPortal(
+          o fixed ancora num container transformado e flutua no meio).
+          Só na aba Perfil — senão vazaria por cima das outras telas. */}
+      {onPerfil && createPortal(
         <button className={'perfil-save' + (dirty ? ' show' : '')} onClick={saveAll} aria-hidden={!dirty} tabIndex={dirty ? 0 : -1}>
           <IonIcon icon={checkmark} /> Salvar alterações
         </button>,

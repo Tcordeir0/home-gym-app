@@ -422,7 +422,7 @@ html[data-theme='light'] ion-card {
 ion-tab-bar {
   position: relative;
   margin: 0 14px calc(env(safe-area-inset-bottom, 0px) + 10px);
-  height: 60px;
+  height: 62px;
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: var(--ion-tab-bar-background);
@@ -552,6 +552,25 @@ ion-toolbar.toolbar-title-large {
 /* Tab bar — toque premium */
 ion-tab-button {
   --color-selected: var(--brand-lime);
+}
+/* conteúdo centrado e compacto: ícone + nome SEMPRE dentro da cápsula (não vaza) */
+ion-tab-button::part(native) {
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+ion-tab-button ion-icon {
+  font-size: 22px;
+  margin: 0;
+}
+ion-tab-button ion-label {
+  font-size: 10.5px;
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.1px;
 }
 ion-tab-button.tab-selected ion-icon {
   filter: drop-shadow(0 0 7px rgba(198, 255, 58, 0.5));
