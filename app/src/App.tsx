@@ -15,7 +15,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import type { Session } from '@supabase/supabase-js';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore } from './store/store';
-import { setFeedbackMode, setVolume } from './lib/feedback';
+import { setFeedbackMode, setVolume, initAudio } from './lib/feedback';
 import { syncReminder, disarmReminder } from './lib/reminders';
 import { supabase } from './lib/supabase';
 import { syncOnLogin, startSync, stopSync } from './lib/sync';
@@ -102,6 +102,8 @@ const App: React.FC = () => {
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
   useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
+  // liga os listeners que reativam o áudio ao voltar/tocar (iOS mata o som no lock)
+  useEffect(() => { initAudio(); }, []);
   // volume dos sons é POR PERFIL (cada um regula o seu).
   const profVolume = useStore((s) => s.users.find((u) => u.id === s.active)?.volume);
   useEffect(() => { setVolume(profVolume ?? 0.7); }, [profVolume]);
