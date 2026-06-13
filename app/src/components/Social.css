@@ -113,6 +113,7 @@ html[data-theme='light'] .sc-preview { color: #6b7280; }
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); border: 1px solid var(--app-line);
   border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; width: 100%; text-align: left;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .sc-row.sc-tap { cursor: pointer; }
