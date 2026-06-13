@@ -90,6 +90,16 @@ export async function listTeamMessages(profileA: string, profileB: string): Prom
     (m.from_profile === profileB && m.to_profile === profileA));
 }
 
+/** Todas as minhas mensagens (pra preview da última de cada conversa). */
+export async function listAllMessages(): Promise<Message[]> {
+  const id = await uid();
+  if (!id) return [];
+  const { data } = await supabase.from('messages')
+    .select('*').or(`from_uid.eq.${id},to_uid.eq.${id}`)
+    .order('created_at', { ascending: false }).limit(500);
+  return (data as Message[]) || [];
+}
+
 /** Posta um evento (desbloqueio/level-up) — amigos veem no feed. */
 export async function postEvent(label: string, text: string): Promise<void> {
   const id = await uid();
