@@ -421,7 +421,11 @@ html[data-theme='light'] ion-card {
 /* ===== Tab bar "Liquid Glass" flutuante (iOS 26) — em TODOS os temas ===== */
 ion-tab-bar {
   position: relative;
-  margin: 0 14px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  /* o vão de baixo é só a margem; o Ionic mete uma padding-bottom de safe-area DENTRO
+     da barra (cápsula gigante com vazio embaixo) — zeramos e controlamos pela margem. */
+  margin: 0 14px calc(env(safe-area-inset-bottom, 0px) + 2px);
+  padding-bottom: 0;
+  min-height: 62px;
   height: 62px;
   border-radius: 26px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -503,15 +507,27 @@ ion-content { --background: transparent; }
 /* Segment: o selecionado segue o accent do tema (não o cinza padrão) */
 ion-segment-button {
   --indicator-color: var(--brand-lime);
-  --color: var(--app-muted);
+  --color: var(--ion-text-color);
   --color-checked: var(--ion-color-primary-contrast);
   --indicator-box-shadow: none;
+  --background: rgba(0, 0, 0, 0.28);
+  --border-radius: 12px;
+  opacity: 1;
+  font-weight: 700;
+}
+/* nos temas com wallpaper, os inativos precisam de fundo pra serem legíveis */
+html[data-glass] ion-segment-button {
+  --background: rgba(8, 10, 14, 0.55);
+}
+html[data-glass] ion-segment-button.segment-button-checked,
+ion-segment-button.segment-button-checked {
+  --background: var(--brand-lime);
 }
 
-/* Corpo de página — reserva o espaço da tab bar FLUTUANTE (cápsula + margem),
-   senão o conteúdo rola por baixo e vaza no vão de baixo (visível nos temas com wallpaper). */
+/* Corpo de página — reserva só o necessário pra limpar a tab bar flutuante (cápsula 62px
+   + margem), sem deixar um vão gigante no fim da página. */
 .page-body {
-  padding: 4px 16px calc(92px + env(safe-area-inset-bottom, 0px));
+  padding: 4px 16px calc(78px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Teclado aberto: a tab bar não sobe junto — some */
