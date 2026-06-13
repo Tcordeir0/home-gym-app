@@ -68,7 +68,7 @@ const Premios: React.FC = () => {
   };
 
   return (
-    <AppPage title="Prêmios">
+    <AppPage title="Prêmios" accessory={<Shop />}>
       <IonCard className="prem-card">
         <IonCardContent>
           <div className="prem-head">
@@ -160,13 +160,6 @@ const Premios: React.FC = () => {
           </div>
           <p className="card-sub">1 giro a cada 100 pts. Pontos, aro, tema ou cosmético.</p>
           <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
-        </IonCardContent>
-      </IonCard>
-
-      {/* Lojinha (abaixo da roleta) */}
-      <IonCard className="prem-card">
-        <IonCardContent>
-          <Shop />
         </IonCardContent>
       </IonCard>
 
