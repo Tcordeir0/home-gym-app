@@ -4,6 +4,7 @@ import { people, peopleOutline, handLeftOutline, chatbubblesOutline, closeOutlin
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/store';
 import * as S from '../lib/social';
+import { TAUNTS } from '../data/taunts';
 import './Social.css';
 
 type Tab = 'amigos' | 'cutucar' | 'chat';
@@ -25,6 +26,7 @@ const SocialPanel: React.FC = () => {
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(true);
   const [chatWith, setChatWith] = useState<{ kind: 'friend' | 'team'; uid: string; name: string; profile?: string } | null>(null);
+  const [pokeTarget, setPokeTarget] = useState<{ uid: string; profile?: string; name: string } | null>(null);
   const [events, setEvents] = useState<S.SocialEvent[]>([]);
   const [allMsgs, setAllMsgs] = useState<S.Message[]>([]);
   const [msgs, setMsgs] = useState<S.Message[]>([]);
@@ -73,9 +75,10 @@ const SocialPanel: React.FC = () => {
     const r = await S.inviteByEmail(invite.trim());
     setToast(r.msg); if (r.ok) { setInvite(''); loadAll(); }
   };
-  const doPoke = async (toUid: string, profile?: string) => {
-    await S.poke(toUid, myName, profile);
-    setToast(`Cutucou ${profile || ''}! 👉`);
+  const doPoke = async (toUid: string, profile: string | undefined, text: string) => {
+    await S.poke(toUid, myName, profile, text);
+    setPokeTarget(null);
+    setToast(`Mandou pra ${profile || 'amigo'}! ${text.split(' ')[0]}`);
   };
   const send = async () => {
     if (!draft.trim() || !chatWith) return;
@@ -161,7 +164,9 @@ const SocialPanel: React.FC = () => {
               {recvPokes.length > 0 && (
                 <div className="sc-sec"><h4>Cutucadas recebidas</h4>
                   {recvPokes.slice(0, 12).map((p) => (
-                    <div key={p.id} className="sc-poke"><span>{p.emoji || '👉'}</span> <b>{p.from_label || 'Alguém'}</b> te cutucou{p.to_profile ? ` (${p.to_profile})` : ''}!</div>
+                    <div key={p.id} className="sc-poke">
+                      <b>{p.from_label || 'Alguém'}</b>{p.to_profile ? ` ➜ ${p.to_profile}` : ''}: <span className="sc-poke-msg">{p.emoji || '👉 te cutucou!'}</span>
+                    </div>
                   ))}
                 </div>
               )}
@@ -170,7 +175,7 @@ const SocialPanel: React.FC = () => {
                   myProfiles.filter((p) => p.name !== myName).map((p) => (
                     <div key={p.id} className="sc-row">
                       <span className="sc-name"><span className="sc-av" style={{ background: p.color }} />{p.name}</span>
-                      <button className="sc-mini poke" onClick={() => doPoke(uid, p.name)}>👉 Cutucar</button>
+                      <button className="sc-mini poke" onClick={() => setPokeTarget({ uid, profile: p.name, name: p.name })}>👉 Cutucar</button>
                     </div>
                   ))}
               </div>
@@ -179,10 +184,27 @@ const SocialPanel: React.FC = () => {
                   friends.flatMap((a) => (a.profiles || []).map((p) => (
                     <div key={a.uid + p.id} className="sc-row">
                       <span className="sc-name"><span className="sc-av" style={{ background: p.color }} />{p.name} <small>{a.email}</small></span>
-                      <button className="sc-mini poke" onClick={() => doPoke(a.uid, p.name)}>👉 Cutucar</button>
+                      <button className="sc-mini poke" onClick={() => setPokeTarget({ uid: a.uid, profile: p.name, name: p.name })}>👉 Cutucar</button>
                     </div>
                   )))}
               </div>
+
+              {pokeTarget && (
+                <div className="sc-poke-picker" onClick={() => setPokeTarget(null)}>
+                  <div className="sc-poke-sheet" onClick={(e) => e.stopPropagation()}>
+                    <h4>Cutucar <b>{pokeTarget.name}</b> com…</h4>
+                    {TAUNTS.map((cat) => (
+                      <div key={cat.key} className="sc-poke-cat">
+                        <span className="sc-poke-catlabel">{cat.emoji} {cat.label}</span>
+                        {cat.phrases.map((ph) => (
+                          <button key={ph} className="sc-poke-phrase" onClick={() => doPoke(pokeTarget.uid, pokeTarget.profile, ph)}>{ph}</button>
+                        ))}
+                      </div>
+                    ))}
+                    <button className="sc-poke-cancel" onClick={() => setPokeTarget(null)}>Cancelar</button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

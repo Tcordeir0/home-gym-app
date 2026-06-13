@@ -126,8 +126,38 @@ html[data-theme='light'] .sc-preview { color: #6b7280; }
 .sc-actions .no, .no { background: rgba(255, 91, 91, 0.16); color: #ff7a7a; }
 .sc-mini.poke { width: auto; padding: 0 12px; font-weight: 800; font-size: 12.5px; gap: 4px; color: var(--brand-lime); background: color-mix(in srgb, var(--brand-lime) 14%, transparent); }
 
-.sc-poke { font-size: 14px; padding: 9px 12px; background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); border-radius: 12px; margin-bottom: 6px; }
-.sc-poke span { font-size: 17px; }
+.sc-poke { font-size: 14px; padding: 9px 12px; background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); border-radius: 12px; margin-bottom: 6px; line-height: 1.4; }
+.sc-poke .sc-poke-msg { font-size: 14px; }
+
+/* seletor de frases prontas pra cutucar */
+.sc-poke-picker {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.sc-poke-sheet {
+  width: 100%; max-width: 560px; max-height: 80vh; overflow-y: auto;
+  background: color-mix(in srgb, var(--ion-background-color) 88%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--app-line); border-bottom: 0;
+  border-radius: 22px 22px 0 0; padding: 18px 16px calc(20px + var(--ion-safe-area-bottom, 0px));
+  box-shadow: 0 -12px 40px -10px rgba(0, 0, 0, 0.5);
+}
+.sc-poke-sheet > h4 { margin: 0 0 14px; font-size: 16px; font-weight: 700; text-align: center; }
+.sc-poke-sheet > h4 b { color: var(--brand-lime); }
+.sc-poke-cat { margin-bottom: 14px; }
+.sc-poke-catlabel { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--app-muted); margin: 0 0 7px; }
+.sc-poke-phrase {
+  display: block; width: 100%; text-align: left; margin-bottom: 6px;
+  border: 1px solid var(--app-line); background: var(--app-surface-2, rgba(255, 255, 255, 0.05));
+  color: var(--ion-text-color); border-radius: 12px; padding: 11px 13px; font-size: 13.5px; line-height: 1.35; cursor: pointer;
+}
+.sc-poke-phrase:active { background: color-mix(in srgb, var(--brand-lime) 14%, transparent); border-color: color-mix(in srgb, var(--brand-lime) 40%, transparent); }
+.sc-poke-cancel {
+  width: 100%; margin-top: 4px; border: 0; background: transparent; color: var(--app-muted);
+  font-weight: 700; font-size: 14px; padding: 12px; cursor: pointer;
+}
 
 /* chat */
 .sc-chat { display: flex; flex-direction: column; height: 100%; min-height: 0; }
