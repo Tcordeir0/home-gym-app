@@ -18,7 +18,13 @@ Backend no Supabase (projeto `home-gym`), cliente em `app/src/lib/social.ts`.
 ## Cliente (`lib/social.ts`)
 `syncSocialAccount` (publica perfis no login — já ligado no `sync.ts`) · `inviteByEmail` · `listFriendships` / `acceptFriend` / `removeFriend` · `listAccounts` (perfis dos amigos) · `poke` / `listPokes` / `markPokesSeen` · `sendMessage` / `listMessages` · `subscribeSocial` (realtime).
 
-## Falta (UI) — próximo passo
+## v0.8.0 — implementado
+- UI completa: **Amigos** (convite por email, aceitar/recusar), **Cutucar** (equipe + amigos), **Chat** (equipe via `from_profile/to_profile` na mesma conta + amigos cross-conta, realtime), **Feed** de novidades dos amigos.
+- `social_events` (migration v3): desbloqueios postados via `postEvent` (ligado na roleta em `Premios.tsx`); amigos veem no feed.
+- `messages.from_profile/to_profile` (migration v4) → chat entre perfis da mesma conta (equipe).
+- Migrations: `social_v1_schema`, `social_v2_team_pokes`, `social_v3_events`, `social_v4_team_chat`.
+
+## Falta — próximo passo
 - Página/sheet Social no botão do header do Treino (hoje é "Em breve"):
   - Aba **Amigos**: convidar por email, lista de amigos, aceitar/recusar pedidos.
   - Aba **Cutucar**: lista de perfis dos amigos (e da própria equipe) com botão cutucar; recebidas com badge.

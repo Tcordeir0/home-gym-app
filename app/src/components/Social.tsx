@@ -24,14 +24,15 @@ const SocialPanel: React.FC = () => {
   const [invite, setInvite] = useState('');
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(true);
-  const [chatWith, setChatWith] = useState<{ uid: string; name: string } | null>(null);
+  const [chatWith, setChatWith] = useState<{ kind: 'friend' | 'team'; uid: string; name: string; profile?: string } | null>(null);
+  const [events, setEvents] = useState<S.SocialEvent[]>([]);
   const [msgs, setMsgs] = useState<S.Message[]>([]);
   const [draft, setDraft] = useState('');
   const chatEnd = useRef<HTMLDivElement>(null);
 
   const loadAll = useCallback(async () => {
-    const [fs, ac, pk] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes()]);
-    setFriendships(fs); setAccounts(ac); setPokes(pk); setLoading(false);
+    const [fs, ac, pk, ev] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents()]);
+    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -42,14 +43,14 @@ const SocialPanel: React.FC = () => {
   }, [loadAll]);
 
   // chat: carrega + realtime
-  const loadChat = useCallback(async (fuid: string) => {
-    setMsgs(await S.listMessages(fuid));
+  const loadChat = useCallback(async (c: { kind: 'friend' | 'team'; uid: string; profile?: string }) => {
+    setMsgs(c.kind === 'team' ? await S.listTeamMessages(myName, c.profile || '') : await S.listMessages(c.uid));
     setTimeout(() => chatEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
-  }, []);
+  }, [myName]);
   useEffect(() => {
     if (!chatWith) return;
-    loadChat(chatWith.uid);
-    const unsub = S.subscribeSocial(() => loadChat(chatWith.uid));
+    loadChat(chatWith);
+    const unsub = S.subscribeSocial(() => loadChat(chatWith));
     return unsub;
   }, [chatWith, loadChat]);
 
@@ -75,8 +76,9 @@ const SocialPanel: React.FC = () => {
   const send = async () => {
     if (!draft.trim() || !chatWith) return;
     const b = draft.trim(); setDraft('');
-    await S.sendMessage(chatWith.uid, b);
-    loadChat(chatWith.uid);
+    if (chatWith.kind === 'team') await S.sendMessage(uid, b, { fromProfile: myName, toProfile: chatWith.profile });
+    else await S.sendMessage(chatWith.uid, b);
+    loadChat(chatWith);
   };
   const accLabel = (a?: S.SocialAccount) => a?.profiles?.[0]?.name || a?.email || 'Amigo';
 
@@ -99,6 +101,13 @@ const SocialPanel: React.FC = () => {
                 <input type="email" inputMode="email" placeholder="email do amigo" value={invite} onChange={(e) => setInvite(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && doInvite()} />
                 <button onClick={doInvite}><IonIcon icon={personAddOutline} /> Convidar</button>
               </div>
+              {events.length > 0 && (
+                <div className="sc-sec"><h4>📣 Novidades dos amigos</h4>
+                  {events.slice(0, 8).map((e) => (
+                    <div key={e.id} className="sc-poke"><b>{e.label || 'Amigo'}</b> {e.text}</div>
+                  ))}
+                </div>
+              )}
               {incoming.length > 0 && (
                 <div className="sc-sec"><h4>Pedidos recebidos</h4>
                   {incoming.map((f) => (
@@ -117,7 +126,7 @@ const SocialPanel: React.FC = () => {
                   friends.map((a) => (
                     <div key={a.uid} className="sc-row">
                       <span className="sc-name">{accLabel(a)} <small>{a.email}</small></span>
-                      <button className="sc-mini" onClick={() => { setChatWith({ uid: a.uid, name: accLabel(a) }); setTab('chat'); }}><IonIcon icon={chatbubblesOutline} /></button>
+                      <button className="sc-mini" onClick={() => { setChatWith({ kind: 'friend', uid: a.uid, name: accLabel(a) }); setTab('chat'); }}><IonIcon icon={chatbubblesOutline} /></button>
                     </div>
                   ))}
               </div>
@@ -170,7 +179,10 @@ const SocialPanel: React.FC = () => {
                 <div className="sc-chat-top"><button onClick={() => setChatWith(null)}><IonIcon icon={arrowBack} /></button><b>{chatWith.name}</b></div>
                 <div className="sc-msgs">
                   {msgs.length === 0 ? <p className="sc-empty">Diga oi 👋</p> :
-                    msgs.map((m) => <div key={m.id} className={'sc-msg' + (m.from_uid === uid ? ' me' : '')}>{m.body}</div>)}
+                    msgs.map((m) => {
+                      const mine = chatWith?.kind === 'team' ? m.from_profile === myName : m.from_uid === uid;
+                      return <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')}>{m.body}</div>;
+                    })}
                   <div ref={chatEnd} />
                 </div>
                 <div className="sc-send">
@@ -179,14 +191,24 @@ const SocialPanel: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="sc-sec"><h4>Conversar com</h4>
-                {friends.length === 0 ? <p className="sc-empty">Adicione amigos pra conversar.</p> :
-                  friends.map((a) => (
-                    <button key={a.uid} className="sc-row sc-tap" onClick={() => setChatWith({ uid: a.uid, name: accLabel(a) })}>
-                      <span className="sc-name"><IonIcon icon={chatbubblesOutline} /> {accLabel(a)}</span>
-                    </button>
-                  ))}
-              </div>
+              <>
+                <div className="sc-sec"><h4>Sua equipe</h4>
+                  {myProfiles.filter((p) => p.name !== myName).length === 0 ? <p className="sc-empty">Só você na conta.</p> :
+                    myProfiles.filter((p) => p.name !== myName).map((p) => (
+                      <button key={p.id} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'team', uid, name: p.name, profile: p.name })}>
+                        <span className="sc-name"><span className="sc-av" style={{ background: p.color }} /> {p.name}</span>
+                      </button>
+                    ))}
+                </div>
+                <div className="sc-sec"><h4>Amigos</h4>
+                  {friends.length === 0 ? <p className="sc-empty">Adicione amigos pra conversar.</p> :
+                    friends.map((a) => (
+                      <button key={a.uid} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'friend', uid: a.uid, name: accLabel(a) })}>
+                        <span className="sc-name"><IonIcon icon={chatbubblesOutline} /> {accLabel(a)}</span>
+                      </button>
+                    ))}
+                </div>
+              </>
             )
           )}
         </div>

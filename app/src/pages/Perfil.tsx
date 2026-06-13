@@ -138,7 +138,14 @@ const Perfil: React.FC = () => {
                 aria-label="Nome do perfil"
                 onIonChange={(e) => {
                   const v = (e.detail.value || '').trim();
-                  if (v && v !== profile.name) updateProfile(profile.id, { name: v });
+                  if (!v || v === profile.name) return;
+                  const taken = users.some((u) => u.id !== profile.id && u.name.toLowerCase() === v.toLowerCase());
+                  if (taken) {
+                    const sug = [v + '2', v + ' Jr', v + 'X'].filter((s) => !users.some((u) => u.name.toLowerCase() === s.toLowerCase()));
+                    setToast(`"${v}" já existe nesta conta. Que tal: ${sug.slice(0, 2).join(' · ')}?`);
+                    return;
+                  }
+                  updateProfile(profile.id, { name: v });
                 }}
               />
               <span className="perfil-lvl">Nível {lvl.level} · {lvl.into}/{lvl.span} XP</span>

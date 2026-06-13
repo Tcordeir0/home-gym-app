@@ -9,6 +9,7 @@ import { type Prize } from '../data/roulette';
 import Roleta from '../components/Roleta';
 import { waterGoal } from '../lib/diet';
 import { fxReward } from '../lib/feedback';
+import { postEvent } from '../lib/social';
 import './Premios.css';
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -36,6 +37,7 @@ const Premios: React.FC = () => {
   const daily = useStore((s) => s.daily);
   const claimQuest = useStore((s) => s.claimQuest);
   const spinRoulette = useStore((s) => s.spinRoulette);
+  const myName = useStore((s) => s.users.find((u) => u.id === s.active)?.name || 'Alguém');
   const [toast, setToast] = useState('');
 
   const league = useMemo(() => familyLeague({ users, scores }), [users, scores]);
@@ -67,6 +69,10 @@ const Premios: React.FC = () => {
   const onPrize = (prize: Prize) => {
     fxReward();
     setToast(`Você ganhou ${prize.label}! ${prize.emoji}`);
+    // avisa os amigos no feed do Social quando desbloqueia item (não pontos)
+    if (prize.kind === 'theme' || prize.kind === 'frame' || prize.kind === 'deco') {
+      void postEvent(myName, `desbloqueou ${prize.label.replace('!', '')} ${prize.emoji}`);
+    }
   };
 
   return (

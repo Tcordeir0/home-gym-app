@@ -6,7 +6,8 @@ export interface PublicProfile { id: string; name: string; color?: string; }
 export interface SocialAccount { uid: string; email?: string; profiles: PublicProfile[] }
 export interface Friendship { id: string; requester: string; addressee: string; status: 'pending' | 'accepted'; created_at: string }
 export interface Poke { id: string; from_uid: string; from_label?: string; to_uid: string; to_profile?: string; emoji?: string; created_at: string; seen: boolean }
-export interface Message { id: string; from_uid: string; to_uid: string; body: string; created_at: string; seen: boolean }
+export interface Message { id: string; from_uid: string; to_uid: string; body: string; from_profile?: string | null; to_profile?: string | null; created_at: string; seen: boolean }
+export interface SocialEvent { id: string; uid: string; label?: string; text: string; created_at: string }
 
 async function uid(): Promise<string | null> {
   const { data } = await supabase.auth.getUser();
@@ -62,18 +63,41 @@ export async function markPokesSeen(): Promise<void> {
   if (id) await supabase.from('pokes').update({ seen: true }).eq('to_uid', id).eq('seen', false);
 }
 
-export async function sendMessage(toUid: string, body: string): Promise<void> {
+export async function sendMessage(toUid: string, body: string, opts?: { fromProfile?: string; toProfile?: string }): Promise<void> {
   const id = await uid();
-  if (id && body.trim()) await supabase.from('messages').insert({ from_uid: id, to_uid: toUid, body: body.trim() });
+  if (id && body.trim()) await supabase.from('messages').insert({ from_uid: id, to_uid: toUid, body: body.trim(), from_profile: opts?.fromProfile, to_profile: opts?.toProfile });
 }
+/** Chat com um AMIGO (outra conta). */
 export async function listMessages(friendUid: string): Promise<Message[]> {
   const id = await uid();
   if (!id) return [];
   const { data } = await supabase.from('messages')
     .select('*')
     .or(`and(from_uid.eq.${id},to_uid.eq.${friendUid}),and(from_uid.eq.${friendUid},to_uid.eq.${id})`)
+    .is('to_profile', null)
     .order('created_at', { ascending: true });
   return (data as Message[]) || [];
+}
+/** Chat entre dois perfis da MESMA conta (equipe). */
+export async function listTeamMessages(profileA: string, profileB: string): Promise<Message[]> {
+  const id = await uid();
+  if (!id) return [];
+  const { data } = await supabase.from('messages')
+    .select('*').eq('from_uid', id).eq('to_uid', id)
+    .order('created_at', { ascending: true });
+  return ((data as Message[]) || []).filter((m) =>
+    (m.from_profile === profileA && m.to_profile === profileB) ||
+    (m.from_profile === profileB && m.to_profile === profileA));
+}
+
+/** Posta um evento (desbloqueio/level-up) — amigos veem no feed. */
+export async function postEvent(label: string, text: string): Promise<void> {
+  const id = await uid();
+  if (id) await supabase.from('social_events').insert({ uid: id, label, text });
+}
+export async function listEvents(): Promise<SocialEvent[]> {
+  const { data } = await supabase.from('social_events').select('*').order('created_at', { ascending: false }).limit(30);
+  return (data as SocialEvent[]) || [];
 }
 
 /** Assina mudanças em tempo real (chat, cutucadas, amizades). */
@@ -82,6 +106,7 @@ export function subscribeSocial(onChange: () => void): () => void {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pokes' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'social_events' }, onChange)
     .subscribe();
   return () => { void supabase.removeChannel(ch); };
 }
