@@ -28,6 +28,15 @@ export const FRAMES: Frame[] = [
   { id: 'royal', name: 'Real', free: false, swatch: ['#c084fc', '#ffd166'] },
   { id: 'ocean', name: 'Oceano', free: false, swatch: ['#3ad1ff', '#1d4ed8'] },
   { id: 'ember', name: 'Brasa', free: false, swatch: ['#ff8a3a', '#7a1010'] },
+  // ===== Aros temáticos dos temas novos =====
+  { id: 'hollow', name: 'Cavaleiro', free: false, swatch: ['#aef6ff', '#1a4a6e'] },
+  { id: 'aranha', name: 'Teia', free: false, swatch: ['#ff3b3b', '#1a1a1a'] },
+  { id: 'code', name: 'Terminal', free: false, swatch: ['#39ff88', '#0a8a4a'] },
+  { id: 'vice', name: 'Vice', free: false, swatch: ['#ff4da6', '#37e6ff'] },
+  { id: 'miami', name: 'Retrowave', free: false, swatch: ['#ff5cc8', '#7a5cff'] },
+  { id: 'bruxa', name: 'Inveja', free: false, swatch: ['#ff5b8a', '#b06bff'] },
+  { id: 'sete', name: 'Os Sete', free: false, swatch: ['#d62b3a', '#1e3a8a'] },
+  { id: 'pi', name: 'Infinito', free: false, swatch: ['#e23b3b', '#1a1a1a'] },
 ];
 
 export const FREE_FRAMES = FRAMES.filter((f) => f.free).map((f) => f.id);

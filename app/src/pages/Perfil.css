@@ -99,6 +99,19 @@
 .av-frame-royal { --ring: conic-gradient(from 0deg, #c084fc, #ffd166, #7a3cff, #ffe27a, #c084fc); box-shadow: 0 0 13px rgba(170, 120, 255, 0.45); }
 .av-frame-ocean { --ring: conic-gradient(from 0deg, #aef2ff, #3ad1ff, #1d4ed8, #3ad1ff); box-shadow: 0 0 13px rgba(60, 160, 255, 0.45); }
 .av-frame-ember { --ring: conic-gradient(from 0deg, #ffb04d, #ff8a3a, #7a1010, #ff8a3a); --glow: rgba(220, 90, 20, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
+/* aros temáticos dos temas novos */
+.av-frame-hollow { --ring: conic-gradient(from 0deg, #d6fbff, #5fd1ff, #15405e, #5fd1ff, #d6fbff); --glow: rgba(95, 209, 255, 0.55); animation: av-glowpulse 2.6s ease-in-out infinite; }
+.av-frame-aranha { --ring: conic-gradient(from 0deg, #ff3b3b, #160000, #ff3b3b, #160000); box-shadow: 0 0 13px rgba(255, 59, 59, 0.5); }
+.av-frame-aranha::before { animation-duration: 6s; }
+.av-frame-code { --ring: conic-gradient(from 0deg, #b6ffd9, #39ff88, #0a8a4a, #1affd1, #39ff88); --glow: rgba(57, 255, 136, 0.5); animation: av-glowpulse 2s ease-in-out infinite; }
+.av-frame-vice { --ring: conic-gradient(from 0deg, #ff4da6, #ffd24d, #37e6ff, #ff4da6); box-shadow: 0 0 15px rgba(255, 77, 166, 0.5); }
+.av-frame-vice::before { animation-duration: 4s; }
+.av-frame-miami { --ring: conic-gradient(from 0deg, #ff5cc8, #ff7a4d, #7a5cff, #ff5cc8); box-shadow: 0 0 15px rgba(255, 92, 200, 0.5); }
+.av-frame-miami::before { animation-duration: 4.5s; }
+.av-frame-bruxa { --ring: conic-gradient(from 0deg, #ff9ec0, #ff5b8a, #b06bff, #c0392b, #ff5b8a); --glow: rgba(255, 91, 138, 0.5); animation: av-glowpulse 2.2s ease-in-out infinite; }
+.av-frame-sete { --ring: conic-gradient(from 0deg, #d62b3a, #f0f0f0, #1e3a8a, #d62b3a); box-shadow: 0 0 14px rgba(214, 43, 58, 0.5); }
+.av-frame-sete::before { animation-duration: 6s; }
+.av-frame-pi { --ring: conic-gradient(from 0deg, #e23b3b, #140000, #e23b3b, #140000); --glow: rgba(226, 59, 59, 0.5); animation: av-glowpulse 2.4s ease-in-out infinite; }
 
 /* Aro Tridente: anel de ouro polido + um TRIDENTE dourado de verdade no topo,
    reluzente (brilho pulsando, como metal nobre lustrado). */
