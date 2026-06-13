@@ -8,6 +8,16 @@ function eligiblePool(equip: string[]): PoolItem[] {
   return POOL.filter((e) => e.eq.every((k) => allowed[k]));
 }
 
+/** Outras opções com a MESMA ênfase (mesmo grupo) que o exercício, respeitando o
+ *  equipamento do perfil — pra trocar uma variação que não serve. */
+export function alternativesFor(exNome: string, equip: string[]): Exercise[] {
+  const cur = POOL.find((e) => e.n === exNome);
+  if (!cur) return [];
+  return eligiblePool(equip)
+    .filter((e) => e.g === cur.g && e.n !== exNome)
+    .map((e) => ({ nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d }));
+}
+
 export function generateWorkout(equip: string[], focusKey: string, perDay = 6): Record<string, Exercise[]> {
   const pool = eligiblePool(equip);
   const byGroup: Record<string, PoolItem[]> = {};

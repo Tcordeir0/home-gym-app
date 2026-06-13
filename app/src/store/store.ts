@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
 import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
+import type { Exercise } from '../data/types';
 import { weekDates } from '../lib/league';
 import { deviceId } from '../lib/device';
 import { pickPrize, PRIZES, type Prize } from '../data/roulette';
@@ -46,7 +47,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder', 'swaps',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -84,6 +85,7 @@ function defaultState(): AppState {
     active: 'u1',
     checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
     reminder: { on: false, time: '18:00' },
+    swaps: {},
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -107,6 +109,7 @@ function migrate(raw: Partial<AppState>): AppState {
   if (typeof s.notifyOn !== 'boolean') { s.notifyOn = false; s.feedback = 'none'; }
   if (!s.feedback) s.feedback = 'none';
   if (!s.reminder || typeof s.reminder.on !== 'boolean') s.reminder = { on: false, time: '18:00' };
+  if (!s.swaps) s.swaps = {};
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -168,6 +171,7 @@ export interface Store extends AppState {
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
+  swapExercise: (treino: string, exIdx: number, ex: Exercise) => void;
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
   prevSets: (nome: string) => { kg: number; reps: number }[];
@@ -343,6 +347,17 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const r = ensureRow(s, s.active, treino, exIdx, series)[setIdx];
         r.done = !r.done;
+      })),
+
+    // troca um exercício do treino por uma variação (mesma ênfase); zera as séries da posição
+    swapExercise: (treino, exIdx, ex) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const uid = s.active;
+        const sw = (s.swaps[uid] = s.swaps[uid] || {});
+        sw[`${treino}:${exIdx}`] = ex;
+        const sl = (s.setlog as Record<string, Record<string, Record<number, unknown>>>)[uid];
+        if (sl && sl[treino]) delete sl[treino][exIdx];
       })),
 
     completeWorkout: (treino, exs) => {
