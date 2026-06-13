@@ -363,8 +363,11 @@ const ThemeFX: React.FC = () => {
                 animationDelay: `-${(i * 0.7) % 9}s`,
               }}
             >
-              <span className="w l" />
-              <span className="w r" />
+              <span className="glow" />
+              <span className="w ul" />
+              <span className="w ur" />
+              <span className="w ll" />
+              <span className="w lr" />
             </span>
           ))}
         </div>
