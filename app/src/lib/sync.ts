@@ -3,6 +3,7 @@
 // família (cada conta = 1 linha; pouca concorrência real).
 import { supabase } from './supabase';
 import { useStore } from '../store/store';
+import { deviceId } from './device';
 
 const MOD_KEY = 'hgt_mod';     // timestamp da última mudança local
 const UID_KEY = 'hgt_uid';     // dono atual do estado local (detecta troca de conta)
@@ -106,6 +107,13 @@ export async function syncOnLogin(): Promise<void> {
 
     // libera temas vinculados à conta (ex: 'Chá' p/ todos os perfis do Talys)
     if (user?.email) useStore.getState().grantAccountThemes(user.email);
+
+    // ⚠️ reforça o perfil DESTE aparelho como ativo: ao puxar o estado da conta,
+    // o 'active' vem de quem mexeu por último (outro perfil) — não herdar isso,
+    // abrir sempre no perfil reivindicado por este device.
+    const dev = deviceId();
+    const mine = useStore.getState().users.find((u) => u.claimedDevice === dev);
+    if (mine && useStore.getState().active !== mine.id) useStore.getState().setActive(mine.id);
 
     try { localStorage.setItem(UID_KEY, uid); localStorage.removeItem(FRESH_KEY); } catch { /* ok */ }
   } catch { /* nunca trava o app por causa do sync */ }

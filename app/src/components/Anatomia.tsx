@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import Model, { type IExerciseData, type Muscle, type IMuscleStats } from 'react-body-highlighter';
 import { useStore } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
+import { PLANS, AQUECIMENTO } from '../data/plans';
 import './Anatomia.css';
 
 type Group = 'chest' | 'back' | 'legs' | 'glutes' | 'shoulders' | 'arms' | 'core';
@@ -68,6 +69,22 @@ const Anatomia: React.FC = () => {
   const { counts, total, intensity } = useMemo(() => {
     const byName = new Map<string, Group>();
     POOL.forEach((p) => byName.set(p.n, p.g as Group));
+    // mapeia também os exercícios dos treinos PADRÃO (plans.ts), pelo campo `musculo`
+    const musToGroup = (m: string): Group | null => {
+      const s = (m || '').toLowerCase();
+      if (s.includes('peito')) return 'chest';
+      if (s.includes('trap') || s.includes('costas') || s.includes('dorsa') || s.includes('lombar')) return 'back';
+      if (s.includes('glúteo') || s.includes('gluteo') || s.includes('adutor')) return 'glutes';
+      if (s.includes('perna') || s.includes('quadr') || s.includes('posterior') || s.includes('panturrilha')) return 'legs';
+      if (s.includes('ombro') || s.includes('deltoid')) return 'shoulders';
+      if (s.includes('bíceps') || s.includes('biceps') || s.includes('tríceps') || s.includes('triceps') || s.includes('braço') || s.includes('braco')) return 'arms';
+      if (s.includes('core') || s.includes('abdô') || s.includes('abdom') || s.includes('oblíqu')) return 'core';
+      return null;
+    };
+    const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
+    planEx.forEach((ex) => {
+      if (!byName.has(ex.nome)) { const g = musToGroup(ex.musculo); if (g) byName.set(ex.nome, g); }
+    });
     const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
     const c: Record<Group, number> = { chest: 0, back: 0, legs: 0, glutes: 0, shoulders: 0, arms: 0, core: 0 };
     history.forEach((h) => {
