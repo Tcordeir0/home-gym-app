@@ -697,6 +697,116 @@
   font-size: 15px;
   font-weight: 600;
 }
+.collap-body { margin-top: 12px; }
+.perfil-time {
+  font-family: var(--ion-font-family);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ion-text-color);
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+  padding: 7px 11px;
+  cursor: pointer;
+}
+.perfil-hint-sm {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--app-muted);
+}
+.perfil-about { margin: 14px 0 0; font-size: 12px; color: var(--app-muted); text-align: center; opacity: 0.7; }
+.perfil-subhead { font-size: 12px; font-weight: 800; color: var(--app-muted); margin: 18px 0 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+.perfil-subhead:first-child { margin-top: 4px; }
+.perfil-gen-btn {
+  width: 100%; margin-top: 18px; border: 1px solid color-mix(in srgb, var(--brand-lime) 40%, transparent);
+  background: color-mix(in srgb, var(--brand-lime) 14%, transparent); color: var(--brand-lime);
+  font-family: var(--ion-font-family); font-weight: 800; font-size: 14px; border-radius: 13px; padding: 14px; cursor: pointer;
+}
+
+/* ===== Zona de perigo ===== */
+.danger-card { border: 1px solid rgba(255, 91, 91, 0.3); }
+.danger-title { display: flex; align-items: center; gap: 7px; color: #ff7a7a; }
+.danger-title ion-icon { font-size: 18px; }
+.danger-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 91, 91, 0.35);
+  background: rgba(255, 91, 91, 0.08);
+  color: #ff7a7a;
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 12px;
+  padding: 13px 14px;
+  cursor: pointer;
+}
+.danger-btn.del { color: #ff5b5b; border-color: rgba(255, 70, 70, 0.45); background: rgba(255, 70, 70, 0.12); }
+.danger-btn ion-icon { font-size: 17px; }
+
+/* botão Salvar flutuante — SEMPRE no DOM, some/aparece por CSS (anti-crash) */
+.perfil-save {
+  position: fixed;
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brand-lime);
+  color: #0b0c0f;
+  font-family: var(--ion-font-family);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 13px 26px;
+  box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--brand-lime) 50%, transparent);
+  cursor: pointer;
+  /* estado escondido (default) */
+  opacity: 0;
+  transform: translate(-50%, 22px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.25);
+}
+.perfil-save.show {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+}
+.perfil-save ion-icon { font-size: 18px; }
+@media (prefers-reduced-motion: reduce) { .perfil-save { transition: opacity 0.2s ease; } }
+
+.vol-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 55%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--app-line);
+  outline: none;
+  cursor: pointer;
+}
+.vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--brand-lime);
+  border: 2px solid var(--ion-background-color);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--brand-lime) 60%, transparent);
+}
+.vol-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--brand-lime);
+  border: 2px solid var(--ion-background-color);
+}
 .perfil-account {
   margin: 14px 0 10px;
   font-size: 13px;

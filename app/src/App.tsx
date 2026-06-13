@@ -15,7 +15,8 @@ import { IonReactRouter } from '@ionic/react-router';
 import type { Session } from '@supabase/supabase-js';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore } from './store/store';
-import { setFeedbackMode } from './lib/feedback';
+import { setFeedbackMode, setVolume } from './lib/feedback';
+import { syncReminder, disarmReminder } from './lib/reminders';
 import { supabase } from './lib/supabase';
 import { syncOnLogin, startSync, stopSync } from './lib/sync';
 import { deviceId } from './lib/device';
@@ -30,6 +31,7 @@ import Perfil from './pages/Perfil';
 import LevelUp from './components/LevelUp';
 import WhatsNew from './components/WhatsNew';
 import ThemeFX from './components/ThemeFX';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -100,6 +102,19 @@ const App: React.FC = () => {
   // Sincroniza o modo de feedback (som/vibração) com o ajuste do perfil.
   const feedback = useStore((s) => s.feedback);
   useEffect(() => { setFeedbackMode(feedback); }, [feedback]);
+  // volume dos sons é POR PERFIL (cada um regula o seu).
+  const profVolume = useStore((s) => s.users.find((u) => u.id === s.active)?.volume);
+  useEffect(() => { setVolume(profVolume ?? 0.7); }, [profVolume]);
+
+  // Lembrete diário de treino: arma o timer e dá o nudge ao abrir/voltar pro app.
+  const notifyOn = useStore((s) => s.notifyOn);
+  const reminder = useStore((s) => s.reminder);
+  useEffect(() => {
+    syncReminder();
+    const onVis = () => { if (document.visibilityState === 'visible') syncReminder(); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => { document.removeEventListener('visibilitychange', onVis); disarmReminder(); };
+  }, [notifyOn, reminder.on, reminder.time]);
 
   // Aplica o tema do perfil ativo + accent pela cor do perfil (nos temas grátis).
   const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
@@ -187,6 +202,7 @@ const App: React.FC = () => {
     <ThemeFX />
     <LevelUp />
     <WhatsNew />
+    <ErrorBoundary>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -223,6 +239,7 @@ const App: React.FC = () => {
         </IonTabBar>
       </IonTabs>
     </IonReactRouter>
+    </ErrorBoundary>
   </IonApp>
   );
 };

@@ -402,6 +402,79 @@ html[data-glass] .profile-pill {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ===== Glass sutil nos cards do Preto/Branco (sem wallpaper, fica discreto) ===== */
+html[data-theme='dark'] ion-card {
+  background: rgba(28, 32, 39, 0.72);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 20px -8px rgba(0, 0, 0, 0.5);
+}
+html[data-theme='light'] ion-card {
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 18px -10px rgba(0, 0, 0, 0.18);
+}
+
+/* ===== Tab bar "Liquid Glass" flutuante (iOS 26) — em TODOS os temas ===== */
+ion-tab-bar {
+  position: relative;
+  margin: 0 14px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  height: 62px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--ion-tab-bar-background);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 12px 30px -8px rgba(0, 0, 0, 0.55);
+  transform: translateZ(0); /* evita flicker do backdrop no WebView iOS */
+  overflow: visible;
+  contain: paint;
+}
+/* ===== Toasts (notificações) com Liquid Glass + cor do tema ===== */
+ion-toast {
+  --background: color-mix(in srgb, var(--ion-background-color) 62%, transparent);
+  --color: var(--ion-text-color);
+  --border-radius: 18px;
+  --box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+}
+ion-toast::part(container) {
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 26%, rgba(255, 255, 255, 0.12));
+}
+ion-toast::part(message) { font-weight: 600; }
+html[data-theme='light'] ion-toast { --box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 10px 26px -10px rgba(0,0,0,0.25); }
+
+/* highlight especular catando a borda de cima (o que "vende" o vidro) */
+ion-tab-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(130% 90% at 50% -25%, rgba(255, 255, 255, 0.18), transparent 60%);
+  pointer-events: none;
+}
+/* pill deslizante atrás do ícone ativo */
+ion-tab-button { position: relative; }
+ion-tab-button.tab-selected::before {
+  content: '';
+  position: absolute;
+  inset: 8px 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand-lime) 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-lime) 28%, transparent);
+}
+/* tema Branco: highlight escuro (o branco no branco some) */
+html[data-theme='light'] ion-tab-bar { box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08), 0 10px 26px -10px rgba(0,0,0,0.28); }
+html[data-theme='light'] ion-tab-bar::before { background: radial-gradient(130% 90% at 50% -25%, rgba(255,255,255,0.6), transparent 60%); }
+
 /* Tipografia de marca (Anton só em display) */
 .brand {
   font-family: var(--font-display);
@@ -479,6 +552,25 @@ ion-toolbar.toolbar-title-large {
 /* Tab bar — toque premium */
 ion-tab-button {
   --color-selected: var(--brand-lime);
+}
+/* conteúdo centrado e compacto: ícone + nome SEMPRE dentro da cápsula (não vaza) */
+ion-tab-button::part(native) {
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+ion-tab-button ion-icon {
+  font-size: 22px;
+  margin: 0;
+}
+ion-tab-button ion-label {
+  font-size: 10.5px;
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.1px;
 }
 ion-tab-button.tab-selected ion-icon {
   filter: drop-shadow(0 0 7px rgba(198, 255, 58, 0.5));

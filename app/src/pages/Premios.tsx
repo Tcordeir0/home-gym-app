@@ -9,6 +9,7 @@ import { type Prize } from '../data/roulette';
 import Roleta from '../components/Roleta';
 import { waterGoal } from '../lib/diet';
 import { fxReward } from '../lib/feedback';
+import { postEvent } from '../lib/social';
 import './Premios.css';
 
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -17,15 +18,6 @@ const dd = (iso: string) => {
   return `${d} ${MES[m - 1]}`;
 };
 const MEDALS = ['🥇', '🥈', '🥉'];
-
-// Recursos ainda POR VIR. Conforme cada um entra no app, marca done: true —
-// ele some da lista, e quando todos estiverem prontos o card "Em breve" desaparece.
-const UPCOMING: { t: string; done: boolean }[] = [
-  { t: 'Cutucar entre perfis', done: false },
-  { t: 'Desafios entre perfis', done: false },
-  { t: 'Conquistas sociais', done: false },
-  { t: 'Batalha de duplas 2v2 entre contas', done: false },
-];
 
 const Premios: React.FC = () => {
   const users = useStore((s) => s.users);
@@ -36,6 +28,7 @@ const Premios: React.FC = () => {
   const daily = useStore((s) => s.daily);
   const claimQuest = useStore((s) => s.claimQuest);
   const spinRoulette = useStore((s) => s.spinRoulette);
+  const myName = useStore((s) => s.users.find((u) => u.id === s.active)?.name || 'Alguém');
   const [toast, setToast] = useState('');
 
   const league = useMemo(() => familyLeague({ users, scores }), [users, scores]);
@@ -67,6 +60,10 @@ const Premios: React.FC = () => {
   const onPrize = (prize: Prize) => {
     fxReward();
     setToast(`Você ganhou ${prize.label}! ${prize.emoji}`);
+    // avisa os amigos no feed do Social quando desbloqueia item (não pontos)
+    if (prize.kind === 'theme' || prize.kind === 'frame' || prize.kind === 'deco') {
+      void postEvent(myName, `desbloqueou ${prize.label.replace('!', '')} ${prize.emoji}`);
+    }
   };
 
   return (
@@ -164,19 +161,6 @@ const Premios: React.FC = () => {
           <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
         </IonCardContent>
       </IonCard>
-
-      {UPCOMING.some((f) => !f.done) && (
-        <IonCard className="prem-card soon">
-          <IonCardContent>
-            <h2 className="card-title">Em breve 🔜</h2>
-            <ul className="soon-list">
-              {UPCOMING.filter((f) => !f.done).map((f, i) => (
-                <li key={i}>{f.t}</li>
-              ))}
-            </ul>
-          </IonCardContent>
-        </IonCard>
-      )}
 
       <IonToast isOpen={!!toast} message={toast} duration={2000} position="top" onDidDismiss={() => setToast('')} />
     </AppPage>

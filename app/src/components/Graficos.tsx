@@ -5,6 +5,7 @@ import {
 import LineChart from './LineChart';
 import Anatomia from './Anatomia';
 import { useStore } from '../store/store';
+import { e1RM } from '../lib/stats';
 import './Graficos.css';
 
 const MED_FIELDS = [
@@ -23,15 +24,17 @@ const Graficos: React.FC = () => {
 
   const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta' | 'anatomia'>('medidas');
   const [medField, setMedField] = useState<MedKey>('weight');
-  const [dietField, setDietField] = useState<'kcal' | 'protein'>('kcal');
+  const [dietField, setDietField] = useState<'kcal' | 'protein' | 'water'>('kcal');
   const [exName, setExName] = useState('');
+  const [loadMetric, setLoadMetric] = useState<'e1rm' | 'max'>('e1rm');
 
-  // dieta: kcal/proteína por dia
+  // dieta: kcal/proteína/água por dia
   const dietSeries = useMemo(() => {
     return Object.keys(daily)
-      .filter((d) => (daily[d].food || []).length > 0)
+      .filter((d) => (daily[d].food || []).length > 0 || (dietField === 'water' && (daily[d].waterMl || 0) > 0))
       .sort()
       .map((d) => {
+        if (dietField === 'water') return { x: d, y: Math.round((daily[d].waterMl || 0) / 100) / 10 };
         const food = daily[d].food || [];
         const val = food.reduce((a, it) => a + ((dietField === 'kcal' ? it.k : it.p) * it.g) / 100, 0);
         return { x: d, y: Math.round(val) };
@@ -70,11 +73,14 @@ const Graficos: React.FC = () => {
       .forEach((e) => {
         const ex = (e.exercises || []).find((x) => x.nome === curEx);
         if (!ex) return;
-        const kgs = ex.sets.map((s) => s.kg).filter((k): k is number => typeof k === 'number' && !!k);
-        if (kgs.length) out.push({ x: e.date, y: Math.max(...kgs) });
+        // 1RM estimado: melhor (kg × reps) do dia; máx: maior kg do dia
+        const vals = ex.sets
+          .map((s) => (loadMetric === 'e1rm' ? e1RM(s.kg || 0, s.reps || 0) : s.kg || 0))
+          .filter((v) => v > 0);
+        if (vals.length) out.push({ x: e.date, y: Math.max(...vals) });
       });
     return out;
-  }, [history, curEx]);
+  }, [history, curEx, loadMetric]);
 
   return (
     <IonCard className="prog-card">
@@ -99,8 +105,9 @@ const Graficos: React.FC = () => {
               <div className="gr-chips">
                 <button className={'gr-chip' + (dietField === 'kcal' ? ' on' : '')} onClick={() => setDietField('kcal')}>Calorias</button>
                 <button className={'gr-chip' + (dietField === 'protein' ? ' on' : '')} onClick={() => setDietField('protein')}>Proteína</button>
+                <button className={'gr-chip' + (dietField === 'water' ? ' on' : '')} onClick={() => setDietField('water')}>💧 Água</button>
               </div>
-              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : 'g'} />
+              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : dietField === 'water' ? 'L' : 'g'} />
             </>
           ) : (
             <p className="gr-empty">Registre a dieta em <b>2+ dias</b> pra ver a evolução de calorias/proteína aqui.</p>
@@ -133,7 +140,12 @@ const Graficos: React.FC = () => {
                 <IonSelectOption key={n} value={n}>{n}</IonSelectOption>
               ))}
             </IonSelect>
+            <div className="gr-chips">
+              <button className={'gr-chip' + (loadMetric === 'e1rm' ? ' on' : '')} onClick={() => setLoadMetric('e1rm')}>1RM estimado</button>
+              <button className={'gr-chip' + (loadMetric === 'max' ? ' on' : '')} onClick={() => setLoadMetric('max')}>Carga máx</button>
+            </div>
             <LineChart series={loadSeries} unit="kg" />
+            {loadMetric === 'e1rm' && <p className="gr-note">1RM estimado pela fórmula de Epley (kg × reps). Subir essa linha = progresso real, mesmo trocando o nº de repetições.</p>}
           </>
         ) : (
           <p className="gr-empty">Registre treinos com <b>kg</b> nas séries pra ver a evolução de carga aqui.</p>

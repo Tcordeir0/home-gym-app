@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
-import { trashOutline, addOutline } from 'ionicons/icons';
+import { trashOutline, addOutline, calendarOutline } from 'ionicons/icons';
 import { cloudOutline, cameraOutline } from 'ionicons/icons';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor } from '../lib/diet';
@@ -29,8 +30,12 @@ const Diary: React.FC = () => {
   const addFoodOn = useStore((s) => s.addFoodOn);
   const setGramsOn = useStore((s) => s.setFoodGramsOn);
   const removeFoodOn = useStore((s) => s.removeFoodOn);
+  const moveFoodOn = useStore((s) => s.moveFoodOn);
+  const [moveIdx, setMoveIdx] = useState<number | null>(null);
+  const [listRef] = useAutoAnimate<HTMLDivElement>();
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
+  useEffect(() => { setMoveIdx(null); }, [date]);
   const today = todayISO();
   const isToday = date === today;
   const stepDay = (n: number) => {
@@ -78,7 +83,7 @@ const Diary: React.FC = () => {
     }
   };
   const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
-    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 100, liq: isBeverage(it.n, it.tags) });
+    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags) });
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
@@ -130,33 +135,53 @@ const Diary: React.FC = () => {
           <p className="card-sub">Preencha a calculadora (idade, altura, peso) pra ver sua meta aqui.</p>
         )}
 
-        <div className="diary-list">
+        <div className="diary-list" ref={listRef}>
           {food.length ? (
             food.map((it, i) => (
-              <div className="food-row" key={i}>
-                <div className="food-main">
-                  <div className="food-name">{it.n}</div>
-                  <div className="food-spoons">
-                    {it.liq
-                      ? (it.g >= 1000 ? `≈ ${(it.g / 1000).toFixed(it.g % 1000 === 0 ? 0 : 1)} L` : `${it.g} ml`)
-                      : `≈ ${spoons(it.g)} ${spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa`}
+              <div className="food-item" key={i}>
+                <div className="food-row">
+                  <div className="food-main">
+                    <div className="food-name">{it.n}</div>
+                    <div className="food-spoons">
+                      {it.liq
+                        ? (it.g >= 1000 ? `≈ ${(it.g / 1000).toFixed(it.g % 1000 === 0 ? 0 : 1)} L` : `${it.g} ml`)
+                        : `≈ ${spoons(it.g)} ${spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa`}
+                    </div>
                   </div>
+                  <div className="food-g-wrap">
+                    <input
+                      className="food-g"
+                      type="number"
+                      inputMode="numeric"
+                      aria-label={it.liq ? 'Mililitros' : 'Gramas'}
+                      placeholder={it.liq ? 'ml' : 'g'}
+                      value={it.g || ''}
+                      onChange={(e) => { const g = parseFloat(e.target.value); setGramsOn(date, i, isNaN(g) || g < 0 ? 0 : g); }}
+                    />
+                    <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
+                  </div>
+                  <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
+                  <button className={'food-move' + (moveIdx === i ? ' on' : '')} onClick={() => setMoveIdx(moveIdx === i ? null : i)} aria-label="Mover para outro dia">
+                    <IonIcon icon={calendarOutline} />
+                  </button>
+                  <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
+                    <IonIcon icon={trashOutline} />
+                  </button>
                 </div>
-                <div className="food-g-wrap">
-                  <input
-                    className="food-g"
-                    type="number"
-                    inputMode="numeric"
-                    aria-label={it.liq ? 'Mililitros' : 'Gramas'}
-                    value={it.g}
-                    onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGramsOn(date, i, g); }}
-                  />
-                  <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
-                </div>
-                <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
-                <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
-                  <IonIcon icon={trashOutline} />
-                </button>
+                {moveIdx === i && (
+                  <div className="food-movebar">
+                    <span>Mover <b>{it.n}</b> para:</span>
+                    <input
+                      type="date"
+                      max={today}
+                      onChange={(e) => {
+                        const d = e.target.value;
+                        if (d && d !== date) { moveFoodOn(date, i, d); setMoveIdx(null); }
+                      }}
+                      aria-label="Novo dia"
+                    />
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -214,7 +239,7 @@ const Diary: React.FC = () => {
           </div>
         )}
 
-        <PlateSheet open={plateOpen} onClose={() => setPlateOpen(false)} />
+        <PlateSheet open={plateOpen} date={date} onClose={() => setPlateOpen(false)} />
       </IonCardContent>
     </IonCard>
   );

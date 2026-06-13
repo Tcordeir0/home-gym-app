@@ -14,10 +14,12 @@ interface Props {
   /** AAAA-MM-DD → tipo de marcação ('treino' | 'cardio' | 'both' | 'dieta') */
   marks: Record<string, 'treino' | 'cardio' | 'both' | 'dieta'>;
   today: string;
+  onDay?: (ds: string) => void; // toca num dia
+  selected?: string; // dia destacado
 }
 
 /** Calendário mensal com pontos nos dias treinados. */
-const Calendar: React.FC<Props> = ({ marks, today }) => {
+const Calendar: React.FC<Props> = ({ marks, today, onDay, selected }) => {
   const [ty, tm] = today.split('-').map(Number);
   const [view, setView] = useState({ y: ty, m: tm - 1 });
 
@@ -56,10 +58,15 @@ const Calendar: React.FC<Props> = ({ marks, today }) => {
           c === null ? (
             <span key={i} className="cal-cell empty" />
           ) : (
-            <span key={i} className={'cal-cell' + (c.ds === today ? ' is-today' : '') + (marks[c.ds] ? ' done ' + marks[c.ds] : '')}>
+            <button
+              key={i}
+              type="button"
+              className={'cal-cell' + (c.ds === today ? ' is-today' : '') + (c.ds === selected ? ' sel' : '') + (marks[c.ds] ? ' done ' + marks[c.ds] : '')}
+              onClick={() => onDay?.(c.ds)}
+            >
               {c.d}
               {marks[c.ds] && <i className="cal-dot" />}
-            </span>
+            </button>
           )
         )}
       </div>

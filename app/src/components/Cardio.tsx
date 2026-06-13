@@ -23,7 +23,11 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
   const close = () => { setRunning(false); setOpen(null); };
   const fmt = (s: number) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const register = () => {
-    if (open) { addCardio(open.label, open.emoji); onDone?.(open.label); }
+    if (open) {
+      const mins = secs > 0 ? Math.max(1, Math.round(secs / 60)) : undefined;
+      addCardio(open.label, open.emoji, mins);
+      onDone?.(open.label + (mins ? ` · ${mins} min` : ''));
+    }
     close();
   };
 

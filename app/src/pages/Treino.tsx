@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { IonSegment, IonSegmentButton, IonLabel, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
 import Cardio from '../components/Cardio';
-import GeneratorSheet from '../components/GeneratorSheet';
 import LevelBadge from '../components/LevelBadge';
 import Social from '../components/Social';
 import TreinoBanner from '../components/TreinoBanner';
@@ -25,13 +25,13 @@ const Treino: React.FC = () => {
     custom && custom.A
       ? { focus: profile.focus || 'Geral', labels: (profile.labels as Record<string, string>) || DEFAULT_LABELS, treinos: custom }
       : PLANS[profile.id] || PLANS['u1'];
-  const [genOpen, setGenOpen] = useState(false);
   const active = useStore((s) => s.active);
   const setlog = useStore((s) => s.setlog);
   const completeWorkout = useStore((s) => s.completeWorkout);
   const [seg, setSeg] = useState<Seg>('A');
   const [demo, setDemo] = useState<Exercise | null>(null);
   const [toast, setToast] = useState('');
+  const [listRef] = useAutoAnimate<HTMLDivElement>();
 
   const exercises: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
   const labels = plan.labels || { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
@@ -87,9 +87,11 @@ const Treino: React.FC = () => {
         </div>
       )}
 
-      {exercises.map((ex, i) => (
-        <ExerciseCard key={seg + i} ex={ex} treino={seg} exIdx={i} onDemo={setDemo} />
-      ))}
+      <div ref={listRef}>
+        {exercises.map((ex, i) => (
+          <ExerciseCard key={seg + i} ex={ex} treino={seg} exIdx={i} onDemo={setDemo} />
+        ))}
+      </div>
 
       {seg !== 'warm' && (
         <motion.button whileTap={{ scale: 0.97 }} className="treino-done" onClick={onComplete}>
@@ -97,16 +99,9 @@ const Treino: React.FC = () => {
         </motion.button>
       )}
 
-      <button className="treino-gen" onClick={() => setGenOpen(true)}>
-        ⚙️ Montar treino por equipamento
-      </button>
+      <p className="treino-gen-hint">⚙️ Pra montar treino por equipamento, vá no <b>Perfil › Montar treino</b>.</p>
 
       <DemoSheet ex={demo} onClose={() => setDemo(null)} />
-      <GeneratorSheet
-        open={genOpen}
-        onClose={() => setGenOpen(false)}
-        onDone={() => { setSeg('A'); setToast('Treino gerado! 💪'); }}
-      />
       <IonToast
         isOpen={!!toast}
         message={toast}

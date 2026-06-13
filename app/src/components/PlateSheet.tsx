@@ -11,8 +11,8 @@ const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(
 interface PlateItem { n: string; k: number; p: number; g: number }
 interface Chip { term: string; score: number; local: Food | null }
 
-const PlateSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const addFood = useStore((s) => s.addFoodToday);
+const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }> = ({ open, date, onClose }) => {
+  const addFoodOn = useStore((s) => s.addFoodOn);
   const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState('');
   const [msg, setMsg] = useState('');
@@ -53,7 +53,8 @@ const PlateSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, on
   const addChip = (c: Chip) => { if (c.local) addLocal(c.local); else setQ(c.term); };
   const updGrams = (i: number, g: number) => setPlate((p) => p.map((it, j) => (j === i ? { ...it, g } : it)));
   const removeItem = (i: number) => setPlate((p) => p.filter((_, j) => j !== i));
-  const confirm = () => { plate.forEach((it) => addFood(it)); close(); };
+  // salva no DIA EM FOCO (corrige: antes ia sempre pra hoje, perdendo registros retroativos)
+  const confirm = () => { plate.forEach((it) => addFoodOn(date, it)); close(); };
 
   const qn = normTxt(q).trim();
   const hits = qn.length >= 2 ? FOODS.filter((f) => normTxt(f.n).includes(qn) || normTxt(f.tags || '').includes(qn)).slice(0, 8) : [];
@@ -66,7 +67,7 @@ const PlateSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, on
           <button className="plate-photo-btn" onClick={() => fileRef.current?.click()}>
             <IonIcon icon={imageOutline} /> Tirar ou escolher foto
           </button>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhoto} />
           {photo && <img className="plate-img" src={photo} alt="prato" />}
           {msg && <p className="plate-msg">{msg}</p>}
 

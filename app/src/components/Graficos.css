@@ -44,3 +44,9 @@
 .gr-empty b {
   color: var(--ion-text-color);
 }
+.gr-note {
+  margin: 8px 2px 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--app-muted);
+}

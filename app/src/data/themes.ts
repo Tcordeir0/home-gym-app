@@ -47,6 +47,10 @@ export function isTester(name?: string): boolean {
  *  exclusivo só o tester; tester libera tudo. */
 export function themeUnlocked(id: string, unlocked: string[], name?: string): boolean {
   if (isTester(name)) return true;
-  if (THEMES.find((t) => t.id === id)?.exclusive) return false; // só o Talys
+  // temas exclusivos (Creator) liberam pros perfis do Talys: TCORDEIRO e TALYS
+  if (THEMES.find((t) => t.id === id)?.exclusive) {
+    const n = (name || '').trim().toUpperCase();
+    return n === 'TALYS' || n === 'TCORDEIRO';
+  }
   return FREE_THEMES.includes(id) || unlocked.includes(id);
 }

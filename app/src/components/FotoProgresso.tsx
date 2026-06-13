@@ -76,7 +76,8 @@ const FotoProgresso: React.FC = () => {
 
         {photos.length === 0 && <p className="fp-empty">Ainda sem foto. Bora registrar o ponto de partida! 📸</p>}
 
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={onPick} />
+        {/* sem capture: o iOS/Android deixa escolher CÂMERA ou GALERIA */}
+        <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPick} />
         <motion.button
           whileTap={{ scale: 0.97 }}
           className="fp-add"

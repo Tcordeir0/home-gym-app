@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useStore } from '../store/store';
 import { totalPoints, levelFor } from '../lib/stats';
 import { fxSuccess } from '../lib/feedback';
+import { postEvent } from '../lib/social';
 import './LevelUp.css';
 
 const CONFETTI = ['🎉', '✨', '💪', '🔥', '⭐', '🏆', '🎉', '✨'];
@@ -11,6 +12,7 @@ const CONFETTI = ['🎉', '✨', '💪', '🔥', '⭐', '🏆', '🎉', '✨'];
 const LevelUp: React.FC = () => {
   const active = useStore((s) => s.active);
   const scores = useStore((s) => s.scores);
+  const name = useStore((s) => s.users.find((u) => u.id === s.active)?.name || 'Alguém');
   const level = levelFor(totalPoints({ scores }, active));
 
   const seen = useRef<Record<string, number>>({});
@@ -22,7 +24,9 @@ const LevelUp: React.FC = () => {
     if (prev !== undefined && level > prev) {
       setShow(level);
       fxSuccess();
+      void postEvent(name, `subiu pro nível ${level} 🎉`); // amigos veem no feed do Social
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, level]);
 
   useEffect(() => {

@@ -8,7 +8,7 @@ import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { statsFor } from '../lib/stats';
+import { statsFor, e1RM } from '../lib/stats';
 
 // itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
 const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
@@ -46,7 +46,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -83,6 +83,7 @@ function defaultState(): AppState {
     users: [newProfile('u1', 'Você', COLORS[0])],
     active: 'u1',
     checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
+    reminder: { on: false, time: '18:00' },
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -105,6 +106,7 @@ function migrate(raw: Partial<AppState>): AppState {
   // e só ligam DEPOIS de conceder a permissão.
   if (typeof s.notifyOn !== 'boolean') { s.notifyOn = false; s.feedback = 'none'; }
   if (!s.feedback) s.feedback = 'none';
+  if (!s.reminder || typeof s.reminder.on !== 'boolean') s.reminder = { on: false, time: '18:00' };
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -152,8 +154,10 @@ export interface Store extends AppState {
   claimProfile: (id: string) => void;
   addAndClaimProfile: (name: string) => string;
   deleteProfile: (id: string) => void;
+  clearProfileData: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   setNotifyOn: (v: boolean) => void;
+  setReminder: (r: Partial<AppState['reminder']>) => void;
   resetState: () => void;
   initForUser: (name: string) => void;
   setTheme: (t: string) => void;
@@ -166,7 +170,10 @@ export interface Store extends AppState {
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
-  addCardio: (label: string, emoji?: string) => void;
+  prevSets: (nome: string) => { kg: number; reps: number }[];
+  exPR: (nome: string) => { kg: number; reps: number; e1rm: number } | null;
+  prefillSets: (treino: string, exIdx: number, series: number, sets: { kg: number; reps: number }[]) => void;
+  addCardio: (label: string, emoji?: string, mins?: number) => void;
   // Dieta
   latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
   setWeightToday: (kg: number) => void;
@@ -178,6 +185,7 @@ export interface Store extends AppState {
   updateActiveBody: (patch: Partial<Body>) => void;
   weightSeries: () => { x: string; y: number }[];
   addWaterToday: (ml: number) => void;
+  addWaterOn: (date: string, ml: number) => void;
   addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
@@ -185,6 +193,7 @@ export interface Store extends AppState {
   addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
   removeFoodOn: (date: string, idx: number) => void;
+  moveFoodOn: (fromDate: string, idx: number, toDate: string) => void;
   dietKcalSeries: () => { x: string; y: number }[];
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
@@ -232,6 +241,7 @@ export const useStore = create<Store>((set, get) => {
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
     setNotifyOn: (v) => set({ notifyOn: v }),
+    setReminder: (r) => set((s) => ({ reminder: { ...s.reminder, ...r } })),
     resetState: () => set(defaultState()),
     initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>
@@ -315,6 +325,15 @@ export const useStore = create<Store>((set, get) => {
         return { users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) };
       }),
 
+    // limpa os DADOS do perfil (treinos/dieta/progresso/pontos) mantendo o perfil e cosméticos
+    clearProfileData: (id) => {
+      if (get().users.find((u) => u.id === id)?.claimedDevice !== deviceId()) return;
+      set(produce((s: Store) => {
+        const maps: (keyof AppState)[] = ['checks', 'history', 'scores', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily'];
+        maps.forEach((k) => { delete (s[k] as Record<string, unknown>)[id]; });
+      }));
+    },
+
     setSetField: (treino, exIdx, setIdx, field, v, series) =>
       set(produce((s: Store) => { if (!ownsActive(s)) return; ensureRow(s, s.active, treino, exIdx, series)[setIdx][field] = v; })),
 
@@ -368,13 +387,54 @@ export const useStore = create<Store>((set, get) => {
       return null;
     },
 
-    addCardio: (label, emoji) =>
+    // séries da ÚLTIMA vez que treinou esse exercício (na ordem) — pra pré-preencher
+    prevSets: (nome) => {
+      const s = get();
+      const hist = (s.history[s.active] || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+      for (const e of hist) {
+        const ex = e.exercises?.find((x) => x.nome === nome);
+        if (ex && ex.sets.length) return ex.sets.map((st) => ({ kg: st.kg || 0, reps: st.reps || 0 }));
+      }
+      return [];
+    },
+
+    // recorde pessoal por 1RM estimado (Epley) em todo o histórico
+    exPR: (nome) => {
+      const s = get();
+      let best: { kg: number; reps: number; e1rm: number } | null = null;
+      for (const e of s.history[s.active] || []) {
+        const ex = e.exercises?.find((x) => x.nome === nome);
+        if (!ex) continue;
+        for (const st of ex.sets) {
+          const kg = st.kg || 0, reps = st.reps || 0;
+          if (kg <= 0) continue;
+          const val = e1RM(kg, reps);
+          if (!best || val > best.e1rm) best = { kg, reps, e1rm: val };
+        }
+      }
+      return best;
+    },
+
+    // pré-preenche as linhas VAZIAS com os valores informados (não marca como feita)
+    prefillSets: (treino, exIdx, series, sets) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const rows = ensureRow(s, s.active, treino, exIdx, series);
+        for (let i = 0; i < series && i < sets.length; i++) {
+          if (rows[i].kg === '' && rows[i].reps === '' && !rows[i].done) {
+            if (sets[i].kg) rows[i].kg = String(sets[i].kg);
+            if (sets[i].reps) rows[i].reps = String(sets[i].reps);
+          }
+        }
+      })),
+
+    addCardio: (label, emoji, mins) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
         const today = todayISO();
         const h = (s.history[uid] = s.history[uid] || []);
-        h.push({ date: today, w: 'cardio', t: label, emoji });
+        h.push({ date: today, w: 'cardio', t: label, emoji, mins });
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
         sc.byDay[today] = (sc.byDay[today] || 0) + PTS_CARDIO;
       })),
@@ -467,14 +527,14 @@ export const useStore = create<Store>((set, get) => {
         .map((m) => ({ x: m.date, y: m.weight as number }));
     },
 
-    addWaterToday: (ml) =>
+    addWaterToday: (ml) => get().addWaterOn(todayISO(), ml),
+    addWaterOn: (date, ml) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
-        const t = todayISO();
         const dd = (s.daily[uid] = s.daily[uid] || {});
-        dd[t] = dd[t] || {};
-        dd[t].waterMl = Math.max(0, (dd[t].waterMl || 0) + ml);
+        dd[date] = dd[date] || {};
+        dd[date].waterMl = Math.max(0, (dd[date].waterMl || 0) + ml);
       })),
 
     addFoodToday: (item) =>
@@ -523,6 +583,20 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const f = s.daily[s.active]?.[date]?.food;
         if (f) f.splice(idx, 1);
+      })),
+    // move um alimento de um dia pra outro (corrige registros que foram pro dia errado)
+    moveFoodOn: (fromDate, idx, toDate) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        if (fromDate === toDate) return;
+        const uid = s.active;
+        const from = s.daily[uid]?.[fromDate]?.food;
+        if (!from || !from[idx]) return;
+        const [item] = from.splice(idx, 1);
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        dd[toDate] = dd[toDate] || {};
+        dd[toDate].food = dd[toDate].food || [];
+        dd[toDate].food!.push(item);
       })),
     // kcal por dia (pro gráfico de histórico da dieta)
     dietKcalSeries: () => {

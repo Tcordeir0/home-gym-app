@@ -20,17 +20,10 @@ export interface ShareData {
   theme?: string; // id do tema ativo
   frame?: string; // id do aro ativo
   hat?: string; // id do cosmético (ícone pixel)
+  seriesWk?: number; // séries feitas na semana
+  waterAvg?: number; // média de água por dia na semana (ml)
+  topMuscle?: string; // músculo mais treinado na semana
 }
-
-// Frases motivacionais — variam pelo progresso (determinístico).
-const PHRASES = [
-  'Cada treino conta. Bora! 💪',
-  'Disciplina vence motivação.',
-  'Construindo a melhor versão.',
-  'Consistência é o segredo. 🔥',
-  'Sem desculpa, só treino.',
-  'Foco, força e progresso.',
-];
 
 function hexToRgb(hex: string): [number, number, number] {
   const c = hex.replace('#', '');
@@ -96,11 +89,208 @@ function drawRing(ctx: CanvasRenderingContext2D, cx: number, ay: number, R: numb
   ctx.shadowBlur = 0;
 }
 
+// PRNG determinístico (sem Math.random p/ o card ser estável e reproduzível).
+function seeded(s: number) {
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), s | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function themeSeed(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+// Fundo procedural por tema — dá identidade aos temas "animados" que não têm wallpaper
+// (matrix, cosmos, synth, cyber, arcade, ouro, sunset...). Temas preto/branco ficam limpos.
+function drawThemeBackdrop(ctx: CanvasRenderingContext2D, W: number, H: number, id: string, accent: string) {
+  if (id === 'dark' || id === 'light') return; // P&B ficam puros
+  const [ar, ag, ab] = hexToRgb(accent);
+  const acc = (a: number) => `rgba(${ar},${ag},${ab},${a})`;
+  const rnd = seeded(themeSeed(id));
+  switch (id) {
+    case 'matrix': {
+      ctx.font = '28px monospace'; ctx.textAlign = 'center';
+      const cols = 26;
+      for (let i = 0; i < cols; i++) {
+        const x = (i + 0.5) * (W / cols);
+        const len = 4 + Math.floor(rnd() * 11);
+        const startY = rnd() * H;
+        for (let j = 0; j < len; j++) {
+          const y = (startY + j * 30) % H;
+          ctx.fillStyle = acc(j === len - 1 ? 0.5 : 0.05 + (j / len) * 0.13);
+          ctx.fillText(rnd() < 0.5 ? '0' : '1', x, y);
+        }
+      }
+      break;
+    }
+    case 'cosmos': {
+      for (let i = 0; i < 170; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${0.12 + rnd() * 0.6})`;
+        ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2.3 + 0.4, 0, Math.PI * 2); ctx.fill();
+      }
+      for (let i = 0; i < 2; i++) {
+        const gx = rnd() * W, gy = rnd() * H * 0.7;
+        const g = ctx.createRadialGradient(gx, gy, 0, gx, gy, 300);
+        g.addColorStop(0, acc(0.18)); g.addColorStop(1, acc(0));
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      }
+      break;
+    }
+    case 'synth': {
+      const sun = ctx.createLinearGradient(0, H * 0.16, 0, H * 0.44);
+      sun.addColorStop(0, acc(0.85)); sun.addColorStop(1, acc(0.08));
+      ctx.fillStyle = sun;
+      ctx.beginPath(); ctx.arc(W / 2, H * 0.3, 150, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = acc(0.2); ctx.lineWidth = 2;
+      const hz = H * 0.64;
+      for (let i = -10; i <= 10; i++) { ctx.beginPath(); ctx.moveTo(W / 2 + i * 40, hz); ctx.lineTo(W / 2 + i * 260, H); ctx.stroke(); }
+      for (let j = 0; j < 14; j++) { const y = hz + (H - hz) * Math.pow(j / 14, 2); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      break;
+    }
+    case 'cyber': case 'checker': {
+      ctx.strokeStyle = acc(0.11); ctx.lineWidth = 1.5;
+      for (let x = 0; x <= W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y <= H; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      break;
+    }
+    case 'arcade': {
+      for (let i = 0; i < 64; i++) {
+        const s = (2 + Math.floor(rnd() * 3)) * 8;
+        ctx.fillStyle = acc(0.07 + rnd() * 0.15);
+        ctx.fillRect(Math.floor((rnd() * W) / s) * s, Math.floor((rnd() * H) / s) * s, s, s);
+      }
+      break;
+    }
+    case 'ouro': case 'sunset': {
+      const g = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, 520);
+      g.addColorStop(0, acc(id === 'sunset' ? 0.3 : 0.22)); g.addColorStop(1, acc(0));
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      break;
+    }
+    default: {
+      // brilho sutil + poucos pontos do accent: anima qualquer tema liso (ex.: grafite)
+      const g = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, 560);
+      g.addColorStop(0, acc(0.13)); g.addColorStop(1, acc(0));
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 56; i++) {
+        ctx.fillStyle = acc(0.04 + rnd() * 0.11);
+        ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 3 + 1, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+}
+
+// Versão CONGELADA das partículas dos temas animados (bubbles/hearts/hands/...).
+// Espelha o ThemeFX em telão, mas estático — pra "fotografar" o tema no card.
+async function drawThemeFx(ctx: CanvasRenderingContext2D, W: number, H: number, fx: string, accent: string) {
+  const [ar, ag, ab] = hexToRgb(accent);
+  const acc = (a: number) => `rgba(${ar},${ag},${ab},${a})`;
+  const rnd = seeded(themeSeed('fx-' + fx));
+  ctx.save();
+  ctx.textAlign = 'center';
+  switch (fx) {
+    case 'snow': {
+      for (let i = 0; i < 48; i++) {
+        ctx.globalAlpha = 0.35 + rnd() * 0.55;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 4 + 1.4, 0, 7); ctx.fill();
+      }
+      break;
+    }
+    case 'bubbles': {
+      for (let i = 0; i < 24; i++) {
+        const r = rnd() * 22 + 6, x = rnd() * W, y = H - rnd() * H * 0.92;
+        ctx.strokeStyle = `rgba(255,255,255,${0.12 + rnd() * 0.22})`; ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+      }
+      break;
+    }
+    case 'fireflies': {
+      ctx.shadowColor = acc(0.9); ctx.shadowBlur = 18; ctx.fillStyle = acc(0.85);
+      for (let i = 0; i < 22; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 3 + 2, 0, 7); ctx.fill(); }
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case 'hearts': {
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 16; i++) { ctx.globalAlpha = 0.22 + rnd() * 0.4; ctx.font = `${18 + rnd() * 30}px serif`; ctx.fillText('♥', rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'math': {
+      const MS = ['+', '−', '×', '÷', '=', 'π', '√', '∞', '%', '∑', '∫', 'θ', 'φ'];
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 22; i++) { ctx.globalAlpha = 0.18 + rnd() * 0.34; ctx.font = `${22 + rnd() * 28}px monospace`; ctx.fillText(MS[Math.floor(rnd() * MS.length)], rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'enchant': {
+      const RU = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛖᛗᛚᛜᛞᛟ'.split('');
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 26; i++) { ctx.globalAlpha = 0.22 + rnd() * 0.5; ctx.font = `${20 + rnd() * 26}px serif`; ctx.fillText(RU[Math.floor(rnd() * RU.length)], rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'miasma': {
+      const g = ctx.createRadialGradient(W / 2, H * 0.2, 0, W / 2, H * 0.2, 460);
+      g.addColorStop(0, 'rgba(220,40,40,0.26)'); g.addColorStop(1, 'rgba(220,40,40,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 16; i++) { ctx.fillStyle = `rgba(40,8,12,${0.1 + rnd() * 0.18})`; ctx.beginPath(); ctx.arc(rnd() * W, H - rnd() * H * 0.7, rnd() * 40 + 16, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'electric': {
+      ctx.strokeStyle = 'rgba(142,200,255,0.45)'; ctx.shadowColor = '#8ec8ff'; ctx.shadowBlur = 18; ctx.lineWidth = 4;
+      for (let b = 0; b < 4; b++) {
+        const x = 90 + rnd() * (W - 180); let y = 0;
+        ctx.beginPath(); ctx.moveTo(x, y);
+        while (y < H) { y += 70 + rnd() * 80; ctx.lineTo(x + (rnd() * 60 - 30), y); }
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0; ctx.fillStyle = acc(0.8);
+      for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2 + 1, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'creator': {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, acc(0)); g.addColorStop(0.5, acc(0.16)); g.addColorStop(1, acc(0));
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = acc(0.8);
+      for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 3 + 1.5, 0, 7); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,210,80,0.85)';
+      for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2 + 1, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'hands': {
+      // poça escura no rodapé (de onde as mãos emergem)
+      const pool = ctx.createLinearGradient(0, H, 0, H * 0.66);
+      pool.addColorStop(0, 'rgba(10,4,14,0.55)'); pool.addColorStop(1, 'rgba(10,4,14,0)');
+      ctx.fillStyle = pool; ctx.fillRect(0, H * 0.66, W, H * 0.34);
+      try {
+        const hand = await loadImage('/satella-hand.svg');
+        const aspect = hand.height / hand.width;
+        const drawHand = (x: number, y: number, w: number, rot: number, a: number) => {
+          ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(rot);
+          const h = w * aspect; ctx.drawImage(hand, -w / 2, -h, w, h); ctx.restore();
+        };
+        for (let i = 0; i < 9; i++) drawHand((i + 0.5) * (W / 9) + (rnd() * 36 - 18), H + 12, 90 + rnd() * 64, rnd() * 0.34 - 0.17, 0.55 + rnd() * 0.35); // baixo
+        for (let i = 0; i < 3; i++) { drawHand(-12, H * 0.4 + i * 150, 92, Math.PI * 0.42, 0.42); drawHand(W + 12, H * 0.46 + i * 150, 92, -Math.PI * 0.42, 0.42); } // laterais
+      } catch { /* sem svg */ }
+      // 愛している sussurrado no céu
+      ctx.fillStyle = 'rgba(255,170,205,0.24)'; ctx.font = '34px serif';
+      ctx.fillText('愛している', W * 0.5, H * 0.14);
+      break;
+    }
+  }
+  ctx.restore();
+}
+
 /** Desenha o card e devolve o dataURL (PNG). */
 export async function buildProgressCard(d: ShareData): Promise<string> {
   try { await (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready; } catch { /* ok */ }
 
-  const W = 1080, H = 1350, cx = W / 2;
+  const W = 1080, H = 1920, cx = W / 2; // 9:16 — formato story/status
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const ctx = c.getContext('2d')!;
@@ -138,7 +328,11 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     grad.addColorStop(1, bgCol);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
+    // identidade dos temas animados (matrix/cosmos/synth/cyber/arcade/ouro...)
+    drawThemeBackdrop(ctx, W, H, themeObj.id, accent);
   }
+  // partículas congeladas do tema (mãos, corações, neve, runas...) por cima do fundo
+  if (themeObj.fx) await drawThemeFx(ctx, W, H, themeObj.fx, accent);
 
   // ---- marca (topo, centralizada) ----
   ctx.textBaseline = 'alphabetic';
@@ -148,11 +342,11 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   const wGym = ctx.measureText(gym).width;
   const startX = cx - (wHome + wGym) / 2;
   ctx.textAlign = 'left';
-  ctx.fillStyle = INK; ctx.fillText(home, startX, 150);
-  ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 150);
+  ctx.fillStyle = INK; ctx.fillText(home, startX, 180);
+  ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 180);
 
   // ---- avatar: foto (círculo) OU anel de nível, com o ARO do perfil ----
-  const ay = 400;
+  const ay = 570;
   const frame = d.frame || 'none';
   // aros-imagem (coroas) são bem maiores que o avatar → reduzir o raio pra coroa
   // caber entre a marca e o nome (não invadir o "TCORDEIRO").
@@ -225,19 +419,19 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
 
   // ---- nome ----
   ctx.textAlign = 'center';
-  ctx.fillStyle = INK; ctx.font = '70px Anton, sans-serif';
-  ctx.fillText(d.name.toUpperCase(), cx, ay + 250);
+  ctx.fillStyle = INK; ctx.font = '76px Anton, sans-serif';
+  ctx.fillText(d.name.toUpperCase(), cx, ay + 300);
 
   // ---- rank "Xº da casa" + nível ----
-  ctx.fillStyle = MUTED; ctx.font = '40px Anton, sans-serif';
+  ctx.fillStyle = MUTED; ctx.font = '42px Anton, sans-serif';
   const rankTxt = d.rank ? `${medal(d.rank)} ${d.rank}º da casa · Nível ${d.level}` : `Nível ${d.level}`;
-  ctx.fillText(rankTxt, cx, ay + 312);
+  ctx.fillText(rankTxt, cx, ay + 368);
 
   // ---- pontos ----
-  ctx.fillStyle = accent; ctx.font = '170px Anton, sans-serif';
-  ctx.fillText(String(d.pts), cx, ay + 480);
-  ctx.fillStyle = MUTED; ctx.font = '38px Anton, sans-serif';
-  ctx.fillText('PONTOS', cx, ay + 532);
+  ctx.fillStyle = accent; ctx.font = '180px Anton, sans-serif';
+  ctx.fillText(String(d.pts), cx, ay + 566);
+  ctx.fillStyle = MUTED; ctx.font = '40px Anton, sans-serif';
+  ctx.fillText('PONTOS', cx, ay + 630);
 
   // ---- stats (3 tiles) ----
   const tiles: [string, string][] = [
@@ -245,40 +439,45 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     [`${d.treinos}`, 'TREINOS'],
     [`${d.dias}`, 'DIAS'],
   ];
-  const tw = 290, th = 200, gap = 30;
+  const tw = 290, th = 210, gap = 30;
   let tx = (W - (tw * 3 + gap * 2)) / 2;
-  const ty = ay + 560;
+  const ty = ay + 730;
+  const [tar, tag, tab] = hexToRgb(accent);
   tiles.forEach(([v, l]) => {
-    ctx.fillStyle = `rgba(${br},${bg2},${bb},${drewImage ? 0.55 : 1})`;
+    // base opaca quando há foto atrás (legibilidade)
+    if (drewImage) {
+      ctx.fillStyle = light ? 'rgba(255,255,255,0.84)' : 'rgba(12,13,16,0.74)';
+      roundRect(ctx, tx, ty, tw, th, 26); ctx.fill();
+    }
+    // tom do accent: contrasta com o fundo em qualquer tema (inclusive preto/branco)
+    ctx.fillStyle = `rgba(${tar},${tag},${tab},${light ? 0.13 : 0.18})`;
     roundRect(ctx, tx, ty, tw, th, 26); ctx.fill();
-    ctx.strokeStyle = `rgba(255,255,255,${light ? 0.1 : 0.12})`; ctx.lineWidth = 2;
+    ctx.strokeStyle = `rgba(${tar},${tag},${tab},0.55)`; ctx.lineWidth = 3;
     roundRect(ctx, tx, ty, tw, th, 26); ctx.stroke();
-    ctx.fillStyle = accent; ctx.font = '84px Anton, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(v, tx + tw / 2, ty + 108);
-    ctx.fillStyle = MUTED; ctx.font = '26px Anton, sans-serif';
-    ctx.fillText(l, tx + tw / 2, ty + 158);
+    ctx.fillStyle = accent; ctx.font = '90px Anton, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(v, tx + tw / 2, ty + 116);
+    ctx.fillStyle = INK; ctx.font = '27px Anton, sans-serif';
+    ctx.fillText(l, tx + tw / 2, ty + 168);
     tx += tw + gap;
   });
 
-  // ---- frase motivacional (no lugar do "hidratado") ----
-  const phrase = PHRASES[(d.streak + d.treinos + d.level) % PHRASES.length];
-  ctx.font = '38px Anton, sans-serif'; ctx.textAlign = 'center';
-  const pw = Math.min(W - 120, ctx.measureText(phrase).width + 96);
-  const ph = 78, px = cx - pw / 2, py = ty + th + 34;
-  const [ar, ag, ab] = hexToRgb(accent);
-  ctx.fillStyle = `rgba(${ar},${ag},${ab},0.16)`;
-  roundRect(ctx, px, py, pw, ph, 39); ctx.fill();
-  ctx.fillStyle = accent; ctx.fillText(phrase, cx, py + 52);
+  // ---- linha extra da SEMANA: séries + hidratação + músculo top ----
+  const extras: string[] = [];
+  if (d.seriesWk) extras.push(`🏋️ ${d.seriesWk} séries`);
+  if (d.waterAvg) extras.push(`💧 ${(d.waterAvg / 1000).toFixed(1)} L/dia`);
+  if (d.topMuscle) extras.push(`💪 ${d.topMuscle}`);
+  if (extras.length) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
+    ctx.fillText('NA SEMANA', cx, ty + th + 60);
+    ctx.fillStyle = INK; ctx.font = '32px Anton, sans-serif';
+    ctx.fillText(extras.join('    '), cx, ty + th + 104);
+  }
 
-  // ---- rodapé: nome do app + versão ----
-  ctx.textAlign = 'center'; ctx.font = '34px Anton, sans-serif';
-  const an = 'HOME GYM', av = ` · v${APP_VERSION}`;
-  const wAn = ctx.measureText(an).width;
-  const wAv = ctx.measureText(av).width;
-  const fStart = cx - (wAn + wAv) / 2;
-  ctx.textAlign = 'left';
-  ctx.fillStyle = INK; ctx.fillText(an, fStart, H - 50);
-  ctx.fillStyle = MUTED; ctx.fillText(av, fStart + wAn, H - 50);
+  // ---- rodapé: só a versão (HOME GYM já está no topo) ----
+  ctx.textAlign = 'center'; ctx.font = '36px Anton, sans-serif';
+  ctx.fillStyle = MUTED;
+  ctx.fillText(`v${APP_VERSION}`, cx, H - 80);
 
   return c.toDataURL('image/png');
 }

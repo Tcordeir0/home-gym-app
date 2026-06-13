@@ -1,13 +1,21 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useLocation } from 'react-router-dom';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline, warningOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
+import { pushNow } from '../lib/sync';
+import Collapsible from '../components/Collapsible';
+import GeneratorSheet from '../components/GeneratorSheet';
+import Ferramentas from '../components/Ferramentas';
 import ChangelogHistory from '../components/ChangelogHistory';
+import EmBreve from '../components/EmBreve';
 import { totalPoints, levelInfo } from '../lib/stats';
+import { APP_VERSION } from '../lib/version';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
@@ -23,15 +31,22 @@ import './Perfil.css';
 const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // domingo → sábado
 
 const Perfil: React.FC = () => {
+  const routeLoc = useLocation();
+  // portal vai pro <body>, então só renderiza o botão quando ESTA aba está ativa
+  // (senão "Salvar alterações" vazaria por cima de Prêmios/Treino/etc.)
+  const onPerfil = routeLoc.pathname.startsWith('/perfil');
   const profile = useActiveProfile();
   const updateProfile = useStore((s) => s.updateProfile);
   const deleteProfile = useStore((s) => s.deleteProfile);
+  const clearProfileData = useStore((s) => s.clearProfileData);
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
   const feedback = useStore((s) => s.feedback);
   const setFeedback = useStore((s) => s.setFeedback);
   const notifyOn = useStore((s) => s.notifyOn);
   const setNotifyOn = useStore((s) => s.setNotifyOn);
+  const reminder = useStore((s) => s.reminder);
+  const setReminder = useStore((s) => s.setReminder);
   const setTheme = useStore((s) => s.setTheme);
   const setHat = useStore((s) => s.setHat);
   const setFrame = useStore((s) => s.setFrame);
@@ -52,8 +67,30 @@ const Perfil: React.FC = () => {
 
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
+  const [genOpen, setGenOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
   const [toast, setToast] = useState('');
+
+  // Botão Salvar: aparece quando você muda algo no perfil e força a gravação
+  // na NUVEM/conta (não fica só no localStorage). Auto-sync já roda, mas o botão
+  // garante e dá confirmação visual.
+  const watchKey = useStore((s) => {
+    const p = s.users.find((u) => u.id === s.active);
+    return JSON.stringify(p) + '|' + s.feedback + '|' + s.notifyOn;
+  });
+  const firstWatch = useRef(true);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => {
+    if (firstWatch.current) { firstWatch.current = false; return; }
+    setDirty(true);
+  }, [watchKey]);
+  const saveAll = async () => {
+    await pushNow();
+    setDirty(false);
+    setToast('Tudo salvo na sua conta ☁️ ✓');
+  };
 
   // Vibração: pede/testa ao ATIVAR (no iOS web não existe; no app nativo usa Haptics).
   const onVibToggle = (on: boolean) => {
@@ -118,7 +155,7 @@ const Perfil: React.FC = () => {
   };
 
   return (
-    <AppPage title="Perfil" accessory={<ChangelogHistory />}>
+    <AppPage title="Perfil" accessory={<><EmBreve /><ChangelogHistory /></>}>
       {/* Identidade */}
       <IonCard className="perfil-card">
         <IonCardContent>
@@ -136,27 +173,31 @@ const Perfil: React.FC = () => {
                 className="perfil-name"
                 value={profile.name}
                 aria-label="Nome do perfil"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
                 onIonChange={(e) => {
                   const v = (e.detail.value || '').trim();
-                  if (v && v !== profile.name) updateProfile(profile.id, { name: v });
+                  if (!v || v === profile.name) return;
+                  const taken = users.some((u) => u.id !== profile.id && u.name.toLowerCase() === v.toLowerCase());
+                  if (taken) {
+                    const sug = [v + '2', v + ' Jr', v + 'X'].filter((s) => !users.some((u) => u.name.toLowerCase() === s.toLowerCase()));
+                    setToast(`"${v}" já existe nesta conta. Que tal: ${sug.slice(0, 2).join(' · ')}?`);
+                    return;
+                  }
+                  updateProfile(profile.id, { name: v });
                 }}
               />
               <span className="perfil-lvl">Nível {lvl.level} · {lvl.into}/{lvl.span} XP</span>
             </div>
           </div>
 
-          {(profile.photo || users.length > 1) && (
+          {profile.photo && (
             <div className="perfil-actions">
-              {profile.photo && (
-                <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
-                  Remover foto
-                </button>
-              )}
-              {users.length > 1 && (
-                <button className="perfil-del" onClick={() => setDelOpen(true)}>
-                  <IonIcon icon={trashOutline} /> Excluir perfil
-                </button>
-              )}
+              <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
+                Remover foto
+              </button>
             </div>
           )}
         </IonCardContent>
@@ -170,6 +211,26 @@ const Perfil: React.FC = () => {
         buttons={[
           { text: 'Cancelar', role: 'cancel' },
           { text: 'Excluir', role: 'destructive', handler: () => deleteProfile(profile.id) },
+        ]}
+      />
+      <IonAlert
+        isOpen={logoutOpen}
+        onDidDismiss={() => setLogoutOpen(false)}
+        header="Sair da conta?"
+        message="Você vai voltar pra tela de login. Os dados ficam salvos na nuvem e voltam ao entrar de novo."
+        buttons={[
+          { text: 'Cancelar', role: 'cancel' },
+          { text: 'Sair', role: 'destructive', handler: () => { void supabase.auth.signOut(); } },
+        ]}
+      />
+      <IonAlert
+        isOpen={clearOpen}
+        onDidDismiss={() => setClearOpen(false)}
+        header={`Limpar dados de ${profile.name}?`}
+        message="Apaga treinos, dieta, progresso e pontos deste perfil. O perfil, temas e aros continuam. Não dá pra desfazer."
+        buttons={[
+          { text: 'Cancelar', role: 'cancel' },
+          { text: 'Limpar', role: 'destructive', handler: () => { clearProfileData(profile.id); setToast('Dados do perfil limpos.'); } },
         ]}
       />
 
@@ -316,103 +377,63 @@ const Perfil: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
-      {/* Local de treino */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Local de treino</h2>
-          <p className="card-sub">Define quais exercícios o gerador escolhe pra você.</p>
-          <div className="loc-toggle">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              className={'loc-opt' + (location === 'casa' ? ' on' : '')}
-              onClick={() => updateProfile(profile.id, { location: 'casa' })}
-            >
-              <span className="loc-emoji">🏠</span> Casa
+      {/* Montar treino: tudo que CONFIGURA o gerador, num lugar só (expansível) */}
+      <Collapsible title="🏋️ Montar treino">
+        <h3 className="perfil-subhead">Local de treino</h3>
+        <div className="loc-toggle">
+          <motion.button whileTap={{ scale: 0.96 }} className={'loc-opt' + (location === 'casa' ? ' on' : '')} onClick={() => updateProfile(profile.id, { location: 'casa' })}>
+            <span className="loc-emoji">🏠</span> Casa
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.96 }} className={'loc-opt' + (location === 'academia' ? ' on' : '')} onClick={() => updateProfile(profile.id, { location: 'academia' })}>
+            <span className="loc-emoji">🏋️</span> Academia
+          </motion.button>
+        </div>
+
+        <h3 className="perfil-subhead">Equipamento {location === 'casa' ? 'em casa' : 'na academia'}</h3>
+        <div className="equip-grid">
+          {EQUIPMENT_OPTIONS.map((o) => (
+            <motion.button key={o.key} whileTap={{ scale: 0.95 }} className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')} onClick={() => toggleEquip(o.key)}>
+              {o.label}
             </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              className={'loc-opt' + (location === 'academia' ? ' on' : '')}
-              onClick={() => updateProfile(profile.id, { location: 'academia' })}
-            >
-              <span className="loc-emoji">🏋️</span> Academia
+          ))}
+        </div>
+
+        <h3 className="perfil-subhead">Tipos de cardio</h3>
+        <div className="equip-grid">
+          {cardioList.map((c) => (
+            <motion.button key={c.label} whileTap={{ scale: 0.95 }} className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')} onClick={() => toggleCardio(c)}>
+              <span className="chip-emoji">{c.emoji || '🔥'}</span> {c.label}
             </motion.button>
-          </div>
-        </IonCardContent>
-      </IonCard>
+          ))}
+          <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
+            <IonIcon icon={addOutline} /> Adicionar
+          </button>
+        </div>
 
-      {/* Equipamento disponível */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Equipamento disponível</h2>
-          <p className="card-sub">O que você tem pra treinar {location === 'casa' ? 'em casa' : 'na academia'}.</p>
-          <div className="equip-grid">
-            {EQUIPMENT_OPTIONS.map((o) => (
-              <motion.button
-                key={o.key}
-                whileTap={{ scale: 0.95 }}
-                className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')}
-                onClick={() => toggleEquip(o.key)}
-              >
-                {o.label}
-              </motion.button>
-            ))}
-          </div>
-          <p className="perfil-note">
-            Esses ajustes valem só para o perfil <b>{profile.name}</b> e alimentam o “Montar treino” na aba Treino.
-          </p>
-        </IonCardContent>
-      </IonCard>
+        <button className="perfil-gen-btn" onClick={() => setGenOpen(true)}>
+          ⚙️ Gerar treino com esse equipamento
+        </button>
+      </Collapsible>
+      <GeneratorSheet open={genOpen} onClose={() => setGenOpen(false)} onDone={() => { setGenOpen(false); setToast('Treino gerado! Veja na aba Treino 💪'); }} />
 
-      {/* Tipos de cardio */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Tipos de cardio</h2>
-          <p className="card-sub">Só os cardios que {profile.name} consegue fazer aparecem na aba Treino.</p>
-          <div className="equip-grid">
-            {cardioList.map((c) => (
-              <motion.button
-                key={c.label}
-                whileTap={{ scale: 0.95 }}
-                className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')}
-                onClick={() => toggleCardio(c)}
-              >
-                <span className="chip-emoji">{c.emoji || '🔥'}</span> {c.label}
-              </motion.button>
-            ))}
-            <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
-              <IonIcon icon={addOutline} /> Adicionar
-            </button>
-          </div>
-        </IonCardContent>
-      </IonCard>
+      {/* Agenda de treino (expansível) */}
+      <Collapsible title="📅 Agenda de treino">
+        <p className="card-sub">Marque os dias que {profile.name} treina. A aba Treino lembra no dia.</p>
+        <div className="agenda-days">
+          {DOW.map((d, i) => (
+            <button key={i} className={'agenda-day' + (schedule.days.includes(i) ? ' on' : '')} onClick={() => toggleDay(i)}>{d}</button>
+          ))}
+        </div>
+        <div className="agenda-time">
+          <span>Horário do lembrete</span>
+          <input type="time" className="agenda-input" value={schedule.time || '18:00'} onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })} />
+        </div>
+      </Collapsible>
 
-      {/* Agenda de treino */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Agenda de treino</h2>
-          <p className="card-sub">Marque os dias que {profile.name} treina. A aba Treino lembra no dia.</p>
-          <div className="agenda-days">
-            {DOW.map((d, i) => (
-              <button
-                key={i}
-                className={'agenda-day' + (schedule.days.includes(i) ? ' on' : '')}
-                onClick={() => toggleDay(i)}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-          <div className="agenda-time">
-            <span>Horário do lembrete</span>
-            <input
-              type="time"
-              className="agenda-input"
-              value={schedule.time || '18:00'}
-              onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })}
-            />
-          </div>
-        </IonCardContent>
-      </IonCard>
+      {/* Backup & dados (movido de Ferramentas, expansível) */}
+      <Collapsible title="💾 Backup & dados">
+        <Ferramentas onToast={setToast} bare />
+      </Collapsible>
 
       {/* Conta & ajustes */}
       <IonCard className="perfil-card">
@@ -427,6 +448,19 @@ const Perfil: React.FC = () => {
               aria-label="Som"
             />
           </div>
+          {somOn && (
+            <div className="ajuste-row">
+              <span>🔉 Volume</span>
+              <input
+                className="vol-range"
+                type="range" min={0} max={100}
+                value={Math.round((profile.volume ?? 0.7) * 100)}
+                onChange={(e) => updateProfile(profile.id, { volume: Number(e.target.value) / 100 })}
+                onPointerUp={() => fxTick()}
+                aria-label="Volume do som"
+              />
+            </div>
+          )}
           <div className="ajuste-row">
             <span>📳 Vibração</span>
             <IonToggle
@@ -443,10 +477,54 @@ const Perfil: React.FC = () => {
               aria-label="Notificações"
             />
           </div>
+          {notifyOn && (
+            <>
+              <div className="ajuste-row">
+                <span>⏰ Lembrete de treino</span>
+                <IonToggle
+                  checked={reminder.on}
+                  onIonChange={(e) => setReminder({ on: e.detail.checked })}
+                  aria-label="Lembrete de treino"
+                />
+              </div>
+              {reminder.on && (
+                <div className="ajuste-row">
+                  <span>Horário do lembrete</span>
+                  <input
+                    type="time"
+                    className="perfil-time"
+                    value={reminder.time}
+                    onChange={(e) => setReminder({ time: e.target.value || '18:00' })}
+                    aria-label="Horário do lembrete"
+                  />
+                </div>
+              )}
+              {reminder.on && (
+                <p className="perfil-hint-sm">Avisa no horário com o app aberto e quando você abrir o app sem ter treinado. No iPhone, lembretes em segundo plano dependem do sistema.</p>
+              )}
+            </>
+          )}
           {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
-          <button className="perfil-logout" onClick={() => supabase.auth.signOut()}>
+          <p className="perfil-about">🏋️ Home Gym · v{APP_VERSION} · feito por Tcordeiro</p>
+        </IonCardContent>
+      </IonCard>
+
+      {/* ===== Zona de perigo ===== */}
+      <IonCard className="perfil-card danger-card">
+        <IonCardContent>
+          <h2 className="card-title danger-title"><IonIcon icon={warningOutline} /> Zona de perigo</h2>
+          <p className="card-sub">Ações que não dão pra desfazer. Confirmação obrigatória.</p>
+          <button className="danger-btn" onClick={() => setLogoutOpen(true)}>
             <IonIcon icon={logOutOutline} /> Sair da conta
           </button>
+          <button className="danger-btn" onClick={() => setClearOpen(true)}>
+            <IonIcon icon={banOutline} /> Limpar dados deste perfil
+          </button>
+          {users.length > 1 && (
+            <button className="danger-btn del" onClick={() => setDelOpen(true)}>
+              <IonIcon icon={trashOutline} /> Excluir este perfil
+            </button>
+          )}
         </IonCardContent>
       </IonCard>
 
@@ -462,6 +540,15 @@ const Perfil: React.FC = () => {
         ]}
       />
       <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
+      {/* via PORTAL pro body: garante fixed no viewport (dentro do ion-content
+          o fixed ancora num container transformado e flutua no meio).
+          Só na aba Perfil — senão vazaria por cima das outras telas. */}
+      {onPerfil && createPortal(
+        <button className={'perfil-save' + (dirty ? ' show' : '')} onClick={saveAll} aria-hidden={!dirty} tabIndex={dirty ? 0 : -1}>
+          <IonIcon icon={checkmark} /> Salvar alterações
+        </button>,
+        document.body,
+      )}
     </AppPage>
   );
 };

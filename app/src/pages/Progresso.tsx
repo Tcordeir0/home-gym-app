@@ -3,14 +3,15 @@ import { IonCard, IonCardContent, IonIcon, IonAlert, IonToast } from '@ionic/rea
 import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline, giftOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
+import Collapsible from '../components/Collapsible';
 import Medidas from '../components/Medidas';
 import Graficos from '../components/Graficos';
 import FotoProgresso from '../components/FotoProgresso';
-import Ferramentas from '../components/Ferramentas';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS, rewardLabel } from '../data/achievements';
 import { shareProgress } from '../lib/shareCard';
+import { POOL, GROUP_LABEL } from '../data/pool';
 import { familyLeague } from '../lib/league';
 import type { HistoryEntry } from '../store/types';
 import './Progresso.css';
@@ -44,8 +45,25 @@ const Progresso: React.FC = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [delIdx, setDelIdx] = useState<number | null>(null);
   const [toast, setToast] = useState('');
+  const [selDay, setSelDay] = useState<string | null>(null);
 
   const name = users.find((u) => u.id === active)?.name || '';
+
+  // detalhe do dia tocado no calendário
+  const dayInfo = useMemo(() => {
+    if (!selDay) return null;
+    const evs = (history[active] || []).filter((e) => e.date === selDay);
+    const dd = (daily[active] || {})[selDay];
+    const food = dd?.food || [];
+    const kcal = food.reduce((a, it) => a + (it.k * it.g) / 100, 0);
+    return {
+      treinos: evs.filter((e) => e.w !== 'cardio'),
+      cardios: evs.filter((e) => e.w === 'cardio'),
+      foodN: food.length,
+      kcal: Math.round(kcal),
+      water: dd?.waterMl || 0,
+    };
+  }, [selDay, history, daily, active]);
   const today = todayISO();
 
   const stats = useMemo(() => {
@@ -77,6 +95,19 @@ const Progresso: React.FC = () => {
       .map((e, idx) => ({ e, idx }))
       .sort((a, b) => (a.e.date < b.e.date ? 1 : a.e.date > b.e.date ? -1 : b.idx - a.idx));
   }, [history, active]);
+  const treinoSess = sessions.filter((s) => s.e.w !== 'cardio');
+  const cardioSess = sessions.filter((s) => s.e.w === 'cardio');
+  // dias de alimentação/hidratação (do mais novo pro mais antigo)
+  const dietDays = useMemo(() => {
+    const dd = daily[active] || {};
+    return Object.keys(dd)
+      .filter((d) => (dd[d].food || []).length > 0 || (dd[d].waterMl || 0) > 0)
+      .sort((a, b) => (a < b ? 1 : -1))
+      .map((d) => {
+        const food = dd[d].food || [];
+        return { date: d, foodN: food.length, kcal: Math.round(food.reduce((a, it) => a + (it.k * it.g) / 100, 0)), water: dd[d].waterMl || 0 };
+      });
+  }, [daily, active]);
 
   const unlocked = ACHIEVEMENTS.filter((a) => a.test(stats)).length;
 
@@ -93,6 +124,16 @@ const Progresso: React.FC = () => {
       const aProfile = users.find((u) => u.id === active);
       const league = familyLeague({ users, scores });
       const rank = league.findIndex((r) => r.id === active) + 1;
+      // dados da SEMANA (séries, hidratação média, músculo top)
+      const wkStart = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+      const wkHist = (history[active] || []).filter((e) => e.date >= wkStart);
+      const seriesWk = wkHist.reduce((a, e) => a + (e.exercises?.reduce((b, x) => b + x.sets.length, 0) || 0), 0);
+      const wkDays = Object.entries(daily[active] || {}).filter(([dt]) => dt >= wkStart);
+      const waterAvg = wkDays.length ? Math.round(wkDays.reduce((a, [, v]) => a + (v.waterMl || 0), 0) / wkDays.length) : 0;
+      const grp = new Map<string, string>(); POOL.forEach((p) => grp.set(p.n, p.g));
+      const cnt: Record<string, number> = {};
+      wkHist.forEach((e) => e.exercises?.forEach((x) => { const g = grp.get(x.nome); if (g) cnt[g] = (cnt[g] || 0) + x.sets.length; }));
+      const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
       const res = await shareProgress({
         name, level: lvl.level, pts: stats.pts, pct: lvl.pct,
         streak: stats.streak, treinos: stats.treinos, dias: stats.activeDays,
@@ -101,11 +142,52 @@ const Progresso: React.FC = () => {
         theme: aProfile?.cosmetics?.theme || 'dark',
         frame: aProfile?.cosmetics?.frame || 'none',
         hat: aProfile?.cosmetics?.hat || undefined,
+        seriesWk: seriesWk || undefined,
+        waterAvg: waterAvg || undefined,
+        topMuscle: top ? GROUP_LABEL[top[0]] : undefined,
       });
       setToast(res === 'shared' ? 'Compartilhado! 💪' : 'Card salvo (galeria/Downloads) 📲');
     } catch {
       setToast('Não consegui gerar o card agora');
     }
+  };
+
+  // renderiza um item de sessão (treino ou cardio) — reusado nas seções
+  const renderSession = ({ e, idx }: { e: HistoryEntry; idx: number }) => {
+    const open = expanded === idx;
+    const setCount = (e.exercises || []).reduce((a, x) => a + x.sets.length, 0);
+    return (
+      <div key={idx} className={'sess' + (open ? ' open' : '')}>
+        <button className="sess-head" onClick={() => setExpanded(open ? null : idx)}>
+          <span className={'sess-tag ' + (e.w === 'cardio' ? 'cardio' : 'treino')}>
+            {e.w === 'cardio' ? (e.emoji || '🔥') : e.w}
+          </span>
+          <span className="sess-main">
+            <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : W_LABEL[e.w]}</span>
+            <span className="sess-sub">
+              {fmtDate(e.date)}
+              {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
+              {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
+            </span>
+          </span>
+          {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
+        </button>
+        {open && e.w !== 'cardio' && (
+          <div className="sess-body">
+            {(e.exercises || []).map((x, j) => (
+              <div key={j} className="sess-ex">
+                <span className="sess-ex-n">{x.nome}</span>
+                <span className="sess-ex-s">{x.sets.length ? x.sets.map((st) => `${st.kg ?? '–'}kg×${st.reps ?? '–'}`).join('  ') : '—'}</span>
+              </div>
+            ))}
+            <button className="sess-del" onClick={() => setDelIdx(idx)}><IonIcon icon={trashOutline} /> Apagar sessão</button>
+          </div>
+        )}
+        {e.w === 'cardio' && (
+          <button className="sess-del cardio-del" onClick={() => setDelIdx(idx)} aria-label="Apagar"><IonIcon icon={trashOutline} /></button>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -168,21 +250,37 @@ const Progresso: React.FC = () => {
         </div>
       </div>
 
-      {/* Calendário */}
+      {/* Foto de progresso — logo abaixo do nível/stats (linha de mudança) */}
+      <FotoProgresso />
+
+      {/* Calendário interativo */}
       <IonCard className="prog-card">
         <IonCardContent>
           <h2 className="card-title">Calendário</h2>
-          <Calendar marks={marks} today={today} />
+          <Calendar marks={marks} today={today} onDay={setSelDay} selected={selDay || undefined} />
+          {dayInfo && (
+            <div className="cal-detail">
+              <div className="cal-detail-top">
+                <b>{fmtDate(selDay!)}</b>
+                <button onClick={() => setSelDay(null)} aria-label="Fechar"><IonIcon icon={chevronDown} /></button>
+              </div>
+              {dayInfo.treinos.length === 0 && dayInfo.cardios.length === 0 && dayInfo.foodN === 0 && dayInfo.water === 0 ? (
+                <p className="cal-detail-empty">Nada registrado nesse dia.</p>
+              ) : (
+                <ul className="cal-detail-list">
+                  {dayInfo.treinos.map((e, i) => <li key={'t' + i}>💪 {W_LABEL[e.w]}{e.exercises ? ` · ${e.exercises.reduce((a, x) => a + x.sets.length, 0)} séries` : ''}</li>)}
+                  {dayInfo.cardios.map((e, i) => <li key={'c' + i}>{e.emoji || '🏃'} {e.t || 'Cardio'}{e.mins ? ` · ${e.mins} min` : ''}</li>)}
+                  {dayInfo.foodN > 0 && <li>🍽️ {dayInfo.foodN} {dayInfo.foodN === 1 ? 'item' : 'itens'} · {dayInfo.kcal} kcal</li>}
+                  {dayInfo.water > 0 && <li>💧 {(dayInfo.water / 1000).toFixed(1)} L de água</li>}
+                </ul>
+              )}
+            </div>
+          )}
         </IonCardContent>
       </IonCard>
 
-      {/* Conquistas */}
-      <IonCard className="prog-card">
-        <IonCardContent>
-          <div className="ach-head">
-            <h2 className="card-title">Conquistas</h2>
-            <span className="ach-count">{unlocked}/{ACHIEVEMENTS.length}</span>
-          </div>
+      {/* Conquistas (expansível) */}
+      <Collapsible title={<>🏆 Conquistas <span className="ach-count">· {unlocked}/{ACHIEVEMENTS.length}</span></>}>
           <div className="ach-grid">
             {ACHIEVEMENTS.map((a, i) => {
               const got = a.test(stats);
@@ -198,70 +296,41 @@ const Progresso: React.FC = () => {
               );
             })}
           </div>
-        </IonCardContent>
-      </IonCard>
+      </Collapsible>
 
-      {/* Sessões */}
-      <IonCard className="prog-card">
-        <IonCardContent>
-          <h2 className="card-title">Sessões</h2>
-          {sessions.length === 0 ? (
-            <p className="prog-empty">Nenhuma sessão ainda. Conclua um treino na aba <b>Treino</b>.</p>
-          ) : (
-            <div className="sess-list">
-              {sessions.map(({ e, idx }) => {
-                const open = expanded === idx;
-                const setCount = (e.exercises || []).reduce((a, x) => a + x.sets.length, 0);
-                return (
-                  <div key={idx} className={'sess' + (open ? ' open' : '')}>
-                    <button className="sess-head" onClick={() => setExpanded(open ? null : idx)}>
-                      <span className={'sess-tag ' + (e.w === 'cardio' ? 'cardio' : 'treino')}>
-                        {e.w === 'cardio' ? (e.emoji || '🔥') : e.w}
-                      </span>
-                      <span className="sess-main">
-                        <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : W_LABEL[e.w]}</span>
-                        <span className="sess-sub">
-                          {fmtDate(e.date)}
-                          {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
-                        </span>
-                      </span>
-                      {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
-                    </button>
-                    {open && e.w !== 'cardio' && (
-                      <div className="sess-body">
-                        {(e.exercises || []).map((x, j) => (
-                          <div key={j} className="sess-ex">
-                            <span className="sess-ex-n">{x.nome}</span>
-                            <span className="sess-ex-s">
-                              {x.sets.length
-                                ? x.sets.map((st) => `${st.kg ?? '–'}kg×${st.reps ?? '–'}`).join('  ')
-                                : '—'}
-                            </span>
-                          </div>
-                        ))}
-                        <button className="sess-del" onClick={() => setDelIdx(idx)}>
-                          <IonIcon icon={trashOutline} /> Apagar sessão
-                        </button>
-                      </div>
-                    )}
-                    {e.w === 'cardio' && (
-                      <button className="sess-del cardio-del" onClick={() => setDelIdx(idx)} aria-label="Apagar">
-                        <IonIcon icon={trashOutline} />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </IonCardContent>
-      </IonCard>
+      {/* Sessões separadas por tipo (cada uma expansível, fechadas por padrão) */}
+      <Collapsible title={<>💪 Treinos <span className="ach-count">· {treinoSess.length}</span></>}>
+        {treinoSess.length === 0 ? <p className="prog-empty">Nenhum treino ainda. Conclua um na aba <b>Treino</b>.</p> :
+          <div className="sess-list">{treinoSess.map(renderSession)}</div>}
+      </Collapsible>
+      <Collapsible title={<>🏃 Cardios <span className="ach-count">· {cardioSess.length}</span></>}>
+        {cardioSess.length === 0 ? <p className="prog-empty">Nenhum cardio ainda.</p> :
+          <div className="sess-list">{cardioSess.map(renderSession)}</div>}
+      </Collapsible>
+      <Collapsible title={<>🍽️ Alimentação & hidratação <span className="ach-count">· {dietDays.length}</span></>}>
+        {dietDays.length === 0 ? <p className="prog-empty">Nada de dieta/água registrado ainda.</p> :
+          <div className="sess-list">
+            {dietDays.map((d) => (
+              <div key={d.date} className="sess">
+                <div className="sess-head" style={{ cursor: 'default' }}>
+                  <span className="sess-tag dieta">🍽️</span>
+                  <span className="sess-main">
+                    <span className="sess-title">{fmtDate(d.date)}</span>
+                    <span className="sess-sub">
+                      {d.foodN > 0 && `${d.foodN} ${d.foodN === 1 ? 'item' : 'itens'} · ${d.kcal} kcal`}
+                      {d.foodN > 0 && d.water > 0 && ' · '}
+                      {d.water > 0 && `💧 ${(d.water / 1000).toFixed(1)} L`}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>}
+      </Collapsible>
 
-      {/* Medidas + gráficos + foto de progresso */}
+      {/* Medidas + gráficos */}
       <Medidas />
       <Graficos />
-      <FotoProgresso />
-      <Ferramentas onToast={setToast} />
 
       <IonAlert
         isOpen={delIdx !== null}

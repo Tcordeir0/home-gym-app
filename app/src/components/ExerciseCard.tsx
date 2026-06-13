@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IonIcon } from '@ionic/react';
-import { eyeOutline, chevronDown, flame } from 'ionicons/icons';
+import { eyeOutline, chevronDown, trophyOutline, trendingUp } from 'ionicons/icons';
 import { motion } from 'framer-motion';
 import type { Exercise } from '../data/types';
 import { useStore, rowsFor } from '../store/store';
+import { e1RM } from '../lib/stats';
 import { fxTick } from '../lib/feedback';
 import './ExerciseCard.css';
 
@@ -19,12 +20,29 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const setlog = useStore((s) => s.setlog);
   const setSetField = useStore((s) => s.setSetField);
   const toggleSetDone = useStore((s) => s.toggleSetDone);
-  const lastBestSet = useStore((s) => s.lastBestSet);
+  const prevSets = useStore((s) => s.prevSets);
+  const exPR = useStore((s) => s.exPR);
+  const prefillSets = useStore((s) => s.prefillSets);
 
   const [openTip, setOpenTip] = useState(false);
   const rows = rowsFor(setlog as never, active, treino, exIdx, ex.series);
   const doneCount = rows.filter((s) => s.done).length;
-  const last = lastBestSet(ex.nome);
+  const prev = prevSets(ex.nome);
+  const pr = exPR(ex.nome);
+
+  // pré-preenche os campos com a ÚLTIMA vez (só quando tudo vazio) — base pra progredir
+  useEffect(() => {
+    const allEmpty = rows.every((r) => !r.kg && !r.reps && !r.done);
+    if (allEmpty && prev.length) prefillSets(treino, exIdx, ex.series, prev);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, treino, exIdx, prev.length]);
+
+  // melhor 1RM estimado do que está na tela agora (digitado) → 1RM ao vivo + bater recorde
+  const liveTop = rows.reduce((m, r) => {
+    const v = e1RM(parseFloat(r.kg) || 0, parseInt(r.reps, 10) || 0);
+    return v > m ? v : m;
+  }, 0);
+  const beatingPR = liveTop > 0 && (!pr || liveTop > pr.e1rm);
 
   return (
     <div className={'ex-card' + (doneCount === rows.length ? ' complete' : '')}>
@@ -48,41 +66,55 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
       </div>
       {openTip && <p className="ex-tip">{ex.dica}</p>}
 
-      {last && last.kg > 0 && (
-        <p className="ex-last">
-          <IonIcon icon={flame} /> Última vez: <b>{last.kg}kg × {last.reps}</b> — supera!
-        </p>
+      {(pr || liveTop > 0) && (
+        <div className="ex-stats">
+          {pr && (
+            <span className="ex-stat">
+              <IonIcon icon={trophyOutline} /> Recorde <b>{pr.kg}kg×{pr.reps}</b>
+              <small> · 1RM ~{pr.e1rm}kg</small>
+            </span>
+          )}
+          {liveTop > 0 && !beatingPR && (
+            <span className="ex-stat live"><IonIcon icon={trendingUp} /> 1RM agora ~{liveTop}kg</span>
+          )}
+          {beatingPR && (
+            <span className="ex-pr-flag"><IonIcon icon={trendingUp} /> Batendo o recorde! ~{liveTop}kg</span>
+          )}
+        </div>
       )}
 
       <div className="ex-sets">
-        {rows.map((s, i) => (
-          <div className={'set-row' + (s.done ? ' done' : '')} key={i}>
-            <span className="set-n">{i + 1}</span>
-            <input
-              className="set-in"
-              inputMode="decimal"
-              placeholder="kg"
-              value={s.kg}
-              onChange={(e) => setSetField(treino, exIdx, i, 'kg', e.target.value, ex.series)}
-            />
-            <span className="set-x">×</span>
-            <input
-              className="set-in"
-              inputMode="numeric"
-              placeholder="reps"
-              value={s.reps}
-              onChange={(e) => setSetField(treino, exIdx, i, 'reps', e.target.value, ex.series)}
-            />
-            <motion.button
-              whileTap={{ scale: 0.88 }}
-              className="set-done"
-              aria-label="Marcar série"
-              onClick={() => { if (!s.done) fxTick(); toggleSetDone(treino, exIdx, i, ex.series); }}
-            >
-              ✓
-            </motion.button>
-          </div>
-        ))}
+        {rows.map((s, i) => {
+          const p = prev[i];
+          return (
+            <div className={'set-row' + (s.done ? ' done' : '')} key={i}>
+              <span className="set-n">{i + 1}</span>
+              <input
+                className="set-in"
+                inputMode="decimal"
+                placeholder={p?.kg ? String(p.kg) : 'kg'}
+                value={s.kg}
+                onChange={(e) => setSetField(treino, exIdx, i, 'kg', e.target.value, ex.series)}
+              />
+              <span className="set-x">×</span>
+              <input
+                className="set-in"
+                inputMode="numeric"
+                placeholder={p?.reps ? String(p.reps) : 'reps'}
+                value={s.reps}
+                onChange={(e) => setSetField(treino, exIdx, i, 'reps', e.target.value, ex.series)}
+              />
+              <motion.button
+                whileTap={{ scale: 0.88 }}
+                className="set-done"
+                aria-label="Marcar série"
+                onClick={() => { if (!s.done) fxTick(); toggleSetDone(treino, exIdx, i, ex.series); }}
+              >
+                ✓
+              </motion.button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
