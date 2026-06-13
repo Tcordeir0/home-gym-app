@@ -212,6 +212,7 @@
 .diary-list { margin-top: 12px; }
 .food-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--app-line); }
 .food-row:last-child { border-bottom: 0; }
+.food-item:last-child .food-row { border-bottom: 0; }
 .food-main { flex: 1; min-width: 0; }
 .food-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .food-spoons { margin-top: 2px; font-size: 11px; color: var(--app-muted); }
@@ -222,6 +223,11 @@
 .food-kcal { flex: 0 0 auto; min-width: 46px; text-align: right; font-family: var(--font-display); font-size: 16px; color: var(--brand-lime); line-height: 1; }
 .food-kcal small { font-size: 9px; color: var(--app-muted); display: block; font-family: var(--ion-font-family); }
 .food-del { flex: 0 0 auto; border: 0; background: transparent; color: var(--app-muted); font-size: 18px; cursor: pointer; padding: 4px; }
+.food-move { flex: 0 0 auto; border: 0; background: transparent; color: var(--app-muted); font-size: 17px; cursor: pointer; padding: 4px; }
+.food-move.on { color: var(--brand-lime); }
+.food-movebar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 4px 2px 12px; font-size: 12.5px; color: var(--app-muted); }
+.food-movebar b { color: var(--ion-text-color); }
+.food-movebar input[type="date"] { border: 1.5px solid var(--brand-lime); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 10px; padding: 7px 10px; font-weight: 700; font-size: 13px; }
 .diary-empty { margin: 8px 0 0; font-size: 13px; color: var(--app-muted); background: var(--app-surface-2); border-radius: 12px; padding: 10px 12px; }
 .diary-search { width: 100%; margin-top: 12px; text-align: left; padding: 0 14px; }
 .food-results { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }

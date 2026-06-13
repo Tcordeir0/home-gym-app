@@ -193,6 +193,7 @@ export interface Store extends AppState {
   addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
   removeFoodOn: (date: string, idx: number) => void;
+  moveFoodOn: (fromDate: string, idx: number, toDate: string) => void;
   dietKcalSeries: () => { x: string; y: number }[];
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
@@ -582,6 +583,20 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const f = s.daily[s.active]?.[date]?.food;
         if (f) f.splice(idx, 1);
+      })),
+    // move um alimento de um dia pra outro (corrige registros que foram pro dia errado)
+    moveFoodOn: (fromDate, idx, toDate) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        if (fromDate === toDate) return;
+        const uid = s.active;
+        const from = s.daily[uid]?.[fromDate]?.food;
+        if (!from || !from[idx]) return;
+        const [item] = from.splice(idx, 1);
+        const dd = (s.daily[uid] = s.daily[uid] || {});
+        dd[toDate] = dd[toDate] || {};
+        dd[toDate].food = dd[toDate].food || [];
+        dd[toDate].food!.push(item);
       })),
     // kcal por dia (pro gráfico de histórico da dieta)
     dietKcalSeries: () => {
