@@ -44,3 +44,8 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 ### 8. 🔔 Push real de notificações
 - Notificação de grupo/PV com app fechado (precisa push server; tabela `push_subs` já existe).
 - Hoje só notifica com app aberto. O lembrete/relógio já funciona.
+
+## 9. 🧮 Mover a Calculadora pra Perfil + sexo define a anatomia
+- A **Calculadora** (corpo: sexo/idade/altura/objetivo) sai da **Dieta** e vai pro **Perfil**.
+- O **sexo** setado na calculadora define a **anatomia** mostrada (boneco masculino/feminino).
+- Na **Dieta**, mostrar um atalho/aviso de onde configurar (Perfil): tanto a **meta diária** quanto a **anatomia**.
