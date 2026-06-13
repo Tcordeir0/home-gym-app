@@ -19,15 +19,6 @@ const dd = (iso: string) => {
 };
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-// Recursos ainda POR VIR. Conforme cada um entra no app, marca done: true —
-// ele some da lista, e quando todos estiverem prontos o card "Em breve" desaparece.
-const UPCOMING: { t: string; done: boolean }[] = [
-  { t: 'Cutucar entre perfis', done: false },
-  { t: 'Desafios entre perfis', done: false },
-  { t: 'Conquistas sociais', done: false },
-  { t: 'Batalha de duplas 2v2 entre contas', done: false },
-];
-
 const Premios: React.FC = () => {
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
@@ -170,19 +161,6 @@ const Premios: React.FC = () => {
           <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
         </IonCardContent>
       </IonCard>
-
-      {UPCOMING.some((f) => !f.done) && (
-        <IonCard className="prem-card soon">
-          <IonCardContent>
-            <h2 className="card-title">Em breve 🔜</h2>
-            <ul className="soon-list">
-              {UPCOMING.filter((f) => !f.done).map((f, i) => (
-                <li key={i}>{f.t}</li>
-              ))}
-            </ul>
-          </IonCardContent>
-        </IonCard>
-      )}
 
       <IonToast isOpen={!!toast} message={toast} duration={2000} position="top" onDidDismiss={() => setToast('')} />
     </AppPage>

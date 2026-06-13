@@ -10,6 +10,7 @@ import { pushNow } from '../lib/sync';
 import Collapsible from '../components/Collapsible';
 import Ferramentas from '../components/Ferramentas';
 import ChangelogHistory from '../components/ChangelogHistory';
+import EmBreve from '../components/EmBreve';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { APP_VERSION } from '../lib/version';
 import { resizePhoto } from '../lib/image';
@@ -144,7 +145,7 @@ const Perfil: React.FC = () => {
   };
 
   return (
-    <AppPage title="Perfil" accessory={<ChangelogHistory />}>
+    <AppPage title="Perfil" accessory={<><EmBreve /><ChangelogHistory /></>}>
       {/* Identidade */}
       <IonCard className="perfil-card">
         <IonCardContent>
