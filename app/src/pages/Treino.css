@@ -47,6 +47,13 @@
   text-transform: uppercase;
   cursor: pointer;
 }
+.treino-gen-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--app-muted);
+  margin: 12px 8px 4px;
+  opacity: 0.8;
+}
 .treino-gen {
   width: 100%;
   margin: 8px 0 4px;

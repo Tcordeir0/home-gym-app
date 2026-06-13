@@ -699,7 +699,13 @@
 }
 .collap-body { margin-top: 12px; }
 .perfil-about { margin: 14px 0 0; font-size: 12px; color: var(--app-muted); text-align: center; opacity: 0.7; }
-.perfil-subhead { font-size: 13px; font-weight: 700; color: var(--app-muted); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+.perfil-subhead { font-size: 12px; font-weight: 800; color: var(--app-muted); margin: 18px 0 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+.perfil-subhead:first-child { margin-top: 4px; }
+.perfil-gen-btn {
+  width: 100%; margin-top: 18px; border: 1px solid color-mix(in srgb, var(--brand-lime) 40%, transparent);
+  background: color-mix(in srgb, var(--brand-lime) 14%, transparent); color: var(--brand-lime);
+  font-family: var(--ion-font-family); font-weight: 800; font-size: 14px; border-radius: 13px; padding: 14px; cursor: pointer;
+}
 
 /* ===== Zona de perigo ===== */
 .danger-card { border: 1px solid rgba(255, 91, 91, 0.3); }

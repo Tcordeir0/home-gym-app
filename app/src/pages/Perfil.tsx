@@ -8,6 +8,7 @@ import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
 import { pushNow } from '../lib/sync';
 import Collapsible from '../components/Collapsible';
+import GeneratorSheet from '../components/GeneratorSheet';
 import Ferramentas from '../components/Ferramentas';
 import ChangelogHistory from '../components/ChangelogHistory';
 import EmBreve from '../components/EmBreve';
@@ -60,6 +61,7 @@ const Perfil: React.FC = () => {
   const [delOpen, setDelOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
+  const [genOpen, setGenOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
   const [toast, setToast] = useState('');
 
@@ -367,9 +369,9 @@ const Perfil: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
-      {/* Montar treino: local + equipamento juntos (expansível) */}
+      {/* Montar treino: tudo que CONFIGURA o gerador, num lugar só (expansível) */}
       <Collapsible title="🏋️ Montar treino">
-        <p className="card-sub">Define quais exercícios o gerador escolhe pra você.</p>
+        <h3 className="perfil-subhead">Local de treino</h3>
         <div className="loc-toggle">
           <motion.button whileTap={{ scale: 0.96 }} className={'loc-opt' + (location === 'casa' ? ' on' : '')} onClick={() => updateProfile(profile.id, { location: 'casa' })}>
             <span className="loc-emoji">🏠</span> Casa
@@ -378,7 +380,8 @@ const Perfil: React.FC = () => {
             <span className="loc-emoji">🏋️</span> Academia
           </motion.button>
         </div>
-        <h3 className="perfil-subhead">Equipamento disponível {location === 'casa' ? 'em casa' : 'na academia'}</h3>
+
+        <h3 className="perfil-subhead">Equipamento {location === 'casa' ? 'em casa' : 'na academia'}</h3>
         <div className="equip-grid">
           {EQUIPMENT_OPTIONS.map((o) => (
             <motion.button key={o.key} whileTap={{ scale: 0.95 }} className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')} onClick={() => toggleEquip(o.key)}>
@@ -386,10 +389,8 @@ const Perfil: React.FC = () => {
             </motion.button>
           ))}
         </div>
-        <p className="perfil-note">Valem só pro perfil <b>{profile.name}</b> e alimentam o “Montar treino” na aba Treino.</p>
 
-        <h3 className="perfil-subhead">🏃 Tipos de cardio</h3>
-        <p className="card-sub">Só os cardios que {profile.name} consegue fazer aparecem na aba Treino.</p>
+        <h3 className="perfil-subhead">Tipos de cardio</h3>
         <div className="equip-grid">
           {cardioList.map((c) => (
             <motion.button key={c.label} whileTap={{ scale: 0.95 }} className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')} onClick={() => toggleCardio(c)}>
@@ -400,7 +401,12 @@ const Perfil: React.FC = () => {
             <IonIcon icon={addOutline} /> Adicionar
           </button>
         </div>
+
+        <button className="perfil-gen-btn" onClick={() => setGenOpen(true)}>
+          ⚙️ Gerar treino com esse equipamento
+        </button>
       </Collapsible>
+      <GeneratorSheet open={genOpen} onClose={() => setGenOpen(false)} onDone={() => { setGenOpen(false); setToast('Treino gerado! Veja na aba Treino 💪'); }} />
 
       {/* Agenda de treino (expansível) */}
       <Collapsible title="📅 Agenda de treino">
