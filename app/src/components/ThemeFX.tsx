@@ -163,17 +163,21 @@ const ThemeFX: React.FC = () => {
         <div className="fx-miasma">
           {/* pulso vermelho — o "aperto no coração" do Return by Death */}
           <div className="miasma-pulse" />
-          {/* névoa da Bruxa subindo (sombra/miasma) */}
-          {Array.from({ length: 16 }).map((_, i) => (
+          {/* banco de fumaça denso subindo do chão */}
+          <div className="miasma-floor" />
+          {/* baforadas de fumaça billowing (sobem, incham, giram e derivam) */}
+          {Array.from({ length: 26 }).map((_, i) => (
             <span
               key={i}
               className="wisp"
               style={{
-                left: `${(i * 61 + 5) % 98}%`,
-                width: `${24 + (i % 4) * 12}px`,
-                height: `${24 + (i % 4) * 12}px`,
-                animationDuration: `${7 + (i % 5)}s`,
-                animationDelay: `${(i * 0.6) % 7}s`,
+                left: `${(i * 47 + 4) % 99}%`,
+                width: `${70 + (i % 5) * 46}px`,
+                height: `${70 + (i % 5) * 46}px`,
+                animationDuration: `${9 + (i % 6)}s`,
+                animationDelay: `-${(i * 0.55) % 11}s`,
+                ['--sway' as string]: `${((i % 5) - 2) * 26}px`,
+                ['--spin' as string]: `${(i % 2 ? 1 : -1) * (20 + (i % 4) * 18)}deg`,
               }}
             />
           ))}
