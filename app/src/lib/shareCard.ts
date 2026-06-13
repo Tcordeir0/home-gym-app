@@ -20,6 +20,9 @@ export interface ShareData {
   theme?: string; // id do tema ativo
   frame?: string; // id do aro ativo
   hat?: string; // id do cosmético (ícone pixel)
+  seriesWk?: number; // séries feitas na semana
+  waterAvg?: number; // média de água por dia na semana (ml)
+  topMuscle?: string; // músculo mais treinado na semana
 }
 
 // Frases motivacionais — variam pelo progresso (determinístico).
@@ -260,11 +263,24 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     tx += tw + gap;
   });
 
+  // ---- linha extra da SEMANA: séries + hidratação + músculo top ----
+  const extras: string[] = [];
+  if (d.seriesWk) extras.push(`🏋️ ${d.seriesWk} séries`);
+  if (d.waterAvg) extras.push(`💧 ${(d.waterAvg / 1000).toFixed(1)} L/dia`);
+  if (d.topMuscle) extras.push(`💪 ${d.topMuscle}`);
+  if (extras.length) {
+    ctx.textAlign = 'center';
+    ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
+    ctx.fillText('NA SEMANA', cx, ty + th + 46);
+    ctx.fillStyle = INK; ctx.font = '32px Anton, sans-serif';
+    ctx.fillText(extras.join('    '), cx, ty + th + 88);
+  }
+
   // ---- frase motivacional (no lugar do "hidratado") ----
   const phrase = PHRASES[(d.streak + d.treinos + d.level) % PHRASES.length];
   ctx.font = '38px Anton, sans-serif'; ctx.textAlign = 'center';
   const pw = Math.min(W - 120, ctx.measureText(phrase).width + 96);
-  const ph = 78, px = cx - pw / 2, py = ty + th + 34;
+  const ph = 78, px = cx - pw / 2, py = ty + th + (extras.length ? 118 : 34);
   const [ar, ag, ab] = hexToRgb(accent);
   ctx.fillStyle = `rgba(${ar},${ag},${ab},0.16)`;
   roundRect(ctx, px, py, pw, ph, 39); ctx.fill();

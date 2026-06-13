@@ -11,6 +11,7 @@ import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS, rewardLabel } from '../data/achievements';
 import { shareProgress } from '../lib/shareCard';
+import { POOL, GROUP_LABEL } from '../data/pool';
 import { familyLeague } from '../lib/league';
 import type { HistoryEntry } from '../store/types';
 import './Progresso.css';
@@ -110,6 +111,16 @@ const Progresso: React.FC = () => {
       const aProfile = users.find((u) => u.id === active);
       const league = familyLeague({ users, scores });
       const rank = league.findIndex((r) => r.id === active) + 1;
+      // dados da SEMANA (séries, hidratação média, músculo top)
+      const wkStart = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+      const wkHist = (history[active] || []).filter((e) => e.date >= wkStart);
+      const seriesWk = wkHist.reduce((a, e) => a + (e.exercises?.reduce((b, x) => b + x.sets.length, 0) || 0), 0);
+      const wkDays = Object.entries(daily[active] || {}).filter(([dt]) => dt >= wkStart);
+      const waterAvg = wkDays.length ? Math.round(wkDays.reduce((a, [, v]) => a + (v.waterMl || 0), 0) / wkDays.length) : 0;
+      const grp = new Map<string, string>(); POOL.forEach((p) => grp.set(p.n, p.g));
+      const cnt: Record<string, number> = {};
+      wkHist.forEach((e) => e.exercises?.forEach((x) => { const g = grp.get(x.nome); if (g) cnt[g] = (cnt[g] || 0) + x.sets.length; }));
+      const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
       const res = await shareProgress({
         name, level: lvl.level, pts: stats.pts, pct: lvl.pct,
         streak: stats.streak, treinos: stats.treinos, dias: stats.activeDays,
@@ -118,6 +129,9 @@ const Progresso: React.FC = () => {
         theme: aProfile?.cosmetics?.theme || 'dark',
         frame: aProfile?.cosmetics?.frame || 'none',
         hat: aProfile?.cosmetics?.hat || undefined,
+        seriesWk: seriesWk || undefined,
+        waterAvg: waterAvg || undefined,
+        topMuscle: top ? GROUP_LABEL[top[0]] : undefined,
       });
       setToast(res === 'shared' ? 'Compartilhado! 💪' : 'Card salvo (galeria/Downloads) 📲');
     } catch {
