@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { IonIcon, IonModal, IonToast, IonSpinner } from '@ionic/react';
-import { people, peopleOutline, handLeftOutline, chatbubblesOutline, closeOutline, sendOutline, personAddOutline, checkmark, close as closeIcon, arrowBack } from 'ionicons/icons';
+import { people, peopleOutline, handLeftOutline, chatbubblesOutline, closeOutline, sendOutline, personAddOutline, checkmark, close as closeIcon, arrowBack, peopleCircleOutline, addOutline, exitOutline, trashOutline } from 'ionicons/icons';
 import { supabase } from '../lib/supabase';
 import { useStore } from '../store/store';
 import * as S from '../lib/social';
 import { TAUNTS } from '../data/taunts';
 import './Social.css';
 
-type Tab = 'amigos' | 'cutucar' | 'chat';
+type Tab = 'amigos' | 'cutucar' | 'chat' | 'grupos';
 
 const SocialPanel: React.FC = () => {
   // ⚠️ selecionar referências ESTÁVEIS do store (mapear aqui dentro do seletor cria
@@ -27,6 +27,16 @@ const SocialPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [chatWith, setChatWith] = useState<{ kind: 'friend' | 'team'; uid: string; name: string; profile?: string } | null>(null);
   const [pokeTarget, setPokeTarget] = useState<{ uid: string; profile?: string; name: string } | null>(null);
+  // grupos
+  const [groups, setGroups] = useState<S.Group[]>([]);
+  const [groupView, setGroupView] = useState<S.Group | null>(null);
+  const [gMembers, setGMembers] = useState<S.GroupMember[]>([]);
+  const [gMsgs, setGMsgs] = useState<S.GroupMessage[]>([]);
+  const [gDraft, setGDraft] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [pick, setPick] = useState<Record<string, string>>({}); // uid -> label do membro
+  const gEnd = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<S.SocialEvent[]>([]);
   const [allMsgs, setAllMsgs] = useState<S.Message[]>([]);
   const [msgs, setMsgs] = useState<S.Message[]>([]);
@@ -34,8 +44,8 @@ const SocialPanel: React.FC = () => {
   const chatEnd = useRef<HTMLDivElement>(null);
 
   const loadAll = useCallback(async () => {
-    const [fs, ac, pk, ev, am] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages()]);
-    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setLoading(false);
+    const [fs, ac, pk, ev, am, gr] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages(), S.listMyGroups()]);
+    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setGroups(gr); setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -59,6 +69,19 @@ const SocialPanel: React.FC = () => {
 
   // marca cutucadas como vistas ao abrir a aba
   useEffect(() => { if (tab === 'cutucar') S.markPokesSeen().then(loadAll); }, [tab, loadAll]);
+
+  // grupo aberto: carrega membros + mensagens + realtime
+  const loadGroup = useCallback(async (g: S.Group) => {
+    const [mm, ms] = await Promise.all([S.listGroupMembers(g.id), S.listGroupMessages(g.id)]);
+    setGMembers(mm); setGMsgs(ms);
+    setTimeout(() => gEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
+  }, []);
+  useEffect(() => {
+    if (!groupView) return;
+    loadGroup(groupView);
+    const unsub = S.subscribeSocial(() => loadGroup(groupView));
+    return unsub;
+  }, [groupView, loadGroup]);
 
   const byUid = new Map(accounts.map((a) => [a.uid, a]));
   const friendUids = new Set(friendships.filter((f) => f.status === 'accepted').map((f) => (f.requester === uid ? f.addressee : f.requester)));
@@ -97,6 +120,34 @@ const SocialPanel: React.FC = () => {
     loadChat(chatWith);
   };
   const accLabel = (a?: S.SocialAccount) => a?.profiles?.[0]?.name || a?.email || 'Amigo';
+  // cor do remetente no grupo = cor do perfil dele (tema de cada um aparece na bolha)
+  const senderColor = (fuid: string, label?: string) => {
+    const acc = byUid.get(fuid);
+    const prof = acc?.profiles?.find((p) => p.name === label) || acc?.profiles?.[0];
+    return prof?.color || '#8b8b8b';
+  };
+
+  // sugestões: contas cadastradas que NÃO sou eu, não são amigos nem têm convite pendente
+  const pendingUids = new Set(friendships.filter((f) => f.status === 'pending').map((f) => (f.requester === uid ? f.addressee : f.requester)));
+  const suggestions = accounts.filter((a) => a.uid !== uid && !friendUids.has(a.uid) && !pendingUids.has(a.uid));
+
+  const sendGroup = async () => {
+    if (!gDraft.trim() || !groupView) return;
+    const b = gDraft.trim(); setGDraft('');
+    const optimistic: S.GroupMessage = { id: 'tmp' + Date.now(), group_id: groupView.id, from_uid: uid, from_label: myName, body: b, created_at: new Date().toISOString() };
+    setGMsgs((m) => [...m, optimistic]);
+    setTimeout(() => gEnd.current?.scrollIntoView({ behavior: 'smooth' }), 40);
+    await S.sendGroupMessage(groupView.id, myName, b);
+    loadGroup(groupView);
+  };
+  const doCreateGroup = async () => {
+    const members = Object.entries(pick).map(([u, label]) => ({ uid: u, label }));
+    if (!newName.trim() || members.length === 0) { setToast('Dê um nome e escolha ao menos 1 pessoa.'); return; }
+    const gid = await S.createGroup(newName.trim(), myName, members);
+    if (gid) { setToast('Grupo criado! 🎉'); setCreateOpen(false); setNewName(''); setPick({}); loadAll(); }
+    else setToast('Não consegui criar o grupo.');
+  };
+  const togglePick = (u: string, label: string) => setPick((p) => { const n = { ...p }; if (n[u]) delete n[u]; else n[u] = label; return n; });
 
   return (
     <div className="sc-panel">
@@ -107,6 +158,7 @@ const SocialPanel: React.FC = () => {
           {recvPokes.some((p) => !p.seen) && <span className="sc-dot" />}
         </button>
         <button className={tab === 'chat' ? 'on' : ''} onClick={() => { setTab('chat'); setChatWith(null); }}><IonIcon icon={chatbubblesOutline} /> Chat</button>
+        <button className={tab === 'grupos' ? 'on' : ''} onClick={() => { setTab('grupos'); setGroupView(null); setCreateOpen(false); }}><IonIcon icon={peopleCircleOutline} /> Grupos</button>
       </div>
 
       {loading ? <div className="sc-loading"><IonSpinner /></div> : (
@@ -152,6 +204,21 @@ const SocialPanel: React.FC = () => {
                     <div key={f.id} className="sc-row sc-pending">
                       <span className="sc-name">{accLabel(byUid.get(f.addressee))} <small>pendente…</small></span>
                       <button className="no" onClick={() => S.removeFriend(f.id).then(loadAll)}><IonIcon icon={closeIcon} /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {suggestions.length > 0 && (
+                <div className="sc-sec"><h4>Sugestões ({suggestions.length})</h4>
+                  {suggestions.map((a) => (
+                    <div key={a.uid} className="sc-row">
+                      <span className="sc-name">
+                        <span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} />
+                        {accLabel(a)} <small>{a.email}</small>
+                      </span>
+                      <button className="sc-mini poke" onClick={() => S.inviteByUid(a.uid).then((r) => { setToast(r.msg); loadAll(); })}>
+                        <IonIcon icon={personAddOutline} /> Convidar
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -259,6 +326,71 @@ const SocialPanel: React.FC = () => {
                         </button>
                       );
                     })}
+                </div>
+              </>
+            )
+          )}
+
+          {tab === 'grupos' && (
+            groupView ? (
+              <div className="sc-chat">
+                <div className="sc-chat-top">
+                  <button onClick={() => setGroupView(null)}><IonIcon icon={arrowBack} /></button>
+                  <b>{groupView.name}</b>
+                  <span className="sc-grp-meta">{gMembers.length} membros</span>
+                  {groupView.owner === uid
+                    ? <button className="sc-grp-x" title="Apagar grupo" onClick={() => { S.deleteGroup(groupView.id).then(() => { setGroupView(null); loadAll(); }); }}><IonIcon icon={trashOutline} /></button>
+                    : <button className="sc-grp-x" title="Sair do grupo" onClick={() => { S.leaveGroup(groupView.id).then(() => { setGroupView(null); loadAll(); }); }}><IonIcon icon={exitOutline} /></button>}
+                </div>
+                <div className="sc-msgs">
+                  {gMsgs.length === 0 ? <p className="sc-empty">Comece a conversa 👋</p> :
+                    gMsgs.map((m) => {
+                      const mine = m.from_uid === uid;
+                      return (
+                        <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')} style={mine ? undefined : { borderLeft: `3px solid ${senderColor(m.from_uid, m.from_label)}` }}>
+                          {!mine && <span className="sc-msg-from" style={{ color: senderColor(m.from_uid, m.from_label) }}>{m.from_label || 'Alguém'}</span>}
+                          {m.body}
+                          <span className="sc-msg-time">{new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      );
+                    })}
+                  <div ref={gEnd} />
+                </div>
+                <div className="sc-send">
+                  <input placeholder="mensagem…" value={gDraft} onChange={(e) => setGDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendGroup()} />
+                  <button onClick={sendGroup}><IonIcon icon={sendOutline} /></button>
+                </div>
+              </div>
+            ) : createOpen ? (
+              <div className="sc-sec">
+                <h4>Novo grupo</h4>
+                <div className="sc-invite">
+                  <input placeholder="Nome do grupo" value={newName} onChange={(e) => setNewName(e.target.value)} />
+                </div>
+                <p className="sc-grp-hint">Escolha quem entra (amigos). Sua equipe da mesma conta já vê o grupo.</p>
+                {friends.length === 0 ? <p className="sc-empty">Adicione amigos antes pra montar um grupo.</p> :
+                  friends.map((a) => (
+                    <button key={a.uid} className={'sc-row sc-tap' + (pick[a.uid] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, accLabel(a))}>
+                      <span className="sc-name"><span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} /> {accLabel(a)}</span>
+                      {pick[a.uid] && <IonIcon icon={checkmark} />}
+                    </button>
+                  ))}
+                <div className="sc-grp-actions">
+                  <button className="sc-grp-cancel" onClick={() => { setCreateOpen(false); setNewName(''); setPick({}); }}>Cancelar</button>
+                  <button className="sc-grp-create" onClick={doCreateGroup}>Criar grupo</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button className="sc-grp-new" onClick={() => setCreateOpen(true)}><IonIcon icon={addOutline} /> Criar grupo</button>
+                <div className="sc-sec"><h4>Seus grupos ({groups.length})</h4>
+                  {groups.length === 0 ? <p className="sc-empty">Crie um grupo pra conversar com a galera ao mesmo tempo.</p> :
+                    groups.map((g) => (
+                      <button key={g.id} className="sc-row sc-tap" onClick={() => setGroupView(g)}>
+                        <span className="sc-name"><IonIcon icon={peopleCircleOutline} /> {g.name}</span>
+                        {g.owner === uid && <small>dono</small>}
+                      </button>
+                    ))}
                 </div>
               </>
             )
