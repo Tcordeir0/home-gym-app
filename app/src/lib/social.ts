@@ -149,6 +149,10 @@ export async function listGroupMembers(gid: string): Promise<GroupMember[]> {
 export async function addGroupMember(gid: string, memberUid: string, label?: string): Promise<void> {
   await supabase.from('group_members').insert({ group_id: gid, uid: memberUid, label, role: 'member' });
 }
+/** Dono remove um membro do grupo (RLS gm_delete_owner_or_self permite ao dono). */
+export async function removeGroupMember(gid: string, memberUid: string): Promise<void> {
+  await supabase.from('group_members').delete().eq('group_id', gid).eq('uid', memberUid);
+}
 export async function leaveGroup(gid: string): Promise<void> {
   const id = await uid();
   if (id) await supabase.from('group_members').delete().eq('group_id', gid).eq('uid', id);

@@ -31,6 +31,7 @@ const SocialPanel: React.FC = () => {
   // grupos
   const [groups, setGroups] = useState<S.Group[]>([]);
   const [groupView, setGroupView] = useState<S.Group | null>(null);
+  const [membersOpen, setMembersOpen] = useState(false);
   const [gMembers, setGMembers] = useState<S.GroupMember[]>([]);
   const [gMsgs, setGMsgs] = useState<S.GroupMessage[]>([]);
   const [gDraft, setGDraft] = useState('');
@@ -78,6 +79,7 @@ const SocialPanel: React.FC = () => {
     setTimeout(() => gEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
   }, []);
   useEffect(() => {
+    setMembersOpen(false);
     if (!groupView) return;
     loadGroup(groupView);
     const unsub = S.subscribeSocial(() => loadGroup(groupView));
@@ -336,31 +338,68 @@ const SocialPanel: React.FC = () => {
             groupView ? (
               <div className="sc-chat">
                 <div className="sc-chat-top">
-                  <button onClick={() => setGroupView(null)}><IonIcon icon={arrowBack} /></button>
+                  <button onClick={() => (membersOpen ? setMembersOpen(false) : setGroupView(null))}><IonIcon icon={arrowBack} /></button>
                   <b>{groupView.name}</b>
-                  <span className="sc-grp-meta">{gMembers.length} membros</span>
+                  <button className={'sc-grp-membtn' + (membersOpen ? ' on' : '')} title="Membros" onClick={() => setMembersOpen((v) => !v)}>
+                    <IonIcon icon={peopleOutline} /> {gMembers.length}
+                  </button>
                   {groupView.owner === uid
                     ? <button className="sc-grp-x" title="Apagar grupo" onClick={() => { S.deleteGroup(groupView.id).then(() => { setGroupView(null); loadAll(); }); }}><IonIcon icon={trashOutline} /></button>
                     : <button className="sc-grp-x" title="Sair do grupo" onClick={() => { S.leaveGroup(groupView.id).then(() => { setGroupView(null); loadAll(); }); }}><IonIcon icon={exitOutline} /></button>}
                 </div>
-                <div className="sc-msgs">
-                  {gMsgs.length === 0 ? <p className="sc-empty">Comece a conversa 👋</p> :
-                    gMsgs.map((m) => {
-                      const mine = m.from_uid === uid;
-                      return (
-                        <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')} style={mine ? undefined : { borderLeft: `3px solid ${senderColor(m.from_uid, m.from_label)}` }}>
-                          {!mine && <span className="sc-msg-from" style={{ color: senderColor(m.from_uid, m.from_label) }}>{m.from_label || 'Alguém'}</span>}
-                          {m.body}
-                          <span className="sc-msg-time">{new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                {membersOpen ? (
+                  <div className="sc-msgs sc-grp-mlist">
+                    <div className="sc-sec"><h4>Membros ({gMembers.length})</h4>
+                      {gMembers.map((m) => (
+                        <div key={m.uid} className="sc-row">
+                          <span className="sc-name">
+                            <span className="sc-av" style={{ background: senderColor(m.uid, m.label) }} />
+                            {m.label || accLabel(byUid.get(m.uid))}{m.uid === uid ? ' (você)' : ''} {m.role === 'owner' && <small>dono</small>}
+                          </span>
+                          {groupView.owner === uid && m.uid !== uid && (
+                            <button className="no" title="Remover" onClick={() => S.removeGroupMember(groupView.id, m.uid).then(() => loadGroup(groupView))}><IonIcon icon={closeIcon} /></button>
+                          )}
                         </div>
-                      );
-                    })}
-                  <div ref={gEnd} />
-                </div>
-                <div className="sc-send">
-                  <input placeholder="mensagem…" value={gDraft} onChange={(e) => setGDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendGroup()} />
-                  <button onClick={sendGroup}><IonIcon icon={sendOutline} /></button>
-                </div>
+                      ))}
+                    </div>
+                    {groupView.owner === uid && (
+                      <div className="sc-sec"><h4>Adicionar amigos</h4>
+                        {(() => {
+                          const addable = friends.filter((a) => !gMembers.some((m) => m.uid === a.uid));
+                          return addable.length === 0
+                            ? <p className="sc-empty">Todos os seus amigos já estão no grupo.</p>
+                            : addable.map((a) => (
+                              <div key={a.uid} className="sc-row">
+                                <span className="sc-name"><span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} /> {accLabel(a)}</span>
+                                <button className="sc-mini poke" onClick={() => S.addGroupMember(groupView.id, a.uid, accLabel(a)).then(() => loadGroup(groupView))}><IonIcon icon={addOutline} /> Add</button>
+                              </div>
+                            ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div className="sc-msgs">
+                      {gMsgs.length === 0 ? <p className="sc-empty">Comece a conversa 👋</p> :
+                        gMsgs.map((m) => {
+                          const mine = m.from_uid === uid;
+                          return (
+                            <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')} style={mine ? undefined : { borderLeft: `3px solid ${senderColor(m.from_uid, m.from_label)}` }}>
+                              {!mine && <span className="sc-msg-from" style={{ color: senderColor(m.from_uid, m.from_label) }}>{m.from_label || 'Alguém'}</span>}
+                              {m.body}
+                              <span className="sc-msg-time">{new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          );
+                        })}
+                      <div ref={gEnd} />
+                    </div>
+                    <div className="sc-send">
+                      <input placeholder="mensagem…" value={gDraft} onChange={(e) => setGDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendGroup()} />
+                      <button onClick={sendGroup}><IonIcon icon={sendOutline} /></button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : createOpen ? (
               <div className="sc-sec">
