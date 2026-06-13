@@ -66,7 +66,7 @@ const PlateSheet: React.FC<{ open: boolean; onClose: () => void }> = ({ open, on
           <button className="plate-photo-btn" onClick={() => fileRef.current?.click()}>
             <IonIcon icon={imageOutline} /> Tirar ou escolher foto
           </button>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhoto} />
           {photo && <img className="plate-img" src={photo} alt="prato" />}
           {msg && <p className="plate-msg">{msg}</p>}
 

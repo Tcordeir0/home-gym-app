@@ -78,7 +78,7 @@ const Diary: React.FC = () => {
     }
   };
   const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
-    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 100, liq: isBeverage(it.n, it.tags) });
+    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags) });
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
@@ -148,8 +148,9 @@ const Diary: React.FC = () => {
                     type="number"
                     inputMode="numeric"
                     aria-label={it.liq ? 'Mililitros' : 'Gramas'}
-                    value={it.g}
-                    onChange={(e) => { const g = parseFloat(e.target.value); if (!isNaN(g) && g > 0) setGramsOn(date, i, g); }}
+                    placeholder={it.liq ? 'ml' : 'g'}
+                    value={it.g || ''}
+                    onChange={(e) => { const g = parseFloat(e.target.value); setGramsOn(date, i, isNaN(g) || g < 0 ? 0 : g); }}
                   />
                   <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
                 </div>

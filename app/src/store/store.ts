@@ -178,6 +178,7 @@ export interface Store extends AppState {
   updateActiveBody: (patch: Partial<Body>) => void;
   weightSeries: () => { x: string; y: number }[];
   addWaterToday: (ml: number) => void;
+  addWaterOn: (date: string, ml: number) => void;
   addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
@@ -467,14 +468,14 @@ export const useStore = create<Store>((set, get) => {
         .map((m) => ({ x: m.date, y: m.weight as number }));
     },
 
-    addWaterToday: (ml) =>
+    addWaterToday: (ml) => get().addWaterOn(todayISO(), ml),
+    addWaterOn: (date, ml) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
-        const t = todayISO();
         const dd = (s.daily[uid] = s.daily[uid] || {});
-        dd[t] = dd[t] || {};
-        dd[t].waterMl = Math.max(0, (dd[t].waterMl || 0) + ml);
+        dd[date] = dd[date] || {};
+        dd[date].waterMl = Math.max(0, (dd[date].waterMl || 0) + ml);
       })),
 
     addFoodToday: (item) =>

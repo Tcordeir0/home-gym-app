@@ -11,15 +11,30 @@ const Hidratacao: React.FC = () => {
   const daily = useStore((s) => s.daily);
   const active = useStore((s) => s.active);
   const latestMeasure = useStore((s) => s.latestMeasure);
-  const addWater = useStore((s) => s.addWaterToday);
+  const addWaterOn = useStore((s) => s.addWaterOn);
   const updateProfile = useStore((s) => s.updateProfile);
   const [editBottle, setEditBottle] = useState(false);
   const [other, setOther] = useState(false);
+  const [date, setDate] = useState(todayISO());
+
+  const isToday = date === todayISO();
+  const addWater = (n: number) => addWaterOn(date, n);
+  const goDay = (n: number) => {
+    const d = new Date(date + 'T12:00:00'); d.setDate(d.getDate() + n);
+    const ds = d.toISOString().slice(0, 10);
+    if (ds <= todayISO()) setDate(ds);
+  };
+  const dLabel = (() => {
+    if (isToday) return 'Hoje';
+    const y = new Date(todayISO() + 'T12:00:00'); y.setDate(y.getDate() - 1);
+    if (date === y.toISOString().slice(0, 10)) return 'Ontem';
+    return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  })();
 
   const bottle = profile.bottleMl || 500;
   const weight = latestMeasure('weight');
   const goal = waterGoal(weight);
-  const ml = daily?.[active]?.[todayISO()]?.waterMl || 0;
+  const ml = daily?.[active]?.[date]?.waterMl || 0;
   const pct = Math.min(100, Math.round((ml / goal) * 100));
   const over = ml > goal;
   const copos = Math.round(ml / COPO);
@@ -32,6 +47,11 @@ const Hidratacao: React.FC = () => {
           <span className="hid-sum">
             {(ml / 1000).toFixed(1)}L / {(goal / 1000).toFixed(1)}L · {copos} copos
           </span>
+        </div>
+        <div className="hid-date">
+          <button onClick={() => goDay(-1)} aria-label="Dia anterior">‹</button>
+          <span className={isToday ? '' : 'past'}>{dLabel}</span>
+          <button onClick={() => goDay(1)} disabled={isToday} aria-label="Próximo dia">›</button>
         </div>
         <div className="hid-bar">
           <span style={{ width: pct + '%', background: over ? '#34d399' : undefined }} />
