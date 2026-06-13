@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
 import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline, warningOutline } from 'ionicons/icons';
@@ -505,10 +506,14 @@ const Perfil: React.FC = () => {
         ]}
       />
       <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
-      {/* sempre no DOM (evita o crash removeChild do Ionic); some/aparece por CSS */}
-      <button className={'perfil-save' + (dirty ? ' show' : '')} onClick={saveAll} aria-hidden={!dirty} tabIndex={dirty ? 0 : -1}>
-        <IonIcon icon={checkmark} /> Salvar alterações
-      </button>
+      {/* via PORTAL pro body: garante fixed no viewport (dentro do ion-content
+          o fixed ancora num container transformado e flutua no meio) */}
+      {createPortal(
+        <button className={'perfil-save' + (dirty ? ' show' : '')} onClick={saveAll} aria-hidden={!dirty} tabIndex={dirty ? 0 : -1}>
+          <IonIcon icon={checkmark} /> Salvar alterações
+        </button>,
+        document.body,
+      )}
     </AppPage>
   );
 };
