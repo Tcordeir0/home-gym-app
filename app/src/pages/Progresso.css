@@ -73,6 +73,16 @@
 .pstat.hot ion-icon { color: #ff7a3a; }
 
 /* Conquistas */
+/* detalhe do dia (calendário interativo) */
+.cal-detail { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--app-line); animation: cal-detail-in 0.2s ease; }
+@keyframes cal-detail-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.cal-detail-top { display: flex; align-items: center; justify-content: space-between; }
+.cal-detail-top b { font-size: 15px; }
+.cal-detail-top button { border: 0; background: var(--app-surface-2, rgba(255,255,255,.06)); color: var(--app-muted); width: 28px; height: 28px; border-radius: 999px; cursor: pointer; }
+.cal-detail-empty { font-size: 13px; opacity: 0.6; margin: 8px 0 0; }
+.cal-detail-list { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.cal-detail-list li { font-size: 14px; background: var(--app-surface-2, rgba(255,255,255,.05)); border-radius: 10px; padding: 8px 12px; }
+
 .ach-head { display: flex; align-items: baseline; justify-content: space-between; }
 .ach-count { font-family: var(--font-display); font-size: 16px; color: var(--app-muted); }
 .ach-grid {

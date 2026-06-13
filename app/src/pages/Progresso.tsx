@@ -3,6 +3,7 @@ import { IonCard, IonCardContent, IonIcon, IonAlert, IonToast } from '@ionic/rea
 import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline, giftOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import Calendar from '../components/Calendar';
+import Collapsible from '../components/Collapsible';
 import Medidas from '../components/Medidas';
 import Graficos from '../components/Graficos';
 import FotoProgresso from '../components/FotoProgresso';
@@ -43,8 +44,25 @@ const Progresso: React.FC = () => {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [delIdx, setDelIdx] = useState<number | null>(null);
   const [toast, setToast] = useState('');
+  const [selDay, setSelDay] = useState<string | null>(null);
 
   const name = users.find((u) => u.id === active)?.name || '';
+
+  // detalhe do dia tocado no calendário
+  const dayInfo = useMemo(() => {
+    if (!selDay) return null;
+    const evs = (history[active] || []).filter((e) => e.date === selDay);
+    const dd = (daily[active] || {})[selDay];
+    const food = dd?.food || [];
+    const kcal = food.reduce((a, it) => a + (it.k * it.g) / 100, 0);
+    return {
+      treinos: evs.filter((e) => e.w !== 'cardio'),
+      cardios: evs.filter((e) => e.w === 'cardio'),
+      foodN: food.length,
+      kcal: Math.round(kcal),
+      water: dd?.waterMl || 0,
+    };
+  }, [selDay, history, daily, active]);
   const today = todayISO();
 
   const stats = useMemo(() => {
@@ -167,21 +185,37 @@ const Progresso: React.FC = () => {
         </div>
       </div>
 
-      {/* Calendário */}
+      {/* Foto de progresso — logo abaixo do nível/stats (linha de mudança) */}
+      <FotoProgresso />
+
+      {/* Calendário interativo */}
       <IonCard className="prog-card">
         <IonCardContent>
           <h2 className="card-title">Calendário</h2>
-          <Calendar marks={marks} today={today} />
+          <Calendar marks={marks} today={today} onDay={setSelDay} selected={selDay || undefined} />
+          {dayInfo && (
+            <div className="cal-detail">
+              <div className="cal-detail-top">
+                <b>{fmtDate(selDay!)}</b>
+                <button onClick={() => setSelDay(null)} aria-label="Fechar"><IonIcon icon={chevronDown} /></button>
+              </div>
+              {dayInfo.treinos.length === 0 && dayInfo.cardios.length === 0 && dayInfo.foodN === 0 && dayInfo.water === 0 ? (
+                <p className="cal-detail-empty">Nada registrado nesse dia.</p>
+              ) : (
+                <ul className="cal-detail-list">
+                  {dayInfo.treinos.map((e, i) => <li key={'t' + i}>💪 {W_LABEL[e.w]}{e.exercises ? ` · ${e.exercises.reduce((a, x) => a + x.sets.length, 0)} séries` : ''}</li>)}
+                  {dayInfo.cardios.map((e, i) => <li key={'c' + i}>{e.emoji || '🏃'} {e.t || 'Cardio'}</li>)}
+                  {dayInfo.foodN > 0 && <li>🍽️ {dayInfo.foodN} {dayInfo.foodN === 1 ? 'item' : 'itens'} · {dayInfo.kcal} kcal</li>}
+                  {dayInfo.water > 0 && <li>💧 {(dayInfo.water / 1000).toFixed(1)} L de água</li>}
+                </ul>
+              )}
+            </div>
+          )}
         </IonCardContent>
       </IonCard>
 
-      {/* Conquistas */}
-      <IonCard className="prog-card">
-        <IonCardContent>
-          <div className="ach-head">
-            <h2 className="card-title">Conquistas</h2>
-            <span className="ach-count">{unlocked}/{ACHIEVEMENTS.length}</span>
-          </div>
+      {/* Conquistas (expansível) */}
+      <Collapsible title={<>🏆 Conquistas <span className="ach-count">· {unlocked}/{ACHIEVEMENTS.length}</span></>}>
           <div className="ach-grid">
             {ACHIEVEMENTS.map((a, i) => {
               const got = a.test(stats);
@@ -197,13 +231,10 @@ const Progresso: React.FC = () => {
               );
             })}
           </div>
-        </IonCardContent>
-      </IonCard>
+      </Collapsible>
 
-      {/* Sessões */}
-      <IonCard className="prog-card">
-        <IonCardContent>
-          <h2 className="card-title">Sessões</h2>
+      {/* Sessões (expansível) */}
+      <Collapsible title="📋 Sessões" defaultOpen>
           {sessions.length === 0 ? (
             <p className="prog-empty">Nenhuma sessão ainda. Conclua um treino na aba <b>Treino</b>.</p>
           ) : (
@@ -253,13 +284,11 @@ const Progresso: React.FC = () => {
               })}
             </div>
           )}
-        </IonCardContent>
-      </IonCard>
+      </Collapsible>
 
-      {/* Medidas + gráficos + foto de progresso */}
+      {/* Medidas + gráficos */}
       <Medidas />
       <Graficos />
-      <FotoProgresso />
 
       <IonAlert
         isOpen={delIdx !== null}
