@@ -229,6 +229,14 @@
 .food-movebar b { color: var(--ion-text-color); }
 .food-movebar input[type="date"] { border: 1.5px solid var(--brand-lime); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 10px; padding: 7px 10px; font-weight: 700; font-size: 13px; }
 .diary-empty { margin: 8px 0 0; font-size: 13px; color: var(--app-muted); background: var(--app-surface-2); border-radius: 12px; padding: 10px 12px; }
+.diary-copy {
+  width: 100%; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 40%, transparent);
+  background: color-mix(in srgb, var(--brand-lime) 12%, transparent); color: var(--brand-lime);
+  font-weight: 800; font-size: 14px; border-radius: 13px; padding: 12px; cursor: pointer;
+}
+.diary-copy ion-icon { font-size: 17px; }
+.diary-copymsg { margin: 8px 2px 0; font-size: 12.5px; color: var(--app-muted); }
 .diary-search { width: 100%; margin-top: 12px; text-align: left; padding: 0 14px; }
 .food-results { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
 .food-hit { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid var(--app-line); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 12px; padding: 10px 12px; cursor: pointer; }

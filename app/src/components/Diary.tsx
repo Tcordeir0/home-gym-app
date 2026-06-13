@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
-import { trashOutline, addOutline, calendarOutline } from 'ionicons/icons';
+import { trashOutline, addOutline, calendarOutline, copyOutline } from 'ionicons/icons';
 import { cloudOutline, cameraOutline } from 'ionicons/icons';
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
@@ -30,7 +30,9 @@ const Diary: React.FC = () => {
   const setGramsOn = useStore((s) => s.setFoodGramsOn);
   const removeFoodOn = useStore((s) => s.removeFoodOn);
   const moveFoodOn = useStore((s) => s.moveFoodOn);
+  const copyDietFromPrev = useStore((s) => s.copyDietFromPrev);
   const [moveIdx, setMoveIdx] = useState<number | null>(null);
+  const [copyMsg, setCopyMsg] = useState('');
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
   useEffect(() => { setMoveIdx(null); }, [date]);
@@ -183,9 +185,18 @@ const Diary: React.FC = () => {
               </div>
             ))
           ) : (
-            <p className="diary-empty">Nenhum alimento hoje. Busque abaixo pra montar seu dia.</p>
+            <p className="diary-empty">Nenhum alimento {isToday ? 'hoje' : 'neste dia'}. Busque abaixo ou copie o dia anterior.</p>
           )}
         </div>
+        {food.length === 0 && (
+          <button
+            className="diary-copy"
+            onClick={() => { setCopyMsg(copyDietFromPrev(date) ? '' : 'Nenhum dia anterior com comida pra copiar.'); }}
+          >
+            <IonIcon icon={copyOutline} /> Copiar dia anterior
+          </button>
+        )}
+        {copyMsg && <p className="diary-copymsg">{copyMsg}</p>}
 
         <button className="food-online-go diary-photo" onClick={() => setPlateOpen(true)}>
           <IonIcon icon={cameraOutline} /> Foto do prato

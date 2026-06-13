@@ -19,14 +19,40 @@ const soundOn = () => mode === 'both' || mode === 'sound';
 const vibrateOn = () => mode === 'both' || mode === 'vibrate';
 
 let actx: (AudioContext | null) = null;
+let audioWired = false;
+
+/** Garante um AudioContext VIVO. No iOS, ao travar a tela / trocar de app o contexto
+ *  vai pra 'suspended'/'interrupted' e o som morre até reabrir o PWA. A correção é
+ *  resumir PROATIVAMENTE: em todo toque (gesto válido pro iOS) e ao voltar pra tela. */
+function ensureAudio(): AudioContext | null {
+  if (!actx) {
+    try {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      actx = new AC();
+    } catch { return null; }
+  }
+  if (actx && actx.state !== 'running') actx.resume().catch(() => {});
+  if (!audioWired && typeof window !== 'undefined') {
+    audioWired = true;
+    const wake = () => { if (actx && actx.state !== 'running') actx.resume().catch(() => {}); };
+    window.addEventListener('pointerdown', wake, { passive: true });
+    window.addEventListener('touchstart', wake, { passive: true });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
+  }
+  return actx;
+}
+
+/** Chamar no boot pra já ligar os listeners de "acordar o áudio" (não cria som sozinho). */
+export function initAudio() { try { ensureAudio(); } catch { /* ok */ } }
+
 // volume bem mais alto que antes (era 0.05 — quase inaudível) + envelope (ataque/decay)
 // pra um som limpo, e tipo 'triangle' (mais cheio/audível que 'sine').
 function beep(freq: number, dur: number, vol = 0.3) {
   if (!soundOn()) return;
   try {
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    actx = actx || new AC();
-    if (actx.state === 'suspended') actx.resume();
+    const ac = ensureAudio();
+    if (!ac) return;
+    actx = ac;
     const o = actx.createOscillator(), g = actx.createGain();
     o.type = 'triangle'; o.frequency.value = freq;
     o.connect(g); g.connect(actx.destination);

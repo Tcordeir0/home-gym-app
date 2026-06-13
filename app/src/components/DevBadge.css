@@ -1,0 +1,17 @@
+.dev-badge {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(env(safe-area-inset-top, 0px) + 2px);
+  z-index: 100000;
+  background: #ff7a18;
+  color: #1a0e00;
+  font-family: var(--ion-font-family, sans-serif);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 2px 9px;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 3px 10px -3px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}

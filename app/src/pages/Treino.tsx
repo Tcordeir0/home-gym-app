@@ -31,7 +31,10 @@ const Treino: React.FC = () => {
   const [demo, setDemo] = useState<Exercise | null>(null);
   const [toast, setToast] = useState('');
 
-  const exercises: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
+  const swaps = useStore((s) => s.swaps[s.active]);
+  const baseExs: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
+  // aplica trocas de exercício salvas (mesma ênfase) por posição
+  const exercises: Exercise[] = seg === 'warm' ? baseExs : baseExs.map((ex, i) => swaps?.[`${seg}:${i}`] || ex);
   const labels = plan.labels || { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
 
   // nome descritivo do dia (ex.: "Glúteos + Posterior"); cai pro foco quando o rótulo é genérico

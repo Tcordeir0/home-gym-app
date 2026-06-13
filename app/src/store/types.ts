@@ -130,6 +130,7 @@ export interface AppState {
   feedback: Feedback;
   notifyOn: boolean; // notificações ativadas (só depois de conceder permissão)
   reminder: { on: boolean; time: string }; // lembrete diário de treino (HH:MM)
+  swaps: Record<string, Record<string, import('../data/types').Exercise>>; // uid → "treino:idx" → exercício trocado
   appTheme: 'dark' | 'light';
   pokes: Record<string, Poke>;
   session: Record<string, unknown>;
