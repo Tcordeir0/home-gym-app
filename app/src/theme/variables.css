@@ -508,9 +508,10 @@ ion-segment-button {
   --indicator-box-shadow: none;
 }
 
-/* Corpo de página */
+/* Corpo de página — reserva o espaço da tab bar FLUTUANTE (cápsula + margem),
+   senão o conteúdo rola por baixo e vaza no vão de baixo (visível nos temas com wallpaper). */
 .page-body {
-  padding: 4px 16px calc(16px + var(--ion-safe-area-bottom, 0px));
+  padding: 4px 16px calc(92px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Teclado aberto: a tab bar não sobe junto — some */
