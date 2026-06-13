@@ -8,7 +8,7 @@ import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { statsFor } from '../lib/stats';
+import { statsFor, e1RM } from '../lib/stats';
 
 // itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
 const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
@@ -167,6 +167,9 @@ export interface Store extends AppState {
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
+  prevSets: (nome: string) => { kg: number; reps: number }[];
+  exPR: (nome: string) => { kg: number; reps: number; e1rm: number } | null;
+  prefillSets: (treino: string, exIdx: number, series: number, sets: { kg: number; reps: number }[]) => void;
   addCardio: (label: string, emoji?: string, mins?: number) => void;
   // Dieta
   latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
@@ -378,6 +381,47 @@ export const useStore = create<Store>((set, get) => {
       }
       return null;
     },
+
+    // séries da ÚLTIMA vez que treinou esse exercício (na ordem) — pra pré-preencher
+    prevSets: (nome) => {
+      const s = get();
+      const hist = (s.history[s.active] || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+      for (const e of hist) {
+        const ex = e.exercises?.find((x) => x.nome === nome);
+        if (ex && ex.sets.length) return ex.sets.map((st) => ({ kg: st.kg || 0, reps: st.reps || 0 }));
+      }
+      return [];
+    },
+
+    // recorde pessoal por 1RM estimado (Epley) em todo o histórico
+    exPR: (nome) => {
+      const s = get();
+      let best: { kg: number; reps: number; e1rm: number } | null = null;
+      for (const e of s.history[s.active] || []) {
+        const ex = e.exercises?.find((x) => x.nome === nome);
+        if (!ex) continue;
+        for (const st of ex.sets) {
+          const kg = st.kg || 0, reps = st.reps || 0;
+          if (kg <= 0) continue;
+          const val = e1RM(kg, reps);
+          if (!best || val > best.e1rm) best = { kg, reps, e1rm: val };
+        }
+      }
+      return best;
+    },
+
+    // pré-preenche as linhas VAZIAS com os valores informados (não marca como feita)
+    prefillSets: (treino, exIdx, series, sets) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const rows = ensureRow(s, s.active, treino, exIdx, series);
+        for (let i = 0; i < series && i < sets.length; i++) {
+          if (rows[i].kg === '' && rows[i].reps === '' && !rows[i].done) {
+            if (sets[i].kg) rows[i].kg = String(sets[i].kg);
+            if (sets[i].reps) rows[i].reps = String(sets[i].reps);
+          }
+        }
+      })),
 
     addCardio: (label, emoji, mins) =>
       set(produce((s: Store) => {

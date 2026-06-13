@@ -10,6 +10,13 @@ export function totalPoints(state: Pick<AppState, 'scores'>, uid: string): numbe
   return Object.keys(s.byDay).reduce((a, k) => a + s.byDay[k], 0);
 }
 
+/** 1RM estimado (fórmula de Epley). Acima de ~12 reps perde precisão, mas serve de guia. */
+export function e1RM(kg: number, reps: number): number {
+  if (kg <= 0) return 0;
+  if (reps <= 1) return kg;
+  return Math.round(kg * (1 + reps / 30));
+}
+
 export function xpForLevel(L: number): number {
   return 100 * (L - 1) + 25 * (L - 1) * (L - 2); // L1:0 L2:100 L3:250 L4:450 L5:700 L6:1000
 }
