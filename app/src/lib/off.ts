@@ -1,6 +1,6 @@
 // Open Food Facts: busca online (via Edge Function off-search, resolve CORS)
 // e código de barras (world.openfoodfacts.org direto, tem CORS).
-const SUPABASE_URL = 'https://mtbdbahmwbjmmuljvxfn.supabase.co';
+import { SUPABASE_URL } from './supabase';
 const OFF_SEARCH = SUPABASE_URL + '/functions/v1/off-search';
 
 export interface OffHit {

@@ -11,6 +11,10 @@ export interface Theme {
   fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator'; // partículas por cima da arte
 }
 
+// Conta do dono (Talys) — usada pra liberar temas/aros vinculados à conta e o Creator.
+// Fonte única (evita repetir o email espalhado).
+export const OWNER_EMAIL = 'talysmatheus12@gmail.com';
+
 export const THEMES: Theme[] = [
   { id: 'dark', name: 'Preto', emoji: '🖤', free: true, swatch: ['#0b0c0f', '#1c2027', '#c6ff3a'] },
   { id: 'light', name: 'Branco', emoji: '🤍', free: true, swatch: ['#ffffff', '#eef1f5', '#4f9a00'] },
@@ -32,7 +36,7 @@ export const THEMES: Theme[] = [
   { id: 'eletrico', name: 'Elétrico', emoji: '⚡', free: false, swatch: ['#0c1830', '#15294a', '#ffe14d'], image: '/themes/eletrico.png', fx: 'electric' },
   { id: 'return', name: 'Return', emoji: '🔁', free: false, swatch: ['#0a0b0c', '#16181a', '#aac47e'], image: '/themes/return.jpg', fx: 'miasma' },
   { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg', fx: 'creator' },
-  { id: 'cha', name: 'Chá', emoji: '🍵', free: false, account: 'talysmatheus12@gmail.com', swatch: ['#181222', '#241a33', '#ff9e6b'], image: '/themes/cha.jpg', fx: 'hands' },
+  { id: 'cha', name: 'Chá', emoji: '🍵', free: false, account: OWNER_EMAIL, swatch: ['#181222', '#241a33', '#ff9e6b'], image: '/themes/cha.jpg', fx: 'hands' },
 ];
 
 export const THEME_IDS = THEMES.map((t) => t.id);

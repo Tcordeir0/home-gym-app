@@ -1,5 +1,5 @@
 // Loja + moeda CREATINA. Tudo configurável num lugar só (sem valores hardcoded espalhados).
-import { THEMES, type Theme } from './themes';
+import { THEMES, OWNER_EMAIL, type Theme } from './themes';
 import { FRAMES, type Frame } from './frames';
 import { DECOS, type Deco } from './decos';
 
@@ -17,7 +17,7 @@ export function priceForDeco(_d: Deco): number { return 300; }
 
 /** CREATOR é EXCLUSIVO do Talys da conta talysmatheus12 — nunca aparece pra mais ninguém. */
 export function creatorAllowed(email?: string, profileName?: string): boolean {
-  return (email || '').trim().toLowerCase() === 'talysmatheus12@gmail.com'
+  return (email || '').trim().toLowerCase() === OWNER_EMAIL
     && (profileName || '').trim().toUpperCase() === 'TALYS';
 }
 
