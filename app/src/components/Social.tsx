@@ -76,6 +76,15 @@ const SocialPanel: React.FC = () => {
   const send = async () => {
     if (!draft.trim() || !chatWith) return;
     const b = draft.trim(); setDraft('');
+    // otimista: mostra a mensagem na hora (o realtime/loadChat reconcilia depois)
+    const optimistic: S.Message = {
+      id: 'tmp' + Date.now(), body: b, created_at: new Date().toISOString(), seen: false,
+      from_uid: uid, to_uid: chatWith.kind === 'team' ? uid : chatWith.uid,
+      from_profile: chatWith.kind === 'team' ? myName : null,
+      to_profile: chatWith.kind === 'team' ? chatWith.profile : null,
+    };
+    setMsgs((m) => [...m, optimistic]);
+    setTimeout(() => chatEnd.current?.scrollIntoView({ behavior: 'smooth' }), 40);
     if (chatWith.kind === 'team') await S.sendMessage(uid, b, { fromProfile: myName, toProfile: chatWith.profile });
     else await S.sendMessage(chatWith.uid, b);
     loadChat(chatWith);
@@ -181,7 +190,12 @@ const SocialPanel: React.FC = () => {
                   {msgs.length === 0 ? <p className="sc-empty">Diga oi 👋</p> :
                     msgs.map((m) => {
                       const mine = chatWith?.kind === 'team' ? m.from_profile === myName : m.from_uid === uid;
-                      return <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')}>{m.body}</div>;
+                      return (
+                        <div key={m.id} className={'sc-msg' + (mine ? ' me' : '')}>
+                          {m.body}
+                          <span className="sc-msg-time">{new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      );
                     })}
                   <div ref={chatEnd} />
                 </div>

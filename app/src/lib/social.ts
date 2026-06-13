@@ -100,9 +100,11 @@ export async function listEvents(): Promise<SocialEvent[]> {
   return (data as SocialEvent[]) || [];
 }
 
-/** Assina mudanças em tempo real (chat, cutucadas, amizades). */
+let chanN = 0;
+/** Assina mudanças em tempo real (chat, cutucadas, amizades). Nome ÚNICO por
+ *  chamada — dois canais com o mesmo nome conflitam no Supabase Realtime. */
 export function subscribeSocial(onChange: () => void): () => void {
-  const ch = supabase.channel('social-rt')
+  const ch = supabase.channel('social-rt-' + (++chanN))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pokes' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, onChange)
