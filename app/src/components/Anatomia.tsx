@@ -65,8 +65,8 @@ const Anatomia: React.FC = () => {
     };
   }, [theme]);
 
-  // séries por grupo nos últimos 30 dias
-  const { counts, total, intensity } = useMemo(() => {
+  // séries por grupo (30 dias p/ o mapa + 7 dias p/ o alvo semanal)
+  const { counts, weekly, total, intensity } = useMemo(() => {
     const byName = new Map<string, Group>();
     POOL.forEach((p) => byName.set(p.n, p.g as Group));
     // mapeia também os exercícios dos treinos PADRÃO (plans.ts), pelo campo `musculo`
@@ -86,19 +86,21 @@ const Anatomia: React.FC = () => {
       if (!byName.has(ex.nome)) { const g = musToGroup(ex.musculo); if (g) byName.set(ex.nome, g); }
     });
     const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+    const cutoffWk = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
     const c: Record<Group, number> = { chest: 0, back: 0, legs: 0, glutes: 0, shoulders: 0, arms: 0, core: 0 };
+    const wk: Record<Group, number> = { chest: 0, back: 0, legs: 0, glutes: 0, shoulders: 0, arms: 0, core: 0 };
     history.forEach((h) => {
       if (h.date < cutoff) return;
       (h.exercises || []).forEach((ex) => {
         const g = byName.get(ex.nome);
-        if (g) c[g] += ex.sets?.length || 0;
+        if (g) { c[g] += ex.sets?.length || 0; if (h.date >= cutoffWk) wk[g] += ex.sets?.length || 0; }
       });
     });
     const tot = GROUPS.reduce((a, g) => a + c[g], 0);
     const max = Math.max(1, ...GROUPS.map((g) => c[g]));
     const inten = {} as Record<Group, number>;
     GROUPS.forEach((g) => (inten[g] = c[g] / max));
-    return { counts: c, total: tot, intensity: inten };
+    return { counts: c, weekly: wk, total: tot, intensity: inten };
   }, [history]);
 
   // dados pro modelo: 1 entrada por grupo treinado, frequência = nível 1..5 (índice de cor).
@@ -147,6 +149,12 @@ const Anatomia: React.FC = () => {
             <b>{GROUP_LABEL[sel]}</b>
             <span>{counts[sel]} séries · {total ? Math.round((counts[sel] / total) * 100) : 0}%</span>
           </div>
+          <p className="anat-week">
+            📅 Essa semana: <b>{weekly[sel]} séries</b> ·{' '}
+            <span className={weekly[sel] >= 10 && weekly[sel] <= 20 ? 'on-target' : weekly[sel] < 10 ? 'below' : 'above'}>
+              {weekly[sel] < 10 ? 'abaixo do alvo' : weekly[sel] <= 20 ? 'no alvo 👍' : 'acima do alvo'}
+            </span> (alvo 10–20)
+          </p>
           <p>{TIPS[sel]}</p>
         </div>
       ) : total > 0 ? (

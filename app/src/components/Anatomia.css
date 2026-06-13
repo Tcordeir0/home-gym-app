@@ -69,6 +69,10 @@
 .anat-panel-top b { font-size: 15px; }
 .anat-panel-top span { font-size: 13px; color: var(--brand-lime); font-weight: 700; white-space: nowrap; }
 .anat-panel p { margin: 0; font-size: 13px; opacity: 0.8; line-height: 1.4; }
+.anat-week { margin: 0 0 6px !important; opacity: 1 !important; font-size: 12.5px !important; }
+.anat-week .on-target { color: var(--brand-lime); font-weight: 700; }
+.anat-week .below { color: #ffb04d; font-weight: 700; }
+.anat-week .above { color: #5fb0ff; font-weight: 700; }
 
 /* legenda em barras */
 .anat-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
