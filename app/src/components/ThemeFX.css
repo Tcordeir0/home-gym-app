@@ -443,3 +443,20 @@
   .fx-miasma .wisp { display: none; }
   .miasma-pulse { animation: none !important; opacity: 0.3; }
 }
+
+/* Borboletas azuis (tema Hollow) — sobem com leve sway e brilho */
+.fx-butterflies { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.fx-butterflies .bfly {
+  position: absolute; bottom: -32px; opacity: 0;
+  filter: drop-shadow(0 0 6px #5fd1ff) drop-shadow(0 0 12px rgba(95, 209, 255, 0.5));
+  animation: bflyUp linear infinite;
+  will-change: transform, opacity;
+}
+@keyframes bflyUp {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.95; }
+  50% { transform: translateY(-52vh) translateX(22px) rotate(12deg); }
+  88% { opacity: 0.8; }
+  100% { transform: translateY(-108vh) translateX(-16px) rotate(-10deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .fx-butterflies .bfly { animation: none; opacity: 0.6; } }

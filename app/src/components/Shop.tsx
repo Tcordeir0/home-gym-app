@@ -55,7 +55,7 @@ const Shop: React.FC = () => {
           {r.preview}
           <span className="shop-name">{r.name}</span>
           {r.owned ? (
-            <span className="shop-have"><IonIcon icon={checkmarkCircle} /> Tido</span>
+            <span className="shop-have"><IonIcon icon={checkmarkCircle} /> Obtido</span>
           ) : (
             <button className={'shop-buy' + (bal < r.price ? ' poor' : '')} onClick={() => buy(r)}>
               {CREATINA}{r.price.toLocaleString('pt-BR')}

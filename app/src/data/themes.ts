@@ -8,7 +8,7 @@ export interface Theme {
   account?: string; // liberado p/ TODOS os perfis desta conta (email) — não cai na roleta
   swatch: [string, string, string]; // bg, surface, accent (preview)
   image?: string; // wallpaper de fundo (cards viram "liquid glass")
-  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator'; // partículas por cima da arte
+  fx?: 'bubbles' | 'sparkles' | 'fireflies' | 'math' | 'hearts' | 'snow' | 'electric' | 'miasma' | 'enchant' | 'hands' | 'creator' | 'butterflies'; // partículas por cima da arte
 }
 
 // Conta do dono (Talys) — usada pra liberar temas/aros vinculados à conta e o Creator.
@@ -35,6 +35,15 @@ export const THEMES: Theme[] = [
   { id: 'snow', name: 'Snow', emoji: '❄️', free: false, swatch: ['#0c1a2c', '#13283f', '#8fd0ff'], image: '/themes/snow.png', fx: 'snow' },
   { id: 'eletrico', name: 'Elétrico', emoji: '⚡', free: false, swatch: ['#0c1830', '#15294a', '#ffe14d'], image: '/themes/eletrico.png', fx: 'electric' },
   { id: 'return', name: 'Return', emoji: '🔁', free: false, swatch: ['#0a0b0c', '#16181a', '#aac47e'], image: '/themes/return.jpg', fx: 'miasma' },
+  // ===== Temas novos (onda 1: wallpaper + glass + fx) =====
+  { id: 'hollow', name: 'Hollow', emoji: '🦋', free: false, swatch: ['#0a1622', '#13263b', '#5fd1ff'], image: '/themes/hollow.jpg', fx: 'butterflies' },
+  { id: 'aranha', name: 'Aranha', emoji: '🕸️', free: false, swatch: ['#0d0d0e', '#1c1c1f', '#ff3b3b'], image: '/themes/aranha.jpg' },
+  { id: 'code', name: 'Code', emoji: '👨‍💻', free: false, swatch: ['#06090d', '#0e1622', '#39ff88'], image: '/themes/code.jpg', fx: 'math' },
+  { id: 'vice', name: 'Vice', emoji: '🌴', free: false, swatch: ['#1a0a1c', '#2a1030', '#ff4da6'], image: '/themes/vice.jpg' },
+  { id: 'miami', name: 'Miami', emoji: '🌇', free: false, swatch: ['#170b2a', '#241040', '#ff5cc8'], image: '/themes/miami.jpg' },
+  { id: 'bruxa', name: 'Bruxa', emoji: '🦋', free: false, swatch: ['#160a1e', '#241433', '#ff5b8a'], image: '/themes/bruxa.jpg', fx: 'miasma' },
+  { id: 'homelander', name: 'Sete', emoji: '🦅', free: false, swatch: ['#0a0a0c', '#16131a', '#d62b3a'], image: '/themes/homelander.jpg', fx: 'electric' },
+  { id: 'pi', name: 'Pi', emoji: '🔴', free: false, swatch: ['#0a0a0a', '#161616', '#e23b3b'], image: '/themes/pi.jpg', fx: 'math' },
   { id: 'creator', name: 'Creator', emoji: '🕷️', free: false, exclusive: true, swatch: ['#1a1230', '#241a3e', '#b06bff'], image: '/themes/creator.jpg', fx: 'creator' },
   { id: 'cha', name: 'Chá', emoji: '🍵', free: false, account: OWNER_EMAIL, swatch: ['#181222', '#241a33', '#ff9e6b'], image: '/themes/cha.jpg', fx: 'hands' },
 ];

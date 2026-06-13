@@ -300,6 +300,24 @@ const ThemeFX: React.FC = () => {
           ))}
         </div>
       )}
+      {themeObj?.fx === 'butterflies' && (
+        <div className="fx-butterflies">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <span
+              key={i}
+              className="bfly"
+              style={{
+                left: `${(i * 53 + 6) % 96}%`,
+                fontSize: `${13 + (i % 4) * 6}px`,
+                animationDuration: `${8 + (i % 5)}s`,
+                animationDelay: `-${(i * 0.7) % 9}s`,
+              }}
+            >
+              🦋
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
