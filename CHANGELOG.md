@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.8.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.7.0...v0.8.0) (2026-06-13)
+
+
+### Features
+
+* **app:** 'Backup & dados' (registro retroativo + export/import) movido de Progresso→Perfil como seção expansível + 'Limpar dados do perfil' na Zona de perigo + linha 'Sobre' (versão) ([e3d2bb6](https://github.com/Tcordeir0/home-gym-app/commit/e3d2bb6df012766a4abcfd6fd70020820f86c626))
+* **app:** 'Montar treino por equipamento' (gerador) movido pro Perfil › Montar treino (é configuração) + seção consolidada com subtítulos limpos; Treino mostra atalho ([20b839c](https://github.com/Tcordeir0/home-gym-app/commit/20b839ca3b971ebae3a3117a7e0497eb0757909d))
+* **app:** +7 conquistas novas + hidratação no gráfico de dieta + tab bar Liquid Glass flutuante (iOS 26: cápsula + blur 22px/saturate 180% + highlight + pill no ativo) em TODOS os temas incl. Preto/Branco ([4ad88fb](https://github.com/Tcordeir0/home-gym-app/commit/4ad88fb21ac00753f4e06f65fe200375769f93e1))
+* **app:** aba Carga ganha toggle '1RM estimado' — curva de progressão real por exercício (Epley), com 'Carga máx' como alternativa ([5b6f027](https://github.com/Tcordeir0/home-gym-app/commit/5b6f027fe03bb1af41c04f10270248f5ab5d0719))
+* **app:** Anatomia mostra volume da SEMANA por músculo + alvo (10–20 séries/sem) com status abaixo/no alvo/acima ([d178973](https://github.com/Tcordeir0/home-gym-app/commit/d17897341f840d697623326582ed8225ca268acd))
+* **app:** badge + notificação de convites/cutucadas no botão Social ([a3de794](https://github.com/Tcordeir0/home-gym-app/commit/a3de79452926301a649e1f5d0fcbbc50afb60a4a))
+* **app:** botão Salvar flutuante no Perfil — aparece ao mudar algo e força gravação na nuvem/conta (não fica só no localStorage) com confirmação ([1405b84](https://github.com/Tcordeir0/home-gym-app/commit/1405b84694df421e419b65fe36b8113ecd2b6b72))
+* **app:** card congela a animação do tema (mãos da Satella, corações, neve, runas, raios...) e layout mais equilibrado ([7b32756](https://github.com/Tcordeir0/home-gym-app/commit/7b3275629dee0eb13c0019fe8a8595b4d3ecafd1))
+* **app:** card de compartilhar repaginado — formato story 9:16, sem frase motivacional, rodapé só com a versão, quadros de stats com bem mais contraste (legíveis no tema claro) e nome afastado do aro ([9512920](https://github.com/Tcordeir0/home-gym-app/commit/95129209821a21291ef2524b5dca3780866013e8))
+* **app:** cardio cronometrado salva a DURAÇÃO (início→fim) e mostra os minutos nas sessões e no detalhe do dia ([f2b38ca](https://github.com/Tcordeir0/home-gym-app/commit/f2b38ca732bc9b0f11f3ed6b6c385abbf1e1077c))
+* **app:** chat mostra preview da última mensagem (recebida/enviada) na lista de conversas, estilo WhatsApp ([919c9a3](https://github.com/Tcordeir0/home-gym-app/commit/919c9a3e1ffcb3d91c9c70d259d0809a456e978e))
+* **app:** Cutucar com frases prontas de zoação por categoria (pontuação, treino, peso, dieta, hidratação, tema) ([04752ae](https://github.com/Tcordeir0/home-gym-app/commit/04752ae3ade6b858f6f2efab96aaaf4cda169102))
+* **app:** evento de LEVEL-UP no feed do Social + 'Em breve' movido pro header do Perfil (ao lado do changelog), saiu de Prêmios ([bc37590](https://github.com/Tcordeir0/home-gym-app/commit/bc37590cfe9d0117ab7774eb9fb9b0ef0ea73ac0))
+* **app:** fundação do Social — schema Supabase (amizades/cutucadas/chat + RLS + realtime), cliente lib/social.ts e publicação dos perfis no login ([d7bfc23](https://github.com/Tcordeir0/home-gym-app/commit/d7bfc2308255746bd1c95c6c9c10540c0d5b7549))
+* **app:** glass sutil nos cards Preto/Branco + 'anterior' pré-preenchido (campos kg×reps mostram a última série como placeholder editável) ([a927ff4](https://github.com/Tcordeir0/home-gym-app/commit/a927ff4f8c7d9d45964781f8116e14cfbaf21d42))
+* **app:** glass visível no Preto/Branco (brilho de fundo sutil dá o que o vidro desfocar) + Liquid Glass nos modais e linhas do Social ([8de8883](https://github.com/Tcordeir0/home-gym-app/commit/8de88837837aceb9f1c20759e18bd6b6abb9a1f2))
+* **app:** lembrete diário de treino (horário configurável) ([bd4adfb](https://github.com/Tcordeir0/home-gym-app/commit/bd4adfba27bd5840e8bf347dc835b6ced4439adc))
+* **app:** mover alimento entre dias — corrige registros que foram pro dia errado ([04ccba9](https://github.com/Tcordeir0/home-gym-app/commit/04ccba999eadacb769d35b1b9dd00f611dc0da8e))
+* **app:** Perfil em seções EXPANSÍVEIS — 'Montar treino' (Local+Equipamento juntos), 'Tipos de cardio' e 'Agenda' viram colapsáveis (menos espaço à toa) ([d9a6482](https://github.com/Tcordeir0/home-gym-app/commit/d9a6482da93a207b749eb39bf05af79eced69f02))
+* **app:** prévia da última mensagem na lista de grupos + não-lidos + notificação de mensagem nova de grupo ([a570ffc](https://github.com/Tcordeir0/home-gym-app/commit/a570ffc57f503be955f676f2be6192f365781acb))
+* **app:** Progresso — calendário INTERATIVO (toca o dia → vê treino/cardio/dieta/água) + Conquistas e Sessões viram expansíveis + foto de progresso movida pra baixo do nível/stats ([96d0cab](https://github.com/Tcordeir0/home-gym-app/commit/96d0cabc2fcd14943dbe987f67e57557c61de29d))
+* **app:** séries pré-preenchidas com a última vez + recorde pessoal e 1RM estimado por exercício ([6ac9ea0](https://github.com/Tcordeir0/home-gym-app/commit/6ac9ea00e5d84a564628c063ad14088cb3cfcd56))
+* **app:** Sessões separadas em Treinos/Cardios/Alimentação (cada uma colapsável, fechadas) + Perfil consolida Tipos de cardio dentro de 'Montar treino' ([e5da38b](https://github.com/Tcordeir0/home-gym-app/commit/e5da38b77fa971882254cb44eeaf74c5e0df48b5))
+* **app:** share card mostra infos da semana — séries feitas, média de hidratação (L/dia) e músculo mais treinado ([17a0b21](https://github.com/Tcordeir0/home-gym-app/commit/17a0b21de361847ac295f1810c64fbea36b0127e))
+* **app:** Social — chat com a EQUIPE (perfis da conta) além de amigos + feed de novidades (desbloqueios) + nome de perfil único com sugestões ([6cc4d17](https://github.com/Tcordeir0/home-gym-app/commit/6cc4d17419f27f057974c43e7e0fb5ca23cc8430))
+* **app:** Social com Liquid Glass próprio refletindo o tema do perfil + correção de contraste no tema Branco ([4305419](https://github.com/Tcordeir0/home-gym-app/commit/430541934c455c5a4b8127fc549b6323cd1de954))
+* **app:** Social v2 — sugestões de contas + Grupos estilo WhatsApp + cor do tema de cada um no chat ([7b75dc2](https://github.com/Tcordeir0/home-gym-app/commit/7b75dc217ca6a987bacf3af5de01d7dd6fadbc4d))
+* **app:** tela de membros do grupo + adicionar/remover membros ([8a81037](https://github.com/Tcordeir0/home-gym-app/commit/8a810373b78a0ccf0a4a290e32b50142a0fc1bc2))
+* **app:** toasts (notificações) com Liquid Glass + cor do tema (blur/saturate + borda accent + bg translúcido do tema), adaptando ao tema ativo ([b786e79](https://github.com/Tcordeir0/home-gym-app/commit/b786e79285643d27e60f6f25691c25e665a2e5e2))
+* **app:** transições suaves com AutoAnimate na lista de exercícios (troca de treino A/B/C) e na lista de alimentos (add/remove) ([85ae0bb](https://github.com/Tcordeir0/home-gym-app/commit/85ae0bb6688c67038b7aaa050ec30c8cc321c944))
+* **app:** UI do Social — Amigos (convite por email, aceitar/recusar), Cutucar (equipe + amigos, recebidas), Chat realtime. Plugado no backend Supabase ([8c15b48](https://github.com/Tcordeir0/home-gym-app/commit/8c15b480f29ae32b8abf581d43f25d42598d8358))
+
+
+### Bug Fixes
+
+* **app:** botão Salvar agora FIXO de verdade (portal pro body) — dentro do ion-content o fixed ancorava num container transformado e flutuava no meio ([16d17fc](https://github.com/Tcordeir0/home-gym-app/commit/16d17fc5e3bd8b3440c1c53f36cb4fbb81e08ac5))
+* **app:** botão Salvar só aparece na aba Perfil (estava vazando por cima de Prêmios/Treino) + nome das abas não vaza mais da cápsula ([abfc8f1](https://github.com/Tcordeir0/home-gym-app/commit/abfc8f1d6e0646f3bdf5c849abd1baa3923351cc))
+* **app:** chat do Social — canal realtime com nome ÚNICO (conflito impedia mensagens ao vivo) + envio otimista (aparece na hora) + horário em cada mensagem ([85932c1](https://github.com/Tcordeir0/home-gym-app/commit/85932c1b282d9b685801a714dcdc247de35f9245))
+* **app:** comida adicionada em dia retroativo agora salva no dia certo ([4fed4cf](https://github.com/Tcordeir0/home-gym-app/commit/4fed4cfb7f448add3fd6a3319561f7efd3c62afe))
+* **app:** corrige crash removeChild do botão Salvar (sempre no DOM + animação CSS) + Zona de perigo (sair da conta e excluir perfil com confirmação obrigatória) ([da09038](https://github.com/Tcordeir0/home-gym-app/commit/da09038a2d3e8ab00d2f0a9fa59c2aebf6fd71c2))
+* **app:** corrige loop infinito que travava o Social (seletor zustand) + Creator liberado p/ perfil TALYS + roleta dá 70% itens/30% pontos + volume de som por perfil (slider) ([1f7ea2f](https://github.com/Tcordeir0/home-gym-app/commit/1f7ea2ff20b2ebf2df99cc6882e2f3ba5221632e))
+* **app:** Error Boundary auto-recuperável p/ crash 'removeChild' (extensões como KeePassXC mexendo no DOM) + autocomplete off no nome do perfil ([cce3ede](https://github.com/Tcordeir0/home-gym-app/commit/cce3ede1297f7490101905b8327122af5f7cd702))
+* **app:** gramas do alimento vêm vazias e apagáveis (era 100 travado) + foto de progresso/prato permitem GALERIA (não só câmera) + hidratação retroativa (seletor de data) ([fa26b86](https://github.com/Tcordeir0/home-gym-app/commit/fa26b86c613e393a1ed5d56539445363786ed6cb))
+* **app:** perfil ativo respeita o aparelho (não herda o de outro perfil) + anatomia conta treinos padrão (musculo) + 27 exercícios de casa (core/trapézio/halter) + sons mais altos e ricos + changelog cabe no mobile ([b17b963](https://github.com/Tcordeir0/home-gym-app/commit/b17b963ab908ee24166ceb39e393d5ed0fff0f19))
+
 ## [0.7.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.6.0...v0.7.0) (2026-06-12)
 
 
