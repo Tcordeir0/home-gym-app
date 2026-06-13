@@ -46,7 +46,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -83,6 +83,7 @@ function defaultState(): AppState {
     users: [newProfile('u1', 'Você', COLORS[0])],
     active: 'u1',
     checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
+    reminder: { on: false, time: '18:00' },
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -105,6 +106,7 @@ function migrate(raw: Partial<AppState>): AppState {
   // e só ligam DEPOIS de conceder a permissão.
   if (typeof s.notifyOn !== 'boolean') { s.notifyOn = false; s.feedback = 'none'; }
   if (!s.feedback) s.feedback = 'none';
+  if (!s.reminder || typeof s.reminder.on !== 'boolean') s.reminder = { on: false, time: '18:00' };
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -155,6 +157,7 @@ export interface Store extends AppState {
   clearProfileData: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   setNotifyOn: (v: boolean) => void;
+  setReminder: (r: Partial<AppState['reminder']>) => void;
   resetState: () => void;
   initForUser: (name: string) => void;
   setTheme: (t: string) => void;
@@ -237,6 +240,7 @@ export const useStore = create<Store>((set, get) => {
     setActive: (id) => { setDeviceActive(id); set({ active: id }); },
     setFeedback: (f) => set({ feedback: f }),
     setNotifyOn: (v) => set({ notifyOn: v }),
+    setReminder: (r) => set((s) => ({ reminder: { ...s.reminder, ...r } })),
     resetState: () => set(defaultState()),
     initForUser: (name) => set(freshStateFor(name)),
     setTheme: (t) =>

@@ -698,6 +698,23 @@
   font-weight: 600;
 }
 .collap-body { margin-top: 12px; }
+.perfil-time {
+  font-family: var(--ion-font-family);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ion-text-color);
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--app-line);
+  border-radius: 10px;
+  padding: 7px 11px;
+  cursor: pointer;
+}
+.perfil-hint-sm {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--app-muted);
+}
 .perfil-about { margin: 14px 0 0; font-size: 12px; color: var(--app-muted); text-align: center; opacity: 0.7; }
 .perfil-subhead { font-size: 12px; font-weight: 800; color: var(--app-muted); margin: 18px 0 9px; text-transform: uppercase; letter-spacing: 0.5px; }
 .perfil-subhead:first-child { margin-top: 4px; }

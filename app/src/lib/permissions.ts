@@ -30,11 +30,15 @@ export function vibrationSupported(): boolean {
   return typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 }
 
-/** Dispara uma notificação local simples (quando permitido). */
-export function notify(title: string, body?: string): void {
+/** Dispara uma notificação local simples (quando permitido).
+ *  Usa o Service Worker quando disponível (mais confiável no mobile),
+ *  com fallback pra Notification direta. */
+export async function notify(title: string, body?: string): Promise<void> {
+  if (!notificationsGranted()) return;
+  const opts: NotificationOptions = { body, icon: '/icon-192.png', badge: '/icon-192.png' };
   try {
-    if (notificationsGranted()) new Notification(title, { body, icon: '/icon-192.png' });
-  } catch {
-    /* ok */
-  }
+    const reg = await navigator.serviceWorker?.getRegistration?.();
+    if (reg?.showNotification) { await reg.showNotification(title, opts); return; }
+  } catch { /* cai no fallback */ }
+  try { new Notification(title, opts); } catch { /* ok */ }
 }

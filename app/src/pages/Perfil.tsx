@@ -45,6 +45,8 @@ const Perfil: React.FC = () => {
   const setFeedback = useStore((s) => s.setFeedback);
   const notifyOn = useStore((s) => s.notifyOn);
   const setNotifyOn = useStore((s) => s.setNotifyOn);
+  const reminder = useStore((s) => s.reminder);
+  const setReminder = useStore((s) => s.setReminder);
   const setTheme = useStore((s) => s.setTheme);
   const setHat = useStore((s) => s.setHat);
   const setFrame = useStore((s) => s.setFrame);
@@ -475,6 +477,33 @@ const Perfil: React.FC = () => {
               aria-label="Notificações"
             />
           </div>
+          {notifyOn && (
+            <>
+              <div className="ajuste-row">
+                <span>⏰ Lembrete de treino</span>
+                <IonToggle
+                  checked={reminder.on}
+                  onIonChange={(e) => setReminder({ on: e.detail.checked })}
+                  aria-label="Lembrete de treino"
+                />
+              </div>
+              {reminder.on && (
+                <div className="ajuste-row">
+                  <span>Horário do lembrete</span>
+                  <input
+                    type="time"
+                    className="perfil-time"
+                    value={reminder.time}
+                    onChange={(e) => setReminder({ time: e.target.value || '18:00' })}
+                    aria-label="Horário do lembrete"
+                  />
+                </div>
+              )}
+              {reminder.on && (
+                <p className="perfil-hint-sm">Avisa no horário com o app aberto e quando você abrir o app sem ter treinado. No iPhone, lembretes em segundo plano dependem do sistema.</p>
+              )}
+            </>
+          )}
           {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
           <p className="perfil-about">🏋️ Home Gym · v{APP_VERSION} · feito por Tcordeiro</p>
         </IonCardContent>
