@@ -317,6 +317,38 @@ const ThemeFX: React.FC = () => {
           <div className="glx-roll" />
         </div>
       )}
+      {themeObj?.fx === 'blood' && (
+        <div className="fx-blood">
+          <div className="blood-vig" />
+          <div className="blood-floor" />
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={'d' + i}
+              className="drip"
+              style={{
+                left: `${(i * 37 + 3) % 98}%`,
+                width: `${4 + (i % 4) * 3}px`,
+                animationDuration: `${6 + (i % 6) * 1.6}s`,
+                animationDelay: `-${(i * 0.8) % 10}s`,
+              }}
+            />
+          ))}
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span
+              key={'s' + i}
+              className="splat"
+              style={{
+                left: `${(i * 53 + 8) % 90}%`,
+                top: `${(i * 41 + 8) % 84}%`,
+                width: `${38 + (i % 4) * 34}px`,
+                height: `${38 + (i % 4) * 34}px`,
+                animationDuration: `${3.5 + (i % 4)}s`,
+                animationDelay: `-${(i * 1.1) % 6}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       {themeObj?.fx === 'butterflies' && (
         <div className="fx-butterflies">
           {Array.from({ length: 13 }).map((_, i) => (

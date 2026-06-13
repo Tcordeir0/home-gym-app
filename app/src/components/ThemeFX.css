@@ -594,3 +594,55 @@
 .fx-butterflies.green .w { background: radial-gradient(120% 95% at 50% 38%, #f4fff0, #b6ff7a 50%, #4f9a2e 88%); box-shadow: 0 0 8px rgba(170, 255, 100, 0.9); }
 .fx-butterflies.green .bfly::after { background: linear-gradient(#f4fff0, #3a7a1e); box-shadow: 0 0 4px rgba(170, 255, 100, 0.85); }
 @media (prefers-reduced-motion: reduce) { .fx-witchghost .ghost { animation: none; opacity: 0; } }
+
+/* ===== Blood (tema Sete / The Boys) — sangue escorrendo + splatter + terror ===== */
+.fx-blood { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+/* vinheta de pavor pulsando vermelho (batida cardíaca de terror) */
+.fx-blood .blood-vig {
+  position: absolute; inset: 0;
+  background: radial-gradient(125% 95% at 50% 38%, transparent 42%, rgba(120, 0, 0, 0.32) 88%, rgba(55, 0, 0, 0.62) 100%);
+  animation: bloodPulse 3.2s ease-in-out infinite;
+}
+@keyframes bloodPulse { 0%, 100% { opacity: 0.5; } 28% { opacity: 0.96; } 42% { opacity: 0.5; } 58% { opacity: 0.85; } }
+/* poça de sangue acumulando na base */
+.fx-blood .blood-floor {
+  position: absolute; left: 0; right: 0; bottom: -6%; height: 22%;
+  background: radial-gradient(80% 120% at 50% 100%, rgba(120, 0, 0, 0.6), rgba(60, 0, 0, 0.25) 60%, transparent 80%);
+  filter: blur(8px); animation: bloodPulse 3.2s ease-in-out infinite;
+}
+/* escorridos descendo do topo (sangue na tela) */
+.fx-blood .drip {
+  position: absolute; top: 0; height: 0;
+  background: linear-gradient(to bottom, #5a0000, #a00000 35%, #7a0000);
+  border-radius: 0 0 40% 40%;
+  box-shadow: 0 0 6px rgba(120, 0, 0, 0.55);
+  opacity: 0; will-change: height;
+  animation-name: bloodDrip; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.2); animation-iteration-count: infinite;
+}
+.fx-blood .drip::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+  width: 220%; max-width: 16px; aspect-ratio: 0.8;
+  border-radius: 50% 50% 50% 50% / 38% 38% 62% 62%;
+  background: radial-gradient(circle at 40% 30%, #c40000, #5a0000);
+  box-shadow: 0 0 7px rgba(150, 0, 0, 0.6);
+}
+@keyframes bloodDrip {
+  0% { height: 0; opacity: 0; }
+  6% { opacity: 1; }
+  100% { height: 116vh; opacity: 1; }
+}
+/* respingos de sangue surgindo (caótico) */
+.fx-blood .splat {
+  position: absolute;
+  border-radius: 46% 54% 48% 52% / 56% 44% 56% 44%;
+  background: radial-gradient(circle at 42% 38%, rgba(150, 4, 4, 0.72), rgba(75, 0, 0, 0.34) 52%, transparent 74%);
+  filter: blur(2px); opacity: 0; will-change: transform, opacity;
+  animation-name: bloodSplat; animation-timing-function: ease-out; animation-iteration-count: infinite;
+}
+@keyframes bloodSplat {
+  0% { opacity: 0; transform: scale(0.35) rotate(0deg); }
+  7% { opacity: 0.9; transform: scale(1.12) rotate(8deg); }
+  30% { opacity: 0.62; }
+  100% { opacity: 0; transform: scale(1.35) rotate(14deg); }
+}
+@media (prefers-reduced-motion: reduce) { .fx-blood .drip, .fx-blood .splat { animation: none; opacity: 0.5; } .fx-blood .blood-vig, .fx-blood .blood-floor { animation: none; opacity: 0.6; } }
