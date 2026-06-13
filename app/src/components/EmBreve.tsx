@@ -3,12 +3,13 @@ import { IonIcon, IonModal } from '@ionic/react';
 import { hourglassOutline, ellipse } from 'ionicons/icons';
 import './EmBreve.css';
 
-// Recursos por vir. À medida que entram no app, removo daqui.
+// Recursos por vir (roadmap atual). À medida que entram no app, removo daqui.
 const UPCOMING = [
-  'Desafios entre amigos',
-  'Batalha de duplas 2v2 entre contas',
-  'Conquistas sociais (em grupo)',
-  'Notificação push quando um amigo desbloqueia algo',
+  'Lojinha pra comprar temas e aros com suas creatinas (₡)',
+  'Mais exercícios + anatomia detalhada por músculo',
+  'Cardio com cronômetro de início e fim',
+  'Fotos dos perfis no Social e miniaturas nos grupos',
+  'Notificação de mensagem com o app fechado',
   'Unidade de peso kg/lb',
   'Metas de casal',
 ];
