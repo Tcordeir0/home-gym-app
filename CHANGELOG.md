@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.0...v0.8.1) (2026-06-13)
+
+
+### Bug Fixes
+
+* **app:** performance e layout pós-0.8.0 (tab bar, modal Social, transições) ([47fcdb5](https://github.com/Tcordeir0/home-gym-app/commit/47fcdb5c11f31907dbf8271e129195bd89349733))
+* **app:** reverte mudanças visuais à toa — a lentidão era o AutoAnimate, não o glass ([1cd953b](https://github.com/Tcordeir0/home-gym-app/commit/1cd953b65181a2c326f5a26ddbef37a66b89dc96))
+
 ## [0.8.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.7.0...v0.8.0) (2026-06-13)
 
 
