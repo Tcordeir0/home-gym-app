@@ -30,6 +30,7 @@ import Perfil from './pages/Perfil';
 import LevelUp from './components/LevelUp';
 import WhatsNew from './components/WhatsNew';
 import ThemeFX from './components/ThemeFX';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -190,6 +191,7 @@ const App: React.FC = () => {
     <ThemeFX />
     <LevelUp />
     <WhatsNew />
+    <ErrorBoundary>
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
@@ -226,6 +228,7 @@ const App: React.FC = () => {
         </IonTabBar>
       </IonTabs>
     </IonReactRouter>
+    </ErrorBoundary>
   </IonApp>
   );
 };

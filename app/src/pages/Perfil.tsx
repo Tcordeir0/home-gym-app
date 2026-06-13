@@ -157,6 +157,10 @@ const Perfil: React.FC = () => {
                 className="perfil-name"
                 value={profile.name}
                 aria-label="Nome do perfil"
+                autocomplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-form-type="other"
                 onIonChange={(e) => {
                   const v = (e.detail.value || '').trim();
                   if (!v || v === profile.name) return;
