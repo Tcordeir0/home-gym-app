@@ -8,8 +8,10 @@ import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
 import { pushNow } from '../lib/sync';
 import Collapsible from '../components/Collapsible';
+import Ferramentas from '../components/Ferramentas';
 import ChangelogHistory from '../components/ChangelogHistory';
 import { totalPoints, levelInfo } from '../lib/stats';
+import { APP_VERSION } from '../lib/version';
 import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
@@ -28,6 +30,7 @@ const Perfil: React.FC = () => {
   const profile = useActiveProfile();
   const updateProfile = useStore((s) => s.updateProfile);
   const deleteProfile = useStore((s) => s.deleteProfile);
+  const clearProfileData = useStore((s) => s.clearProfileData);
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
   const feedback = useStore((s) => s.feedback);
@@ -55,6 +58,7 @@ const Perfil: React.FC = () => {
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
   const [toast, setToast] = useState('');
 
@@ -206,6 +210,16 @@ const Perfil: React.FC = () => {
         buttons={[
           { text: 'Cancelar', role: 'cancel' },
           { text: 'Sair', role: 'destructive', handler: () => { void supabase.auth.signOut(); } },
+        ]}
+      />
+      <IonAlert
+        isOpen={clearOpen}
+        onDidDismiss={() => setClearOpen(false)}
+        header={`Limpar dados de ${profile.name}?`}
+        message="Apaga treinos, dieta, progresso e pontos deste perfil. O perfil, temas e aros continuam. Não dá pra desfazer."
+        buttons={[
+          { text: 'Cancelar', role: 'cancel' },
+          { text: 'Limpar', role: 'destructive', handler: () => { clearProfileData(profile.id); setToast('Dados do perfil limpos.'); } },
         ]}
       />
 
@@ -403,6 +417,11 @@ const Perfil: React.FC = () => {
         </div>
       </Collapsible>
 
+      {/* Backup & dados (movido de Ferramentas, expansível) */}
+      <Collapsible title="💾 Backup & dados">
+        <Ferramentas onToast={setToast} bare />
+      </Collapsible>
+
       {/* Conta & ajustes */}
       <IonCard className="perfil-card">
         <IonCardContent>
@@ -446,6 +465,7 @@ const Perfil: React.FC = () => {
             />
           </div>
           {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
+          <p className="perfil-about">🏋️ Home Gym · v{APP_VERSION} · feito por Tcordeiro</p>
         </IonCardContent>
       </IonCard>
 
@@ -456,6 +476,9 @@ const Perfil: React.FC = () => {
           <p className="card-sub">Ações que não dão pra desfazer. Confirmação obrigatória.</p>
           <button className="danger-btn" onClick={() => setLogoutOpen(true)}>
             <IonIcon icon={logOutOutline} /> Sair da conta
+          </button>
+          <button className="danger-btn" onClick={() => setClearOpen(true)}>
+            <IonIcon icon={banOutline} /> Limpar dados deste perfil
           </button>
           {users.length > 1 && (
             <button className="danger-btn del" onClick={() => setDelOpen(true)}>

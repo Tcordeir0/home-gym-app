@@ -14,7 +14,7 @@ const todayISO = () => {
 
 type Tp = 'A' | 'B' | 'C' | 'cardio';
 
-const Ferramentas: React.FC<{ onToast: (m: string) => void }> = ({ onToast }) => {
+const Ferramentas: React.FC<{ onToast: (m: string) => void; bare?: boolean }> = ({ onToast, bare }) => {
   const profile = useActiveProfile();
   const addBackdated = useStore((s) => s.addBackdated);
   const exportState = useStore((s) => s.exportState);
@@ -54,22 +54,22 @@ const Ferramentas: React.FC<{ onToast: (m: string) => void }> = ({ onToast }) =>
     if (fileRef.current) fileRef.current.value = '';
   };
 
-  return (
-    <IonCard className="prog-card">
-      <IonCardContent>
-        <h2 className="card-title">Ferramentas</h2>
-        <button className="ferr-row" onClick={() => { setType('A'); setDate(todayISO()); setOpen(true); }}>
-          <IonIcon icon={calendarOutline} /> <span>Registrar treino/cardio em outra data</span>
-        </button>
-        <button className="ferr-row" onClick={doExport}>
-          <IonIcon icon={downloadOutline} /> <span>Exportar backup (JSON)</span>
-        </button>
-        <button className="ferr-row" onClick={() => fileRef.current?.click()}>
-          <IonIcon icon={cloudUploadOutline} /> <span>Importar backup</span>
-        </button>
-        <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={onImport} />
-      </IonCardContent>
+  const rows = (
+    <>
+      <button className="ferr-row" onClick={() => { setType('A'); setDate(todayISO()); setOpen(true); }}>
+        <IonIcon icon={calendarOutline} /> <span>Registrar treino/cardio em outra data</span>
+      </button>
+      <button className="ferr-row" onClick={doExport}>
+        <IonIcon icon={downloadOutline} /> <span>Exportar backup (JSON)</span>
+      </button>
+      <button className="ferr-row" onClick={() => fileRef.current?.click()}>
+        <IonIcon icon={cloudUploadOutline} /> <span>Importar backup</span>
+      </button>
+      <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={onImport} />
+    </>
+  );
 
+  const modal = (
       <IonModal isOpen={open} onDidDismiss={() => setOpen(false)} breakpoints={[0, 0.92]} initialBreakpoint={0.92} handle>
         <IonContent className="ferr-content">
           <div className="ferr-wrap">
@@ -111,6 +111,16 @@ const Ferramentas: React.FC<{ onToast: (m: string) => void }> = ({ onToast }) =>
           </div>
         </IonContent>
       </IonModal>
+  );
+
+  if (bare) return <>{rows}{modal}</>;
+  return (
+    <IonCard className="prog-card">
+      <IonCardContent>
+        <h2 className="card-title">Ferramentas</h2>
+        {rows}
+      </IonCardContent>
+      {modal}
     </IonCard>
   );
 };

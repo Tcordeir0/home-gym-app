@@ -698,6 +698,7 @@
   font-weight: 600;
 }
 .collap-body { margin-top: 12px; }
+.perfil-about { margin: 14px 0 0; font-size: 12px; color: var(--app-muted); text-align: center; opacity: 0.7; }
 .perfil-subhead { font-size: 13px; font-weight: 700; color: var(--app-muted); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.3px; }
 
 /* ===== Zona de perigo ===== */

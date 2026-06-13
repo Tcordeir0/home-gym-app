@@ -152,6 +152,7 @@ export interface Store extends AppState {
   claimProfile: (id: string) => void;
   addAndClaimProfile: (name: string) => string;
   deleteProfile: (id: string) => void;
+  clearProfileData: (id: string) => void;
   setFeedback: (f: AppState['feedback']) => void;
   setNotifyOn: (v: boolean) => void;
   resetState: () => void;
@@ -315,6 +316,15 @@ export const useStore = create<Store>((set, get) => {
         if (s.users.find((u) => u.id === id)?.claimedDevice !== deviceId()) return s; // só edita o seu perfil
         return { users: s.users.map((u) => (u.id === id ? { ...u, ...patch } : u)) };
       }),
+
+    // limpa os DADOS do perfil (treinos/dieta/progresso/pontos) mantendo o perfil e cosméticos
+    clearProfileData: (id) => {
+      if (get().users.find((u) => u.id === id)?.claimedDevice !== deviceId()) return;
+      set(produce((s: Store) => {
+        const maps: (keyof AppState)[] = ['checks', 'history', 'scores', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily'];
+        maps.forEach((k) => { delete (s[k] as Record<string, unknown>)[id]; });
+      }));
+    },
 
     setSetField: (treino, exIdx, setIdx, field, v, series) =>
       set(produce((s: Store) => { if (!ownsActive(s)) return; ensureRow(s, s.active, treino, exIdx, series)[setIdx][field] = v; })),
