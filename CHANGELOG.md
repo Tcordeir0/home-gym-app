@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.8.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.1...v0.8.2) (2026-06-13)
+
+
+### Features
+
+* **app:** copiar dieta do dia anterior + versão exibida agora bumpa sozinha (release-please) ([a87ef5d](https://github.com/Tcordeir0/home-gym-app/commit/a87ef5dbfd3067ca8a894b764fef02de5af6d25a))
+* **app:** trocar exercício por variação da mesma ênfase ([056127e](https://github.com/Tcordeir0/home-gym-app/commit/056127eb2bd58884380eea0d30937a23619bad23))
+
+
+### Bug Fixes
+
+* **app:** som não morre mais após travar a tela (iOS) ([236f858](https://github.com/Tcordeir0/home-gym-app/commit/236f858a78338298fc0bcb22c7952dee69902be9))
+* **app:** tab bar sem vazio interno + mais baixa, fim de página sem vão gigante, Treino A/B/C legíveis, nomes do chat na cor certa + selo TESTE no dev ([d067622](https://github.com/Tcordeir0/home-gym-app/commit/d0676226134775f865a20c9fafb03616669b82ed))
+
+
+### Miscellaneous Chores
+
+* cortar release 0.8.2 ([c3f24ce](https://github.com/Tcordeir0/home-gym-app/commit/c3f24ceae4829deaa98c310f4dd5d6777daff32c))
+
 ## [0.8.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.0...v0.8.1) (2026-06-13)
 
 
