@@ -75,6 +75,7 @@ export interface HistoryEntry {
   w: 'A' | 'B' | 'C' | 'cardio';
   t?: string; // tipo de cardio
   emoji?: string;
+  mins?: number; // duração do cardio (minutos), quando cronometrado
   exercises?: { nome: string; sets: SetEntry[] }[];
 }
 

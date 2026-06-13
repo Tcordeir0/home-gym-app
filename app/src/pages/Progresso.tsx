@@ -204,7 +204,7 @@ const Progresso: React.FC = () => {
               ) : (
                 <ul className="cal-detail-list">
                   {dayInfo.treinos.map((e, i) => <li key={'t' + i}>💪 {W_LABEL[e.w]}{e.exercises ? ` · ${e.exercises.reduce((a, x) => a + x.sets.length, 0)} séries` : ''}</li>)}
-                  {dayInfo.cardios.map((e, i) => <li key={'c' + i}>{e.emoji || '🏃'} {e.t || 'Cardio'}</li>)}
+                  {dayInfo.cardios.map((e, i) => <li key={'c' + i}>{e.emoji || '🏃'} {e.t || 'Cardio'}{e.mins ? ` · ${e.mins} min` : ''}</li>)}
                   {dayInfo.foodN > 0 && <li>🍽️ {dayInfo.foodN} {dayInfo.foodN === 1 ? 'item' : 'itens'} · {dayInfo.kcal} kcal</li>}
                   {dayInfo.water > 0 && <li>💧 {(dayInfo.water / 1000).toFixed(1)} L de água</li>}
                 </ul>
@@ -253,6 +253,7 @@ const Progresso: React.FC = () => {
                         <span className="sess-sub">
                           {fmtDate(e.date)}
                           {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
+                          {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
                         </span>
                       </span>
                       {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
