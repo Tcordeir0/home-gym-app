@@ -217,7 +217,7 @@ const Diary: React.FC = () => {
           </div>
         )}
 
-        <PlateSheet open={plateOpen} onClose={() => setPlateOpen(false)} />
+        <PlateSheet open={plateOpen} date={date} onClose={() => setPlateOpen(false)} />
       </IonCardContent>
     </IonCard>
   );
