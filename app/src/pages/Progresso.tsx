@@ -95,6 +95,19 @@ const Progresso: React.FC = () => {
       .map((e, idx) => ({ e, idx }))
       .sort((a, b) => (a.e.date < b.e.date ? 1 : a.e.date > b.e.date ? -1 : b.idx - a.idx));
   }, [history, active]);
+  const treinoSess = sessions.filter((s) => s.e.w !== 'cardio');
+  const cardioSess = sessions.filter((s) => s.e.w === 'cardio');
+  // dias de alimentação/hidratação (do mais novo pro mais antigo)
+  const dietDays = useMemo(() => {
+    const dd = daily[active] || {};
+    return Object.keys(dd)
+      .filter((d) => (dd[d].food || []).length > 0 || (dd[d].waterMl || 0) > 0)
+      .sort((a, b) => (a < b ? 1 : -1))
+      .map((d) => {
+        const food = dd[d].food || [];
+        return { date: d, foodN: food.length, kcal: Math.round(food.reduce((a, it) => a + (it.k * it.g) / 100, 0)), water: dd[d].waterMl || 0 };
+      });
+  }, [daily, active]);
 
   const unlocked = ACHIEVEMENTS.filter((a) => a.test(stats)).length;
 
@@ -137,6 +150,44 @@ const Progresso: React.FC = () => {
     } catch {
       setToast('Não consegui gerar o card agora');
     }
+  };
+
+  // renderiza um item de sessão (treino ou cardio) — reusado nas seções
+  const renderSession = ({ e, idx }: { e: HistoryEntry; idx: number }) => {
+    const open = expanded === idx;
+    const setCount = (e.exercises || []).reduce((a, x) => a + x.sets.length, 0);
+    return (
+      <div key={idx} className={'sess' + (open ? ' open' : '')}>
+        <button className="sess-head" onClick={() => setExpanded(open ? null : idx)}>
+          <span className={'sess-tag ' + (e.w === 'cardio' ? 'cardio' : 'treino')}>
+            {e.w === 'cardio' ? (e.emoji || '🔥') : e.w}
+          </span>
+          <span className="sess-main">
+            <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : W_LABEL[e.w]}</span>
+            <span className="sess-sub">
+              {fmtDate(e.date)}
+              {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
+              {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
+            </span>
+          </span>
+          {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
+        </button>
+        {open && e.w !== 'cardio' && (
+          <div className="sess-body">
+            {(e.exercises || []).map((x, j) => (
+              <div key={j} className="sess-ex">
+                <span className="sess-ex-n">{x.nome}</span>
+                <span className="sess-ex-s">{x.sets.length ? x.sets.map((st) => `${st.kg ?? '–'}kg×${st.reps ?? '–'}`).join('  ') : '—'}</span>
+              </div>
+            ))}
+            <button className="sess-del" onClick={() => setDelIdx(idx)}><IonIcon icon={trashOutline} /> Apagar sessão</button>
+          </div>
+        )}
+        {e.w === 'cardio' && (
+          <button className="sess-del cardio-del" onClick={() => setDelIdx(idx)} aria-label="Apagar"><IonIcon icon={trashOutline} /></button>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -247,58 +298,34 @@ const Progresso: React.FC = () => {
           </div>
       </Collapsible>
 
-      {/* Sessões (expansível) */}
-      <Collapsible title="📋 Sessões" defaultOpen>
-          {sessions.length === 0 ? (
-            <p className="prog-empty">Nenhuma sessão ainda. Conclua um treino na aba <b>Treino</b>.</p>
-          ) : (
-            <div className="sess-list">
-              {sessions.map(({ e, idx }) => {
-                const open = expanded === idx;
-                const setCount = (e.exercises || []).reduce((a, x) => a + x.sets.length, 0);
-                return (
-                  <div key={idx} className={'sess' + (open ? ' open' : '')}>
-                    <button className="sess-head" onClick={() => setExpanded(open ? null : idx)}>
-                      <span className={'sess-tag ' + (e.w === 'cardio' ? 'cardio' : 'treino')}>
-                        {e.w === 'cardio' ? (e.emoji || '🔥') : e.w}
-                      </span>
-                      <span className="sess-main">
-                        <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : W_LABEL[e.w]}</span>
-                        <span className="sess-sub">
-                          {fmtDate(e.date)}
-                          {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
-                          {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
-                        </span>
-                      </span>
-                      {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
-                    </button>
-                    {open && e.w !== 'cardio' && (
-                      <div className="sess-body">
-                        {(e.exercises || []).map((x, j) => (
-                          <div key={j} className="sess-ex">
-                            <span className="sess-ex-n">{x.nome}</span>
-                            <span className="sess-ex-s">
-                              {x.sets.length
-                                ? x.sets.map((st) => `${st.kg ?? '–'}kg×${st.reps ?? '–'}`).join('  ')
-                                : '—'}
-                            </span>
-                          </div>
-                        ))}
-                        <button className="sess-del" onClick={() => setDelIdx(idx)}>
-                          <IonIcon icon={trashOutline} /> Apagar sessão
-                        </button>
-                      </div>
-                    )}
-                    {e.w === 'cardio' && (
-                      <button className="sess-del cardio-del" onClick={() => setDelIdx(idx)} aria-label="Apagar">
-                        <IonIcon icon={trashOutline} />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      {/* Sessões separadas por tipo (cada uma expansível, fechadas por padrão) */}
+      <Collapsible title={<>💪 Treinos <span className="ach-count">· {treinoSess.length}</span></>}>
+        {treinoSess.length === 0 ? <p className="prog-empty">Nenhum treino ainda. Conclua um na aba <b>Treino</b>.</p> :
+          <div className="sess-list">{treinoSess.map(renderSession)}</div>}
+      </Collapsible>
+      <Collapsible title={<>🏃 Cardios <span className="ach-count">· {cardioSess.length}</span></>}>
+        {cardioSess.length === 0 ? <p className="prog-empty">Nenhum cardio ainda.</p> :
+          <div className="sess-list">{cardioSess.map(renderSession)}</div>}
+      </Collapsible>
+      <Collapsible title={<>🍽️ Alimentação & hidratação <span className="ach-count">· {dietDays.length}</span></>}>
+        {dietDays.length === 0 ? <p className="prog-empty">Nada de dieta/água registrado ainda.</p> :
+          <div className="sess-list">
+            {dietDays.map((d) => (
+              <div key={d.date} className="sess">
+                <div className="sess-head" style={{ cursor: 'default' }}>
+                  <span className="sess-tag dieta">🍽️</span>
+                  <span className="sess-main">
+                    <span className="sess-title">{fmtDate(d.date)}</span>
+                    <span className="sess-sub">
+                      {d.foodN > 0 && `${d.foodN} ${d.foodN === 1 ? 'item' : 'itens'} · ${d.kcal} kcal`}
+                      {d.foodN > 0 && d.water > 0 && ' · '}
+                      {d.water > 0 && `💧 ${(d.water / 1000).toFixed(1)} L`}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>}
       </Collapsible>
 
       {/* Medidas + gráficos */}

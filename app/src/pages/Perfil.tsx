@@ -387,10 +387,8 @@ const Perfil: React.FC = () => {
           ))}
         </div>
         <p className="perfil-note">Valem só pro perfil <b>{profile.name}</b> e alimentam o “Montar treino” na aba Treino.</p>
-      </Collapsible>
 
-      {/* Tipos de cardio (expansível) */}
-      <Collapsible title="🏃 Tipos de cardio">
+        <h3 className="perfil-subhead">🏃 Tipos de cardio</h3>
         <p className="card-sub">Só os cardios que {profile.name} consegue fazer aparecem na aba Treino.</p>
         <div className="equip-grid">
           {cardioList.map((c) => (
