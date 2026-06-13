@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useStore } from '../store/store';
 import * as S from '../lib/social';
 import { TAUNTS } from '../data/taunts';
+import { notify } from '../lib/permissions';
 import './Social.css';
 
 type Tab = 'amigos' | 'cutucar' | 'chat' | 'grupos';
@@ -405,10 +406,37 @@ const SocialPanel: React.FC = () => {
 /** Botão Social no header do Treino + modal com Amigos/Cutucar/Chat. */
 const Social: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [alerts, setAlerts] = useState(0);
+  const notifyOn = useStore((s) => s.notifyOn);
+  const prevAlerts = useRef<number | null>(null);
+
+  // badge no botão: convites recebidos + cutucadas não vistas (atualiza em realtime)
+  useEffect(() => {
+    const refresh = async () => {
+      const { data } = await supabase.auth.getUser();
+      const myUid = data.user?.id || '';
+      if (!myUid) return;
+      const [fs, pk] = await Promise.all([S.listFriendships(), S.listPokes()]);
+      const incoming = fs.filter((f) => f.status === 'pending' && f.addressee === myUid).length;
+      const unseen = pk.filter((p) => p.to_uid === myUid && p.from_uid !== myUid && !p.seen).length;
+      const total = incoming + unseen;
+      // notifica só quando AUMENTA (chegou coisa nova) e o usuário permitiu
+      if (prevAlerts.current !== null && total > prevAlerts.current && notifyOn) {
+        notify('Novidade no Social 👥', incoming ? 'Você tem convite de amizade pra responder.' : 'Alguém te cutucou!');
+      }
+      prevAlerts.current = total;
+      setAlerts(total);
+    };
+    refresh();
+    const unsub = S.subscribeSocial(refresh);
+    return unsub;
+  }, [notifyOn]);
+
   return (
     <>
       <button className="social-btn" onClick={() => setOpen(true)} aria-label="Social">
         <IonIcon icon={people} />
+        {alerts > 0 && <span className="social-badge">{alerts > 9 ? '9+' : alerts}</span>}
       </button>
       <IonModal isOpen={open} onDidDismiss={() => setOpen(false)} className="sc-modal">
         <div className="sc-head">
