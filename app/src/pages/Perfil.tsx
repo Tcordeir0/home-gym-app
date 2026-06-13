@@ -20,6 +20,7 @@ import { resizePhoto } from '../lib/image';
 import { EQUIPMENT_OPTIONS } from '../data/pool';
 import { CARDIO_CATALOG } from '../data/cardios';
 import { THEMES, isTester } from '../data/themes';
+import { creatorAllowed } from '../data/shop';
 import { DECOS } from '../data/decos';
 import { FRAMES } from '../data/frames';
 import { supabase } from '../lib/supabase';
@@ -276,7 +277,7 @@ const Perfil: React.FC = () => {
 
           <h3 className="pers-h">Tema</h3>
           <div className="theme-grid">
-            {THEMES.map((th) => {
+            {THEMES.filter((th) => !th.exclusive || creatorAllowed(accountEmail, profile.name)).map((th) => {
               const ok = tester || th.free || unlockedThemes.includes(th.id);
               const sel = curTheme === th.id;
               return (

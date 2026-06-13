@@ -9,7 +9,8 @@ import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { statsFor, e1RM } from '../lib/stats';
+import { statsFor, e1RM, totalPoints } from '../lib/stats';
+import { CREATINAS_PER_POINT, type ShopKind } from '../data/shop';
 
 // itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
 const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
@@ -47,7 +48,7 @@ const STORAGE_KEY = 'hgt_v2'; // MESMA chave do v1 → cutover lê os dados exis
 const DEVICE_ACTIVE_KEY = 'hgt_active_device';
 
 const STATE_KEYS: (keyof AppState)[] = [
-  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder', 'swaps',
+  'users', 'active', 'checks', 'history', 'scores', 'soundOn', 'feedback', 'notifyOn', 'reminder', 'swaps', 'wallet',
   'appTheme', 'pokes', 'session', 'celebrated', 'notifs', 'setlog', 'measures', 'daily',
 ];
 
@@ -86,6 +87,7 @@ function defaultState(): AppState {
     checks: {}, history: {}, scores: {}, soundOn: true, feedback: 'none', notifyOn: false, appTheme: 'dark',
     reminder: { on: false, time: '18:00' },
     swaps: {},
+    wallet: {},
     pokes: {}, session: {}, celebrated: {}, notifs: {}, setlog: {}, measures: {}, daily: {},
   };
 }
@@ -110,6 +112,7 @@ function migrate(raw: Partial<AppState>): AppState {
   if (!s.feedback) s.feedback = 'none';
   if (!s.reminder || typeof s.reminder.on !== 'boolean') s.reminder = { on: false, time: '18:00' };
   if (!s.swaps) s.swaps = {};
+  if (!s.wallet) s.wallet = {};
   if (!s.appTheme) s.appTheme = 'dark';
   (s.users || []).forEach((u, i) => {
     if (!u.color) u.color = COLORS[i % COLORS.length];
@@ -172,6 +175,8 @@ export interface Store extends AppState {
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   swapExercise: (treino: string, exIdx: number, ex: Exercise) => void;
+  creatinasBalance: () => number;
+  buyCosmetic: (kind: ShopKind, id: string, cost: number) => 'ok' | 'owned' | 'poor';
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
   lastBestSet: (nome: string) => { kg: number; reps: number } | null;
   prevSets: (nome: string) => { kg: number; reps: number }[];
@@ -348,6 +353,35 @@ export const useStore = create<Store>((set, get) => {
         const r = ensureRow(s, s.active, treino, exIdx, series)[setIdx];
         r.done = !r.done;
       })),
+
+    // saldo de creatinas do perfil ativo = pontos_totais × taxa − já gasto na loja
+    creatinasBalance: () => {
+      const s = get();
+      return Math.floor(totalPoints(s, s.active) * CREATINAS_PER_POINT) - (s.wallet[s.active]?.spent || 0);
+    },
+
+    // compra um cosmético com creatinas (desbloqueia + desconta do saldo)
+    buyCosmetic: (kind, id, cost) => {
+      let res: 'ok' | 'owned' | 'poor' = 'poor';
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const uid = s.active;
+        const u = s.users.find((x) => x.id === uid);
+        if (!u) return;
+        u.cosmetics.themes = u.cosmetics.themes || [];
+        u.cosmetics.frames = u.cosmetics.frames || [];
+        u.cosmetics.hats = u.cosmetics.hats || [];
+        const arr = kind === 'theme' ? u.cosmetics.themes : kind === 'frame' ? u.cosmetics.frames : u.cosmetics.hats;
+        if (arr.includes(id)) { res = 'owned'; return; }
+        const bal = Math.floor(totalPoints(s, uid) * CREATINAS_PER_POINT) - (s.wallet[uid]?.spent || 0);
+        if (bal < cost) { res = 'poor'; return; }
+        arr.push(id);
+        s.wallet[uid] = s.wallet[uid] || { spent: 0 };
+        s.wallet[uid].spent += cost;
+        res = 'ok';
+      }));
+      return res;
+    },
 
     // troca um exercício do treino por uma variação (mesma ênfase); zera as séries da posição
     swapExercise: (treino, exIdx, ex) =>

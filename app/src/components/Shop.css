@@ -1,0 +1,31 @@
+.shop { margin-top: 4px; }
+.shop-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.shop-head .card-title { display: inline-flex; align-items: center; gap: 8px; margin: 0; }
+.shop-head .card-title ion-icon { color: var(--brand-lime); }
+.shop-bal {
+  font-family: var(--font-display); font-size: 22px; color: var(--brand-lime);
+  background: color-mix(in srgb, var(--brand-lime) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 35%, transparent);
+  border-radius: 999px; padding: 3px 14px; line-height: 1.1;
+}
+.shop-sec { margin-top: 16px; }
+.shop-sec-h { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--app-muted); margin: 0 0 9px; font-weight: 800; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 9px; }
+.shop-item {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); border: 1px solid var(--app-line);
+  border-radius: 13px; padding: 9px 10px; min-width: 0;
+}
+.shop-item.owned { opacity: 0.7; }
+.shop-sw { width: 34px; height: 34px; border-radius: 9px; flex: 0 0 auto; }
+.shop-ring { width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; -webkit-mask: radial-gradient(circle, transparent 9px, #000 10px); mask: radial-gradient(circle, transparent 9px, #000 10px); }
+.shop-deco { width: 34px; height: 34px; border-radius: 9px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.25); }
+.shop-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: var(--ion-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shop-buy {
+  flex: 0 0 auto; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer;
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  background: var(--brand-lime); color: #0b0c0f; letter-spacing: 0.3px;
+}
+.shop-buy.poor { background: var(--app-surface-2); color: var(--app-muted); border: 1px solid var(--app-line); }
+.shop-have { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--brand-lime); }
+.shop-have ion-icon { font-size: 15px; }

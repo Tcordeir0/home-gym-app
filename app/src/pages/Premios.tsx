@@ -7,6 +7,7 @@ import { familyLeague, weekDates } from '../lib/league';
 import { QUESTS } from '../data/quests';
 import { type Prize } from '../data/roulette';
 import Roleta from '../components/Roleta';
+import Shop from '../components/Shop';
 import { waterGoal } from '../lib/diet';
 import { fxReward } from '../lib/feedback';
 import { postEvent } from '../lib/social';
@@ -159,6 +160,13 @@ const Premios: React.FC = () => {
           </div>
           <p className="card-sub">1 giro a cada 100 pts. Pontos, aro, tema ou cosmético.</p>
           <Roleta spins={spins} onSpin={spinRoulette} onResult={onPrize} />
+        </IonCardContent>
+      </IonCard>
+
+      {/* Lojinha (abaixo da roleta) */}
+      <IonCard className="prem-card">
+        <IonCardContent>
+          <Shop />
         </IonCardContent>
       </IonCard>
 
