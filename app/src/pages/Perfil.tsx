@@ -7,6 +7,7 @@ import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
 import { pushNow } from '../lib/sync';
+import Collapsible from '../components/Collapsible';
 import ChangelogHistory from '../components/ChangelogHistory';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
@@ -351,103 +352,56 @@ const Perfil: React.FC = () => {
         </IonCardContent>
       </IonCard>
 
-      {/* Local de treino */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Local de treino</h2>
-          <p className="card-sub">Define quais exercícios o gerador escolhe pra você.</p>
-          <div className="loc-toggle">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              className={'loc-opt' + (location === 'casa' ? ' on' : '')}
-              onClick={() => updateProfile(profile.id, { location: 'casa' })}
-            >
-              <span className="loc-emoji">🏠</span> Casa
+      {/* Montar treino: local + equipamento juntos (expansível) */}
+      <Collapsible title="🏋️ Montar treino">
+        <p className="card-sub">Define quais exercícios o gerador escolhe pra você.</p>
+        <div className="loc-toggle">
+          <motion.button whileTap={{ scale: 0.96 }} className={'loc-opt' + (location === 'casa' ? ' on' : '')} onClick={() => updateProfile(profile.id, { location: 'casa' })}>
+            <span className="loc-emoji">🏠</span> Casa
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.96 }} className={'loc-opt' + (location === 'academia' ? ' on' : '')} onClick={() => updateProfile(profile.id, { location: 'academia' })}>
+            <span className="loc-emoji">🏋️</span> Academia
+          </motion.button>
+        </div>
+        <h3 className="perfil-subhead">Equipamento disponível {location === 'casa' ? 'em casa' : 'na academia'}</h3>
+        <div className="equip-grid">
+          {EQUIPMENT_OPTIONS.map((o) => (
+            <motion.button key={o.key} whileTap={{ scale: 0.95 }} className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')} onClick={() => toggleEquip(o.key)}>
+              {o.label}
             </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              className={'loc-opt' + (location === 'academia' ? ' on' : '')}
-              onClick={() => updateProfile(profile.id, { location: 'academia' })}
-            >
-              <span className="loc-emoji">🏋️</span> Academia
+          ))}
+        </div>
+        <p className="perfil-note">Valem só pro perfil <b>{profile.name}</b> e alimentam o “Montar treino” na aba Treino.</p>
+      </Collapsible>
+
+      {/* Tipos de cardio (expansível) */}
+      <Collapsible title="🏃 Tipos de cardio">
+        <p className="card-sub">Só os cardios que {profile.name} consegue fazer aparecem na aba Treino.</p>
+        <div className="equip-grid">
+          {cardioList.map((c) => (
+            <motion.button key={c.label} whileTap={{ scale: 0.95 }} className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')} onClick={() => toggleCardio(c)}>
+              <span className="chip-emoji">{c.emoji || '🔥'}</span> {c.label}
             </motion.button>
-          </div>
-        </IonCardContent>
-      </IonCard>
+          ))}
+          <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
+            <IonIcon icon={addOutline} /> Adicionar
+          </button>
+        </div>
+      </Collapsible>
 
-      {/* Equipamento disponível */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Equipamento disponível</h2>
-          <p className="card-sub">O que você tem pra treinar {location === 'casa' ? 'em casa' : 'na academia'}.</p>
-          <div className="equip-grid">
-            {EQUIPMENT_OPTIONS.map((o) => (
-              <motion.button
-                key={o.key}
-                whileTap={{ scale: 0.95 }}
-                className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')}
-                onClick={() => toggleEquip(o.key)}
-              >
-                {o.label}
-              </motion.button>
-            ))}
-          </div>
-          <p className="perfil-note">
-            Esses ajustes valem só para o perfil <b>{profile.name}</b> e alimentam o “Montar treino” na aba Treino.
-          </p>
-        </IonCardContent>
-      </IonCard>
-
-      {/* Tipos de cardio */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Tipos de cardio</h2>
-          <p className="card-sub">Só os cardios que {profile.name} consegue fazer aparecem na aba Treino.</p>
-          <div className="equip-grid">
-            {cardioList.map((c) => (
-              <motion.button
-                key={c.label}
-                whileTap={{ scale: 0.95 }}
-                className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')}
-                onClick={() => toggleCardio(c)}
-              >
-                <span className="chip-emoji">{c.emoji || '🔥'}</span> {c.label}
-              </motion.button>
-            ))}
-            <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
-              <IonIcon icon={addOutline} /> Adicionar
-            </button>
-          </div>
-        </IonCardContent>
-      </IonCard>
-
-      {/* Agenda de treino */}
-      <IonCard className="perfil-card">
-        <IonCardContent>
-          <h2 className="card-title">Agenda de treino</h2>
-          <p className="card-sub">Marque os dias que {profile.name} treina. A aba Treino lembra no dia.</p>
-          <div className="agenda-days">
-            {DOW.map((d, i) => (
-              <button
-                key={i}
-                className={'agenda-day' + (schedule.days.includes(i) ? ' on' : '')}
-                onClick={() => toggleDay(i)}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-          <div className="agenda-time">
-            <span>Horário do lembrete</span>
-            <input
-              type="time"
-              className="agenda-input"
-              value={schedule.time || '18:00'}
-              onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })}
-            />
-          </div>
-        </IonCardContent>
-      </IonCard>
+      {/* Agenda de treino (expansível) */}
+      <Collapsible title="📅 Agenda de treino">
+        <p className="card-sub">Marque os dias que {profile.name} treina. A aba Treino lembra no dia.</p>
+        <div className="agenda-days">
+          {DOW.map((d, i) => (
+            <button key={i} className={'agenda-day' + (schedule.days.includes(i) ? ' on' : '')} onClick={() => toggleDay(i)}>{d}</button>
+          ))}
+        </div>
+        <div className="agenda-time">
+          <span>Horário do lembrete</span>
+          <input type="time" className="agenda-input" value={schedule.time || '18:00'} onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })} />
+        </div>
+      </Collapsible>
 
       {/* Conta & ajustes */}
       <IonCard className="perfil-card">

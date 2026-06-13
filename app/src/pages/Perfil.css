@@ -697,6 +697,9 @@
   font-size: 15px;
   font-weight: 600;
 }
+.collap-body { margin-top: 12px; }
+.perfil-subhead { font-size: 13px; font-weight: 700; color: var(--app-muted); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+
 /* ===== Zona de perigo ===== */
 .danger-card { border: 1px solid rgba(255, 91, 91, 0.3); }
 .danger-title { display: flex; align-items: center; gap: 7px; color: #ff7a7a; }
