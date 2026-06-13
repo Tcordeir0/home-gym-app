@@ -184,6 +184,108 @@ function drawThemeBackdrop(ctx: CanvasRenderingContext2D, W: number, H: number, 
   }
 }
 
+// Versão CONGELADA das partículas dos temas animados (bubbles/hearts/hands/...).
+// Espelha o ThemeFX em telão, mas estático — pra "fotografar" o tema no card.
+async function drawThemeFx(ctx: CanvasRenderingContext2D, W: number, H: number, fx: string, accent: string) {
+  const [ar, ag, ab] = hexToRgb(accent);
+  const acc = (a: number) => `rgba(${ar},${ag},${ab},${a})`;
+  const rnd = seeded(themeSeed('fx-' + fx));
+  ctx.save();
+  ctx.textAlign = 'center';
+  switch (fx) {
+    case 'snow': {
+      for (let i = 0; i < 48; i++) {
+        ctx.globalAlpha = 0.35 + rnd() * 0.55;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 4 + 1.4, 0, 7); ctx.fill();
+      }
+      break;
+    }
+    case 'bubbles': {
+      for (let i = 0; i < 24; i++) {
+        const r = rnd() * 22 + 6, x = rnd() * W, y = H - rnd() * H * 0.92;
+        ctx.strokeStyle = `rgba(255,255,255,${0.12 + rnd() * 0.22})`; ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke();
+      }
+      break;
+    }
+    case 'fireflies': {
+      ctx.shadowColor = acc(0.9); ctx.shadowBlur = 18; ctx.fillStyle = acc(0.85);
+      for (let i = 0; i < 22; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 3 + 2, 0, 7); ctx.fill(); }
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case 'hearts': {
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 16; i++) { ctx.globalAlpha = 0.22 + rnd() * 0.4; ctx.font = `${18 + rnd() * 30}px serif`; ctx.fillText('♥', rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'math': {
+      const MS = ['+', '−', '×', '÷', '=', 'π', '√', '∞', '%', '∑', '∫', 'θ', 'φ'];
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 22; i++) { ctx.globalAlpha = 0.18 + rnd() * 0.34; ctx.font = `${22 + rnd() * 28}px monospace`; ctx.fillText(MS[Math.floor(rnd() * MS.length)], rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'enchant': {
+      const RU = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛖᛗᛚᛜᛞᛟ'.split('');
+      ctx.fillStyle = acc(1);
+      for (let i = 0; i < 26; i++) { ctx.globalAlpha = 0.22 + rnd() * 0.5; ctx.font = `${20 + rnd() * 26}px serif`; ctx.fillText(RU[Math.floor(rnd() * RU.length)], rnd() * W, rnd() * H); }
+      break;
+    }
+    case 'miasma': {
+      const g = ctx.createRadialGradient(W / 2, H * 0.2, 0, W / 2, H * 0.2, 460);
+      g.addColorStop(0, 'rgba(220,40,40,0.26)'); g.addColorStop(1, 'rgba(220,40,40,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 16; i++) { ctx.fillStyle = `rgba(40,8,12,${0.1 + rnd() * 0.18})`; ctx.beginPath(); ctx.arc(rnd() * W, H - rnd() * H * 0.7, rnd() * 40 + 16, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'electric': {
+      ctx.strokeStyle = 'rgba(142,200,255,0.45)'; ctx.shadowColor = '#8ec8ff'; ctx.shadowBlur = 18; ctx.lineWidth = 4;
+      for (let b = 0; b < 4; b++) {
+        const x = 90 + rnd() * (W - 180); let y = 0;
+        ctx.beginPath(); ctx.moveTo(x, y);
+        while (y < H) { y += 70 + rnd() * 80; ctx.lineTo(x + (rnd() * 60 - 30), y); }
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0; ctx.fillStyle = acc(0.8);
+      for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2 + 1, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'creator': {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, acc(0)); g.addColorStop(0.5, acc(0.16)); g.addColorStop(1, acc(0));
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = acc(0.8);
+      for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 3 + 1.5, 0, 7); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,210,80,0.85)';
+      for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2 + 1, 0, 7); ctx.fill(); }
+      break;
+    }
+    case 'hands': {
+      // poça escura no rodapé (de onde as mãos emergem)
+      const pool = ctx.createLinearGradient(0, H, 0, H * 0.66);
+      pool.addColorStop(0, 'rgba(10,4,14,0.55)'); pool.addColorStop(1, 'rgba(10,4,14,0)');
+      ctx.fillStyle = pool; ctx.fillRect(0, H * 0.66, W, H * 0.34);
+      try {
+        const hand = await loadImage('/satella-hand.svg');
+        const aspect = hand.height / hand.width;
+        const drawHand = (x: number, y: number, w: number, rot: number, a: number) => {
+          ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate(rot);
+          const h = w * aspect; ctx.drawImage(hand, -w / 2, -h, w, h); ctx.restore();
+        };
+        for (let i = 0; i < 9; i++) drawHand((i + 0.5) * (W / 9) + (rnd() * 36 - 18), H + 12, 90 + rnd() * 64, rnd() * 0.34 - 0.17, 0.55 + rnd() * 0.35); // baixo
+        for (let i = 0; i < 3; i++) { drawHand(-12, H * 0.4 + i * 150, 92, Math.PI * 0.42, 0.42); drawHand(W + 12, H * 0.46 + i * 150, 92, -Math.PI * 0.42, 0.42); } // laterais
+      } catch { /* sem svg */ }
+      // 愛している sussurrado no céu
+      ctx.fillStyle = 'rgba(255,170,205,0.24)'; ctx.font = '34px serif';
+      ctx.fillText('愛している', W * 0.5, H * 0.14);
+      break;
+    }
+  }
+  ctx.restore();
+}
+
 /** Desenha o card e devolve o dataURL (PNG). */
 export async function buildProgressCard(d: ShareData): Promise<string> {
   try { await (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready; } catch { /* ok */ }
@@ -229,6 +331,8 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     // identidade dos temas animados (matrix/cosmos/synth/cyber/arcade/ouro...)
     drawThemeBackdrop(ctx, W, H, themeObj.id, accent);
   }
+  // partículas congeladas do tema (mãos, corações, neve, runas...) por cima do fundo
+  if (themeObj.fx) await drawThemeFx(ctx, W, H, themeObj.fx, accent);
 
   // ---- marca (topo, centralizada) ----
   ctx.textBaseline = 'alphabetic';
@@ -242,7 +346,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   ctx.fillStyle = accent; ctx.fillText(gym, startX + wHome, 180);
 
   // ---- avatar: foto (círculo) OU anel de nível, com o ARO do perfil ----
-  const ay = 640;
+  const ay = 570;
   const frame = d.frame || 'none';
   // aros-imagem (coroas) são bem maiores que o avatar → reduzir o raio pra coroa
   // caber entre a marca e o nome (não invadir o "TCORDEIRO").
@@ -316,18 +420,18 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   // ---- nome ----
   ctx.textAlign = 'center';
   ctx.fillStyle = INK; ctx.font = '76px Anton, sans-serif';
-  ctx.fillText(d.name.toUpperCase(), cx, ay + 290);
+  ctx.fillText(d.name.toUpperCase(), cx, ay + 300);
 
   // ---- rank "Xº da casa" + nível ----
   ctx.fillStyle = MUTED; ctx.font = '42px Anton, sans-serif';
   const rankTxt = d.rank ? `${medal(d.rank)} ${d.rank}º da casa · Nível ${d.level}` : `Nível ${d.level}`;
-  ctx.fillText(rankTxt, cx, ay + 356);
+  ctx.fillText(rankTxt, cx, ay + 368);
 
   // ---- pontos ----
   ctx.fillStyle = accent; ctx.font = '180px Anton, sans-serif';
-  ctx.fillText(String(d.pts), cx, ay + 540);
+  ctx.fillText(String(d.pts), cx, ay + 566);
   ctx.fillStyle = MUTED; ctx.font = '40px Anton, sans-serif';
-  ctx.fillText('PONTOS', cx, ay + 600);
+  ctx.fillText('PONTOS', cx, ay + 630);
 
   // ---- stats (3 tiles) ----
   const tiles: [string, string][] = [
@@ -337,7 +441,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   ];
   const tw = 290, th = 210, gap = 30;
   let tx = (W - (tw * 3 + gap * 2)) / 2;
-  const ty = ay + 680;
+  const ty = ay + 730;
   const [tar, tag, tab] = hexToRgb(accent);
   tiles.forEach(([v, l]) => {
     // base opaca quando há foto atrás (legibilidade)
@@ -365,9 +469,9 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   if (extras.length) {
     ctx.textAlign = 'center';
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
-    ctx.fillText('NA SEMANA', cx, ty + th + 46);
+    ctx.fillText('NA SEMANA', cx, ty + th + 60);
     ctx.fillStyle = INK; ctx.font = '32px Anton, sans-serif';
-    ctx.fillText(extras.join('    '), cx, ty + th + 88);
+    ctx.fillText(extras.join('    '), cx, ty + th + 104);
   }
 
   // ---- rodapé: só a versão (HOME GYM já está no topo) ----
