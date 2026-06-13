@@ -61,7 +61,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
             <input
               className="set-in"
               inputMode="decimal"
-              placeholder="kg"
+              placeholder={last && last.kg > 0 ? String(last.kg) : 'kg'}
               value={s.kg}
               onChange={(e) => setSetField(treino, exIdx, i, 'kg', e.target.value, ex.series)}
             />
@@ -69,7 +69,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
             <input
               className="set-in"
               inputMode="numeric"
-              placeholder="reps"
+              placeholder={last && last.reps > 0 ? String(last.reps) : 'reps'}
               value={s.reps}
               onChange={(e) => setSetField(treino, exIdx, i, 'reps', e.target.value, ex.series)}
             />
