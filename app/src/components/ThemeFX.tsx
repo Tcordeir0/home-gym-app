@@ -302,18 +302,20 @@ const ThemeFX: React.FC = () => {
       )}
       {themeObj?.fx === 'butterflies' && (
         <div className="fx-butterflies">
-          {Array.from({ length: 14 }).map((_, i) => (
+          {Array.from({ length: 13 }).map((_, i) => (
             <span
               key={i}
               className="bfly"
               style={{
                 left: `${(i * 53 + 6) % 96}%`,
-                fontSize: `${13 + (i % 4) * 6}px`,
+                ['--sz' as string]: `${0.7 + (i % 4) * 0.18}`,
+                ['--flap' as string]: `${0.22 + (i % 3) * 0.05}s`,
                 animationDuration: `${8 + (i % 5)}s`,
                 animationDelay: `-${(i * 0.7) % 9}s`,
               }}
             >
-              🦋
+              <span className="w l" />
+              <span className="w r" />
             </span>
           ))}
         </div>

@@ -444,19 +444,51 @@
   .miasma-pulse { animation: none !important; opacity: 0.3; }
 }
 
-/* Borboletas azuis (tema Hollow) — sobem com leve sway e brilho */
+/* ===== Borboletas (tema Hollow) — asas batendo (rotateY 3D) + azul do wallpaper ===== */
 .fx-butterflies { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .fx-butterflies .bfly {
-  position: absolute; bottom: -32px; opacity: 0;
-  filter: drop-shadow(0 0 6px #5fd1ff) drop-shadow(0 0 12px rgba(95, 209, 255, 0.5));
+  position: absolute; bottom: -42px;
+  width: calc(22px * var(--sz, 1)); height: calc(17px * var(--sz, 1));
+  perspective: 90px; opacity: 0;
   animation: bflyUp linear infinite;
   will-change: transform, opacity;
 }
-@keyframes bflyUp {
-  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-  12% { opacity: 0.95; }
-  50% { transform: translateY(-52vh) translateX(22px) rotate(12deg); }
-  88% { opacity: 0.8; }
-  100% { transform: translateY(-108vh) translateX(-16px) rotate(-10deg); opacity: 0; }
+/* corpinho fino no centro */
+.fx-butterflies .bfly::after {
+  content: ''; position: absolute; left: 50%; top: 8%; width: 1.6px; height: 84%;
+  transform: translateX(-50%); border-radius: 2px;
+  background: linear-gradient(#dff5ff, #2f6f9e);
+  box-shadow: 0 0 4px rgba(95, 209, 255, 0.7);
 }
-@media (prefers-reduced-motion: reduce) { .fx-butterflies .bfly { animation: none; opacity: 0.6; } }
+.fx-butterflies .w {
+  position: absolute; top: 0; width: 50%; height: 100%;
+  /* azul do wallpaper do Hollow Knight */
+  background: radial-gradient(120% 95% at 50% 38%, #cdefff, #5fd1ff 52%, #2f8fcf 88%);
+  box-shadow: 0 0 7px rgba(95, 209, 255, 0.85);
+  opacity: 0.96; backface-visibility: hidden;
+}
+.fx-butterflies .w.l {
+  left: 0; transform-origin: right center;
+  border-radius: 78% 12% 58% 32% / 66% 22% 78% 34%;
+  animation: bflyFlapL var(--flap, 0.26s) ease-in-out infinite;
+}
+.fx-butterflies .w.r {
+  right: 0; transform-origin: left center;
+  border-radius: 12% 78% 32% 58% / 22% 66% 34% 78%;
+  animation: bflyFlapR var(--flap, 0.26s) ease-in-out infinite;
+}
+@keyframes bflyFlapL { 0%, 100% { transform: rotateY(74deg); } 50% { transform: rotateY(8deg); } }
+@keyframes bflyFlapR { 0%, 100% { transform: rotateY(-74deg); } 50% { transform: rotateY(-8deg); } }
+@keyframes bflyUp {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  12%  { opacity: 0.95; }
+  35%  { transform: translateY(-34vh) translateX(26px); }
+  60%  { transform: translateY(-62vh) translateX(-18px); }
+  85%  { opacity: 0.85; }
+  100% { transform: translateY(-112vh) translateX(20px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-butterflies .w { animation: none; }
+  .fx-butterflies .w.l { transform: rotateY(42deg); }
+  .fx-butterflies .w.r { transform: rotateY(-42deg); }
+}
