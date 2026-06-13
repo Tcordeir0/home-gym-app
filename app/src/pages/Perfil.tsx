@@ -6,6 +6,7 @@ import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
+import { pushNow } from '../lib/sync';
 import ChangelogHistory from '../components/ChangelogHistory';
 import { totalPoints, levelInfo } from '../lib/stats';
 import { resizePhoto } from '../lib/image';
@@ -54,6 +55,25 @@ const Perfil: React.FC = () => {
   const [delOpen, setDelOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
   const [toast, setToast] = useState('');
+
+  // Botão Salvar: aparece quando você muda algo no perfil e força a gravação
+  // na NUVEM/conta (não fica só no localStorage). Auto-sync já roda, mas o botão
+  // garante e dá confirmação visual.
+  const watchKey = useStore((s) => {
+    const p = s.users.find((u) => u.id === s.active);
+    return JSON.stringify(p) + '|' + s.feedback + '|' + s.notifyOn;
+  });
+  const firstWatch = useRef(true);
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => {
+    if (firstWatch.current) { firstWatch.current = false; return; }
+    setDirty(true);
+  }, [watchKey]);
+  const saveAll = async () => {
+    await pushNow();
+    setDirty(false);
+    setToast('Tudo salvo na sua conta ☁️ ✓');
+  };
 
   // Vibração: pede/testa ao ATIVAR (no iOS web não existe; no app nativo usa Haptics).
   const onVibToggle = (on: boolean) => {
@@ -482,6 +502,11 @@ const Perfil: React.FC = () => {
         ]}
       />
       <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
+      {dirty && (
+        <button className="perfil-save" onClick={saveAll}>
+          <IonIcon icon={checkmark} /> Salvar alterações
+        </button>
+      )}
     </AppPage>
   );
 };

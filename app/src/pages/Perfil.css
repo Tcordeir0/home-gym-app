@@ -697,6 +697,34 @@
   font-size: 15px;
   font-weight: 600;
 }
+/* botão Salvar flutuante — aparece quando há mudança no perfil */
+.perfil-save {
+  position: fixed;
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 14px);
+  transform: translateX(-50%);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brand-lime);
+  color: #0b0c0f;
+  font-family: var(--ion-font-family);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 13px 26px;
+  box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--brand-lime) 50%, transparent);
+  cursor: pointer;
+  animation: perfil-save-in 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.perfil-save ion-icon { font-size: 18px; }
+@keyframes perfil-save-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 .vol-range {
   -webkit-appearance: none;
   appearance: none;
