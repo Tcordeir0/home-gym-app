@@ -23,15 +23,16 @@ const Graficos: React.FC = () => {
 
   const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta' | 'anatomia'>('medidas');
   const [medField, setMedField] = useState<MedKey>('weight');
-  const [dietField, setDietField] = useState<'kcal' | 'protein'>('kcal');
+  const [dietField, setDietField] = useState<'kcal' | 'protein' | 'water'>('kcal');
   const [exName, setExName] = useState('');
 
-  // dieta: kcal/proteína por dia
+  // dieta: kcal/proteína/água por dia
   const dietSeries = useMemo(() => {
     return Object.keys(daily)
-      .filter((d) => (daily[d].food || []).length > 0)
+      .filter((d) => (daily[d].food || []).length > 0 || (dietField === 'water' && (daily[d].waterMl || 0) > 0))
       .sort()
       .map((d) => {
+        if (dietField === 'water') return { x: d, y: Math.round((daily[d].waterMl || 0) / 100) / 10 };
         const food = daily[d].food || [];
         const val = food.reduce((a, it) => a + ((dietField === 'kcal' ? it.k : it.p) * it.g) / 100, 0);
         return { x: d, y: Math.round(val) };
@@ -99,8 +100,9 @@ const Graficos: React.FC = () => {
               <div className="gr-chips">
                 <button className={'gr-chip' + (dietField === 'kcal' ? ' on' : '')} onClick={() => setDietField('kcal')}>Calorias</button>
                 <button className={'gr-chip' + (dietField === 'protein' ? ' on' : '')} onClick={() => setDietField('protein')}>Proteína</button>
+                <button className={'gr-chip' + (dietField === 'water' ? ' on' : '')} onClick={() => setDietField('water')}>💧 Água</button>
               </div>
-              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : 'g'} />
+              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : dietField === 'water' ? 'L' : 'g'} />
             </>
           ) : (
             <p className="gr-empty">Registre a dieta em <b>2+ dias</b> pra ver a evolução de calorias/proteína aqui.</p>

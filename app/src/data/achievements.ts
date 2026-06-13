@@ -43,6 +43,14 @@ export const ACHIEVEMENTS: Achievement[] = [
   { icon: skull, label: 'Disciplina total', desc: '30 dias de dieta', fresh: true, milestone: true, reward: { kind: 'deco', id: 'coracao_morte' }, test: (s) => s.dietDays >= 30 },
   { icon: nutrition, label: 'Proteína em dia', desc: 'bateu a proteína num dia', fresh: true, test: (s) => s.proteinDays >= 1 },
   { icon: nutrition, label: 'Máquina de proteína', desc: 'proteína em 7 dias', fresh: true, milestone: true, test: (s) => s.proteinDays >= 7 },
+  // ===== novas conquistas (v0.8.0) — medalhas de progressão (sem item, pra não esvaziar a roleta) =====
+  { icon: rocket, label: 'Centopeia', desc: '100 treinos', milestone: true, test: (s) => s.treinos >= 100 },
+  { icon: heart, label: 'Fôlego de aço', desc: '20 cardios', test: (s) => s.cardios >= 20 },
+  { icon: flash, label: 'Presença total', desc: '50 dias ativos', milestone: true, test: (s) => s.activeDays >= 50 },
+  { icon: diamond, label: 'Imperador', desc: '5000 pontos', milestone: true, test: (s) => s.pts >= 5000 },
+  { icon: water, label: 'Aquário', desc: 'água em 15 dias', fresh: true, test: (s) => s.waterDays >= 15 },
+  { icon: ribbon, label: 'Dieta de ferro', desc: '15 dias de dieta', fresh: true, milestone: true, test: (s) => s.dietDays >= 15 },
+  { icon: nutrition, label: 'Proteína lendária', desc: 'proteína em 30 dias', fresh: true, milestone: true, test: (s) => s.proteinDays >= 30 },
 ];
 
 /** Rótulo do item que a conquista desbloqueia (pra mostrar na UI). */

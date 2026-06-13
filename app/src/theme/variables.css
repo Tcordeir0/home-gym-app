@@ -402,6 +402,47 @@ html[data-glass] .profile-pill {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ===== Tab bar "Liquid Glass" flutuante (iOS 26) — em TODOS os temas ===== */
+ion-tab-bar {
+  position: relative;
+  margin: 0 14px calc(env(safe-area-inset-bottom, 0px) + 10px);
+  height: 60px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--ion-tab-bar-background);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 12px 30px -8px rgba(0, 0, 0, 0.55);
+  transform: translateZ(0); /* evita flicker do backdrop no WebView iOS */
+  overflow: visible;
+  contain: paint;
+}
+/* highlight especular catando a borda de cima (o que "vende" o vidro) */
+ion-tab-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(130% 90% at 50% -25%, rgba(255, 255, 255, 0.18), transparent 60%);
+  pointer-events: none;
+}
+/* pill deslizante atrás do ícone ativo */
+ion-tab-button { position: relative; }
+ion-tab-button.tab-selected::before {
+  content: '';
+  position: absolute;
+  inset: 8px 10px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand-lime) 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-lime) 28%, transparent);
+}
+/* tema Branco: highlight escuro (o branco no branco some) */
+html[data-theme='light'] ion-tab-bar { box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08), 0 10px 26px -10px rgba(0,0,0,0.28); }
+html[data-theme='light'] ion-tab-bar::before { background: radial-gradient(130% 90% at 50% -25%, rgba(255,255,255,0.6), transparent 60%); }
+
 /* Tipografia de marca (Anton só em display) */
 .brand {
   font-family: var(--font-display);
