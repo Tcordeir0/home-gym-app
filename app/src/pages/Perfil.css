@@ -697,12 +697,34 @@
   font-size: 15px;
   font-weight: 600;
 }
-/* botão Salvar flutuante — aparece quando há mudança no perfil */
+/* ===== Zona de perigo ===== */
+.danger-card { border: 1px solid rgba(255, 91, 91, 0.3); }
+.danger-title { display: flex; align-items: center; gap: 7px; color: #ff7a7a; }
+.danger-title ion-icon { font-size: 18px; }
+.danger-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 91, 91, 0.35);
+  background: rgba(255, 91, 91, 0.08);
+  color: #ff7a7a;
+  font-family: var(--ion-font-family);
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 12px;
+  padding: 13px 14px;
+  cursor: pointer;
+}
+.danger-btn.del { color: #ff5b5b; border-color: rgba(255, 70, 70, 0.45); background: rgba(255, 70, 70, 0.12); }
+.danger-btn ion-icon { font-size: 17px; }
+
+/* botão Salvar flutuante — SEMPRE no DOM, some/aparece por CSS (anti-crash) */
 .perfil-save {
   position: fixed;
   left: 50%;
   bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 14px);
-  transform: translateX(-50%);
   z-index: 50;
   display: inline-flex;
   align-items: center;
@@ -717,13 +739,19 @@
   padding: 13px 26px;
   box-shadow: 0 8px 22px -6px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--brand-lime) 50%, transparent);
   cursor: pointer;
-  animation: perfil-save-in 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  /* estado escondido (default) */
+  opacity: 0;
+  transform: translate(-50%, 22px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.25);
+}
+.perfil-save.show {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
 }
 .perfil-save ion-icon { font-size: 18px; }
-@keyframes perfil-save-in {
-  from { opacity: 0; transform: translate(-50%, 12px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
+@media (prefers-reduced-motion: reduce) { .perfil-save { transition: opacity 0.2s ease; } }
 
 .vol-range {
   -webkit-appearance: none;

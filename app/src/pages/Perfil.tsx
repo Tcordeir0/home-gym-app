@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { IonCard, IonCardContent, IonInput, IonIcon, IonAlert, IonToggle, IonToast } from '@ionic/react';
 import { motion } from 'framer-motion';
-import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline } from 'ionicons/icons';
+import { addOutline, cameraOutline, trashOutline, lockClosed, checkmark, chevronDown, banOutline, logOutOutline, warningOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
@@ -53,6 +53,7 @@ const Perfil: React.FC = () => {
 
   const [addCardio, setAddCardio] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const [persOpen, setPersOpen] = useState(false);
   const [toast, setToast] = useState('');
 
@@ -172,18 +173,11 @@ const Perfil: React.FC = () => {
             </div>
           </div>
 
-          {(profile.photo || users.length > 1) && (
+          {profile.photo && (
             <div className="perfil-actions">
-              {profile.photo && (
-                <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
-                  Remover foto
-                </button>
-              )}
-              {users.length > 1 && (
-                <button className="perfil-del" onClick={() => setDelOpen(true)}>
-                  <IonIcon icon={trashOutline} /> Excluir perfil
-                </button>
-              )}
+              <button className="perfil-link" onClick={() => updateProfile(profile.id, { photo: undefined })}>
+                Remover foto
+              </button>
             </div>
           )}
         </IonCardContent>
@@ -197,6 +191,16 @@ const Perfil: React.FC = () => {
         buttons={[
           { text: 'Cancelar', role: 'cancel' },
           { text: 'Excluir', role: 'destructive', handler: () => deleteProfile(profile.id) },
+        ]}
+      />
+      <IonAlert
+        isOpen={logoutOpen}
+        onDidDismiss={() => setLogoutOpen(false)}
+        header="Sair da conta?"
+        message="Você vai voltar pra tela de login. Os dados ficam salvos na nuvem e voltam ao entrar de novo."
+        buttons={[
+          { text: 'Cancelar', role: 'cancel' },
+          { text: 'Sair', role: 'destructive', handler: () => { void supabase.auth.signOut(); } },
         ]}
       />
 
@@ -484,9 +488,22 @@ const Perfil: React.FC = () => {
             />
           </div>
           {accountEmail && <p className="perfil-account">Conectado como <b>{accountEmail}</b></p>}
-          <button className="perfil-logout" onClick={() => supabase.auth.signOut()}>
+        </IonCardContent>
+      </IonCard>
+
+      {/* ===== Zona de perigo ===== */}
+      <IonCard className="perfil-card danger-card">
+        <IonCardContent>
+          <h2 className="card-title danger-title"><IonIcon icon={warningOutline} /> Zona de perigo</h2>
+          <p className="card-sub">Ações que não dão pra desfazer. Confirmação obrigatória.</p>
+          <button className="danger-btn" onClick={() => setLogoutOpen(true)}>
             <IonIcon icon={logOutOutline} /> Sair da conta
           </button>
+          {users.length > 1 && (
+            <button className="danger-btn del" onClick={() => setDelOpen(true)}>
+              <IonIcon icon={trashOutline} /> Excluir este perfil
+            </button>
+          )}
         </IonCardContent>
       </IonCard>
 
@@ -502,11 +519,10 @@ const Perfil: React.FC = () => {
         ]}
       />
       <IonToast isOpen={!!toast} message={toast} duration={2600} position="top" onDidDismiss={() => setToast('')} />
-      {dirty && (
-        <button className="perfil-save" onClick={saveAll}>
-          <IonIcon icon={checkmark} /> Salvar alterações
-        </button>
-      )}
+      {/* sempre no DOM (evita o crash removeChild do Ionic); some/aparece por CSS */}
+      <button className={'perfil-save' + (dirty ? ' show' : '')} onClick={saveAll} aria-hidden={!dirty} tabIndex={dirty ? 0 : -1}>
+        <IonIcon icon={checkmark} /> Salvar alterações
+      </button>
     </AppPage>
   );
 };
