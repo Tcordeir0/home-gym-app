@@ -166,6 +166,11 @@ export async function listGroupMessages(gid: string): Promise<GroupMessage[]> {
   const { data } = await supabase.from('group_messages').select('*').eq('group_id', gid).order('created_at', { ascending: true });
   return (data as GroupMessage[]) || [];
 }
+/** Mensagens recentes de TODOS os meus grupos (pra prévia + não-lidas). */
+export async function listAllGroupMessages(): Promise<GroupMessage[]> {
+  const { data } = await supabase.from('group_messages').select('*').order('created_at', { ascending: false }).limit(500);
+  return (data as GroupMessage[]) || [];
+}
 
 let chanN = 0;
 /** Assina mudanças em tempo real (chat, cutucadas, amizades). Nome ÚNICO por

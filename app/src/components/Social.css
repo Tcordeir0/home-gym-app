@@ -202,4 +202,5 @@ html[data-theme='light'] .sc-preview { color: #6b7280; }
 .sc-grp-membtn ion-icon { font-size: 14px; }
 .sc-grp-x { border: 0; background: transparent; color: var(--app-muted); font-size: 18px; cursor: pointer; display: inline-flex; }
 .sc-grp-mlist { padding-top: 4px; }
+.sc-unread { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: var(--brand-lime); box-shadow: 0 0 8px color-mix(in srgb, var(--brand-lime) 60%, transparent); }
 .sc-msg-from { display: block; font-size: 11px; font-weight: 800; margin-bottom: 2px; }

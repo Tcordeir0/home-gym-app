@@ -6,6 +6,7 @@ import { useStore } from '../store/store';
 import * as S from '../lib/social';
 import { TAUNTS } from '../data/taunts';
 import { notify } from '../lib/permissions';
+import { getGroupRead, markGroupRead } from '../lib/groupRead';
 import './Social.css';
 
 type Tab = 'amigos' | 'cutucar' | 'chat' | 'grupos';
@@ -34,6 +35,7 @@ const SocialPanel: React.FC = () => {
   const [membersOpen, setMembersOpen] = useState(false);
   const [gMembers, setGMembers] = useState<S.GroupMember[]>([]);
   const [gMsgs, setGMsgs] = useState<S.GroupMessage[]>([]);
+  const [allGroupMsgs, setAllGroupMsgs] = useState<S.GroupMessage[]>([]);
   const [gDraft, setGDraft] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -46,8 +48,8 @@ const SocialPanel: React.FC = () => {
   const chatEnd = useRef<HTMLDivElement>(null);
 
   const loadAll = useCallback(async () => {
-    const [fs, ac, pk, ev, am, gr] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages(), S.listMyGroups()]);
-    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setGroups(gr); setLoading(false);
+    const [fs, ac, pk, ev, am, gr, gam] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages(), S.listMyGroups(), S.listAllGroupMessages()]);
+    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setGroups(gr); setAllGroupMsgs(gam); setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -76,6 +78,7 @@ const SocialPanel: React.FC = () => {
   const loadGroup = useCallback(async (g: S.Group) => {
     const [mm, ms] = await Promise.all([S.listGroupMembers(g.id), S.listGroupMessages(g.id)]);
     setGMembers(mm); setGMsgs(ms);
+    markGroupRead(g.id); // está vendo → zera o não-lido
     setTimeout(() => gEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
   }, []);
   useEffect(() => {
@@ -129,6 +132,13 @@ const SocialPanel: React.FC = () => {
     const prof = acc?.profiles?.find((p) => p.name === label) || acc?.profiles?.[0];
     return prof?.color || '#8b8b8b';
   };
+  // última mensagem de um grupo (allGroupMsgs vem do mais novo → .find pega o último)
+  const lastGroupMsg = (gid: string) => allGroupMsgs.find((m) => m.group_id === gid);
+  const groupRead = getGroupRead();
+  const groupUnread = (gid: string) => {
+    const lm = allGroupMsgs.find((m) => m.group_id === gid);
+    return !!lm && lm.from_uid !== uid && lm.created_at > (groupRead[gid] || '');
+  };
 
   // sugestões: contas cadastradas que NÃO sou eu, não são amigos nem têm convite pendente
   const pendingUids = new Set(friendships.filter((f) => f.status === 'pending').map((f) => (f.requester === uid ? f.addressee : f.requester)));
@@ -161,7 +171,10 @@ const SocialPanel: React.FC = () => {
           {recvPokes.some((p) => !p.seen) && <span className="sc-dot" />}
         </button>
         <button className={tab === 'chat' ? 'on' : ''} onClick={() => { setTab('chat'); setChatWith(null); }}><IonIcon icon={chatbubblesOutline} /> Chat</button>
-        <button className={tab === 'grupos' ? 'on' : ''} onClick={() => { setTab('grupos'); setGroupView(null); setCreateOpen(false); }}><IonIcon icon={peopleCircleOutline} /> Grupos</button>
+        <button className={tab === 'grupos' ? 'on' : ''} onClick={() => { setTab('grupos'); setGroupView(null); setCreateOpen(false); }}>
+          <IonIcon icon={peopleCircleOutline} /> Grupos
+          {groups.some((g) => groupUnread(g.id)) && <span className="sc-dot" />}
+        </button>
       </div>
 
       {loading ? <div className="sc-loading"><IonSpinner /></div> : (
@@ -425,12 +438,19 @@ const SocialPanel: React.FC = () => {
                 <button className="sc-grp-new" onClick={() => setCreateOpen(true)}><IonIcon icon={addOutline} /> Criar grupo</button>
                 <div className="sc-sec"><h4>Seus grupos ({groups.length})</h4>
                   {groups.length === 0 ? <p className="sc-empty">Crie um grupo pra conversar com a galera ao mesmo tempo.</p> :
-                    groups.map((g) => (
-                      <button key={g.id} className="sc-row sc-tap" onClick={() => setGroupView(g)}>
-                        <span className="sc-name"><IonIcon icon={peopleCircleOutline} /> {g.name}</span>
-                        {g.owner === uid && <small>dono</small>}
-                      </button>
-                    ))}
+                    groups.map((g) => {
+                      const lm = lastGroupMsg(g.id);
+                      const unread = groupUnread(g.id);
+                      return (
+                        <button key={g.id} className="sc-row sc-tap" onClick={() => setGroupView(g)}>
+                          <span className="sc-chatrow">
+                            <span className="sc-name"><IonIcon icon={peopleCircleOutline} /> {g.name} {g.owner === uid && <small>dono</small>}</span>
+                            {lm && <span className="sc-preview">{lm.from_uid === uid ? 'Você' : (lm.from_label || 'Alguém')}: {lm.body}</span>}
+                          </span>
+                          {unread && <span className="sc-unread" />}
+                        </button>
+                      );
+                    })}
                 </div>
               </>
             )
@@ -449,19 +469,28 @@ const Social: React.FC = () => {
   const notifyOn = useStore((s) => s.notifyOn);
   const prevAlerts = useRef<number | null>(null);
 
-  // badge no botão: convites recebidos + cutucadas não vistas (atualiza em realtime)
+  // badge no botão: convites recebidos + cutucadas não vistas + grupos não-lidos (realtime)
   useEffect(() => {
     const refresh = async () => {
       const { data } = await supabase.auth.getUser();
       const myUid = data.user?.id || '';
       if (!myUid) return;
-      const [fs, pk] = await Promise.all([S.listFriendships(), S.listPokes()]);
+      const [fs, pk, gr, gam] = await Promise.all([S.listFriendships(), S.listPokes(), S.listMyGroups(), S.listAllGroupMessages()]);
       const incoming = fs.filter((f) => f.status === 'pending' && f.addressee === myUid).length;
       const unseen = pk.filter((p) => p.to_uid === myUid && p.from_uid !== myUid && !p.seen).length;
-      const total = incoming + unseen;
+      const read = getGroupRead();
+      const unreadGroups = gr
+        .map((g) => ({ g, lm: gam.find((m) => m.group_id === g.id) }))
+        .filter((x) => x.lm && x.lm.from_uid !== myUid && x.lm.created_at > (read[x.g.id] || ''));
+      const total = incoming + unseen + unreadGroups.length;
       // notifica só quando AUMENTA (chegou coisa nova) e o usuário permitiu
       if (prevAlerts.current !== null && total > prevAlerts.current && notifyOn) {
-        notify('Novidade no Social 👥', incoming ? 'Você tem convite de amizade pra responder.' : 'Alguém te cutucou!');
+        if (unreadGroups.length) {
+          const freshest = unreadGroups.sort((a, b) => (b.lm!.created_at).localeCompare(a.lm!.created_at))[0];
+          notify(`💬 ${freshest.g.name}`, `${freshest.lm!.from_label || 'Alguém'}: ${freshest.lm!.body}`);
+        } else {
+          notify('Novidade no Social 👥', incoming ? 'Você tem convite de amizade pra responder.' : 'Alguém te cutucou!');
+        }
       }
       prevAlerts.current = total;
       setAlerts(total);
