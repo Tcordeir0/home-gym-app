@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import Body, { type Slug, type ExtendedBodyPart } from 'react-muscle-highlighter';
 import type { BodyState } from 'body-muscles';
 import MaleBody from './MaleBody';
+import { emphasisOf } from '../lib/emphasis';
 import { useStore } from '../store/store';
 import { POOL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
@@ -157,7 +158,7 @@ const Anatomia: React.FC = () => {
   }, [theme]);
 
   // séries por músculo (30 dias p/ o mapa + 7 dias p/ o alvo semanal)
-  const { counts, weekly, total, intensity } = useMemo(() => {
+  const { counts, weekly, total, intensity, baseCounts } = useMemo(() => {
     const byName = new Map<string, Fine>();
     POOL.forEach((p) => byName.set(p.n, exToFine(p.n, p.g)));
     const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
@@ -168,18 +169,25 @@ const Anatomia: React.FC = () => {
     const cutoffWk = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
     const c = Object.fromEntries(FINE.map((f) => [f, 0])) as Record<Fine, number>;
     const wk = Object.fromEntries(FINE.map((f) => [f, 0])) as Record<Fine, number>;
+    const bc: Record<string, number> = {}; // séries por SUB-REGIÃO (vulovix) — via ênfase do exercício
     history.forEach((h) => {
       if (h.date < cutoff) return;
       (h.exercises || []).forEach((ex) => {
         const f = byName.get(ex.nome);
-        if (f) { c[f] += ex.sets?.length || 0; if (h.date >= cutoffWk) wk[f] += ex.sets?.length || 0; }
+        if (!f) return;
+        const n = ex.sets?.length || 0;
+        c[f] += n; if (h.date >= cutoffWk) wk[f] += n;
+        // a ênfase manda a série pra sub-região certa (peito superior etc.); senão, todo o músculo
+        const emp = emphasisOf(ex.nome);
+        const bases = emp?.bases?.length ? emp.bases : FINE_VULOVIX[f];
+        bases.forEach((b) => { bc[b] = (bc[b] || 0) + n; });
       });
     });
     const tot = FINE.reduce((a, f) => a + c[f], 0);
     const max = Math.max(1, ...FINE.map((f) => c[f]));
     const inten = {} as Record<Fine, number>;
     FINE.forEach((f) => (inten[f] = c[f] / max));
-    return { counts: c, weekly: wk, total: tot, intensity: inten };
+    return { counts: c, weekly: wk, total: tot, intensity: inten, baseCounts: bc };
   }, [history]);
 
   // dados pro modelo: 1 entrada por músculo treinado, intensity = nível 1..5 (índice de cor).
@@ -194,19 +202,24 @@ const Anatomia: React.FC = () => {
 
   // estado pro modelo MASCULINO (vulovix): intensidade 0-10 por região (heatmap nativo) + seleção
   const maleState: BodyState = useMemo(() => {
-    const max = Math.max(1, ...FINE.map((f) => counts[f]));
+    const bases = Object.keys(baseCounts);
+    const max = Math.max(1, ...bases.map((b) => baseCounts[b]));
     const st: BodyState = {};
-    FINE.forEach((f) => {
-      const c = counts[f];
-      if (c <= 0 && f !== sel) return;
-      const intensity = c > 0 ? Math.min(10, Math.max(2, Math.round((c / max) * 8) + 2)) : 1;
-      FINE_VULOVIX[f].forEach((b) => {
-        st[b + '-left'] = { intensity, selected: f === sel };
-        st[b + '-right'] = { intensity, selected: f === sel };
-      });
+    const paint = (base: string, intensity: number, selected: boolean) => {
+      st[base + '-left'] = { intensity, selected };
+      st[base + '-right'] = { intensity, selected };
+    };
+    // sub-regiões treinadas (heatmap por ênfase: peito superior ≠ inferior)
+    bases.forEach((b) => {
+      const c = baseCounts[b];
+      const selected = VULOVIX_BASE_FINE[b] === sel;
+      const intensity = c > 0 ? Math.min(10, Math.max(2, Math.round((c / max) * 8) + 2)) : (selected ? 1 : 0);
+      paint(b, intensity, selected);
     });
+    // músculo selecionado sem treino: ainda acende suas sub-regiões
+    if (sel) FINE_VULOVIX[sel].forEach((b) => { if (!(b in baseCounts)) paint(b, 1, true); });
     return st;
-  }, [counts, sel]);
+  }, [baseCounts, sel]);
 
   const weakest = useMemo(() => FINE.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
 
