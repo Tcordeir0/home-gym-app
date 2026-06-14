@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.15.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.14.0...v0.15.0) (2026-06-14)
+
+
+### Features
+
+* **app:** adicionar perfis do PRÓPRIO time num grupo ([#7](https://github.com/Tcordeir0/home-gym-app/issues/7) follow-up) ([7294de3](https://github.com/Tcordeir0/home-gym-app/commit/7294de3901ca14086d4df008f8fb0ccb44d83cd3))
+* **app:** push social — handlers de push no SW + edge function/trigger (proposta) [#8](https://github.com/Tcordeir0/home-gym-app/issues/8) ([58d63a1](https://github.com/Tcordeir0/home-gym-app/commit/58d63a16147b024dd86b5c456136cb2367a3684e))
+* Social — badges por perfil + grupo com time próprio + push social (SW handlers) ([9decfd6](https://github.com/Tcordeir0/home-gym-app/commit/9decfd61943a54a04579a3e339893f74e7f691e6))
+
+
+### Bug Fixes
+
+* **app:** badges/notificações do Social por perfil + marca DM vista + indicador de conversa nova ([e55c468](https://github.com/Tcordeir0/home-gym-app/commit/e55c468de3ef5fe62043a10a54c624da886ec033))
+
 ## [0.14.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.13.1...v0.14.0) (2026-06-14)
 
 
