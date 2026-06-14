@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { IonCard, IonCardContent, IonIcon, IonAlert, IonToast } from '@ionic/react';
 import { flame, barbell, heart, calendarOutline, lockClosed, chevronDown, trashOutline, shareOutline, giftOutline } from 'ionicons/icons';
 import AppPage from '../components/AppPage';
@@ -6,7 +6,8 @@ import Calendar from '../components/Calendar';
 import Collapsible from '../components/Collapsible';
 import Medidas from '../components/Medidas';
 import Graficos from '../components/Graficos';
-import Anatomia from '../components/Anatomia';
+// lazy: as libs de anatomia (vulovix + react-muscle-highlighter) são pesadas — só carregam no Progresso
+const Anatomia = lazy(() => import('../components/Anatomia'));
 import FotoProgresso from '../components/FotoProgresso';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
@@ -256,7 +257,9 @@ const Progresso: React.FC = () => {
       <IonCard className="prog-card">
         <IonCardContent>
           <h2 className="card-title">Anatomia</h2>
-          <Anatomia />
+          <Suspense fallback={<p className="anat-empty">Carregando anatomia…</p>}>
+            <Anatomia />
+          </Suspense>
         </IonCardContent>
       </IonCard>
 
