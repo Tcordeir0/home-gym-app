@@ -4,7 +4,10 @@
 import { supabase } from './supabase';
 import { useStore } from '../store/store';
 import { deviceId } from './device';
-import { syncSocialAccount } from './social';
+import { syncSocialAccount, thumbFromDataUrl } from './social';
+
+// cache de miniaturas (id do perfil → {foto original, thumb}) pra não regerar a cada sync
+const thumbCache = new Map<string, { src: string; thumb?: string }>();
 
 const MOD_KEY = 'hgt_mod';     // timestamp da última mudança local
 const UID_KEY = 'hgt_uid';     // dono atual do estado local (detecta troca de conta)
@@ -111,7 +114,16 @@ export async function syncOnLogin(): Promise<void> {
 
     // publica a projeção pública dos perfis (pro Social: amigos verem/cutucarem)
     if (user?.email) {
-      const profs = useStore.getState().users.map((u) => ({ id: u.id, name: u.name, color: u.color }));
+      const us = useStore.getState().users;
+      const profs = await Promise.all(us.map(async (u) => {
+        let photo: string | undefined;
+        if (u.photo) {
+          const c = thumbCache.get(u.id);
+          if (c && c.src === u.photo) photo = c.thumb;
+          else { photo = await thumbFromDataUrl(u.photo, 64); thumbCache.set(u.id, { src: u.photo, thumb: photo }); }
+        }
+        return { id: u.id, name: u.name, color: u.color, photo };
+      }));
       void syncSocialAccount(user.email, profs);
     }
 
