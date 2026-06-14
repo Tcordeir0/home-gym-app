@@ -78,7 +78,7 @@
 .anat-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 .anat-bar {
   display: grid;
-  grid-template-columns: 64px 1fr 26px;
+  grid-template-columns: 92px 1fr 26px;
   align-items: center;
   gap: 10px;
   border: 0;
@@ -89,7 +89,8 @@
   transition: background 0.15s ease;
 }
 .anat-bar.on { background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); }
-.anat-bar-l { text-align: left; font-size: 13px; font-weight: 600; opacity: 0.85; }
+/* rótulos como Antebraço/Quadríceps/Panturrilha não podem quebrar linha (ficava 1 letra sobrando) */
+.anat-bar-l { text-align: left; font-size: 12.5px; font-weight: 600; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .anat-bar-track {
   height: 8px;
   border-radius: 999px;
