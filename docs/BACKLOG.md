@@ -19,10 +19,10 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 - Loja **abaixo da roleta** (Prêmios), comprar temas/aros/decos. Bonita em TODOS os temas.
 - **CREATOR**: fora da loja E **invisível** pra qualquer perfil que não seja o Talys de `talysmatheus12@gmail.com`.
 
-### 2. 🦾 Anatomia granular + mais exercícios
-- Separar músculos: **bíceps, tríceps, antebraço, abdominal, trapézio, panturrilha** (só esq/dir do MESMO músculo se junta). ⏳ remapear o boneco PENDENTE.
+### 2. 🦾 Anatomia granular + mais exercícios ✅
+- ✅ **Boneco remapeado** em 13 músculos: Peito, Trapézio, Costas, Ombro, **Bíceps, Tríceps, Antebraço**, **Abdômen, Oblíquos**, Quadríceps, Posterior, **Panturrilha**, Glúteo. Músculo derivado do NOME do exercício (sem tabela por exercício). Esq/dir do mesmo músculo já junta no modelo.
 - ✅ **Exercícios adicionados**: antebraço 0→5 (rosca de punho/invertida/inversa/elástico + dead hang), panturrilha 1→5 (sentado, em pé c/ halteres, unilateral, no degrau).
-- ⏳ Anatomia mostrar os músculos de verdade (remapear o boneco) — falta.
+- ⚠️ Conferir no device: cores/legenda com 13 barras + clique em cada músculo do boneco.
 
 ### 3. 🔄 Melhorias no "Trocar" exercício ✅
 - ✅ Inclui variações de OUTRO equipamento (flexão → supino c/ halteres/barra), com as que dá pra fazer já no topo e as demais marcadas pelo equipamento (borda tracejada + tag).
