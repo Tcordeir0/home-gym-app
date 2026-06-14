@@ -17,7 +17,7 @@ const SocialPanel: React.FC = () => {
   const users = useStore((s) => s.users);
   const activeId = useStore((s) => s.active);
   const myName = useMemo(() => users.find((u) => u.id === activeId)?.name || 'Eu', [users, activeId]);
-  const myProfiles = useMemo(() => users.map((u) => ({ id: u.id, name: u.name, color: u.color })), [users]);
+  const myProfiles = useMemo(() => users.map((u) => ({ id: u.id, name: u.name, color: u.color, photo: u.photo })), [users]);
 
   const [tab, setTab] = useState<Tab>('amigos');
   const [uid, setUid] = useState('');
@@ -126,6 +126,14 @@ const SocialPanel: React.FC = () => {
     loadChat(chatWith);
   };
   const accLabel = (a?: S.SocialAccount) => a?.profiles?.[0]?.name || a?.email || 'Amigo';
+  // estilo do avatar: foto (se houver) ou cor do perfil
+  const avStyle = (color?: string, photo?: string): React.CSSProperties =>
+    photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: color || '#888' };
+  // foto do remetente no grupo (mesmo critério da cor)
+  const senderPhoto = (fuid: string, label?: string) => {
+    const acc = byUid.get(fuid);
+    return (acc?.profiles?.find((p) => p.name === label) || acc?.profiles?.[0])?.photo;
+  };
   // cor do remetente no grupo = cor do perfil dele (tema de cada um aparece na bolha)
   const senderColor = (fuid: string, label?: string) => {
     const acc = byUid.get(fuid);
@@ -229,7 +237,7 @@ const SocialPanel: React.FC = () => {
                   {suggestions.map((a) => (
                     <div key={a.uid} className="sc-row">
                       <span className="sc-name">
-                        <span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} />
+                        <span className="sc-av" style={avStyle(a.profiles?.[0]?.color, a.profiles?.[0]?.photo)} />
                         {accLabel(a)} <small>{a.email}</small>
                       </span>
                       <button className="sc-mini poke" onClick={() => S.inviteByUid(a.uid).then((r) => { setToast(r.msg); loadAll(); })}>
@@ -257,7 +265,7 @@ const SocialPanel: React.FC = () => {
                 {myProfiles.filter((p) => p.name !== myName).length === 0 ? <p className="sc-empty">Só você por aqui.</p> :
                   myProfiles.filter((p) => p.name !== myName).map((p) => (
                     <div key={p.id} className="sc-row">
-                      <span className="sc-name"><span className="sc-av" style={{ background: p.color }} />{p.name}</span>
+                      <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} />{p.name}</span>
                       <button className="sc-mini poke" onClick={() => setPokeTarget({ uid, profile: p.name, name: p.name })}>👉 Cutucar</button>
                     </div>
                   ))}
@@ -266,7 +274,7 @@ const SocialPanel: React.FC = () => {
                 {friends.length === 0 ? <p className="sc-empty">Adicione amigos na aba Amigos.</p> :
                   friends.flatMap((a) => (a.profiles || []).map((p) => (
                     <div key={a.uid + p.id} className="sc-row">
-                      <span className="sc-name"><span className="sc-av" style={{ background: p.color }} />{p.name} <small>{a.email}</small></span>
+                      <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} />{p.name} <small>{a.email}</small></span>
                       <button className="sc-mini poke" onClick={() => setPokeTarget({ uid: a.uid, profile: p.name, name: p.name })}>👉 Cutucar</button>
                     </div>
                   )))}
@@ -322,7 +330,7 @@ const SocialPanel: React.FC = () => {
                       return (
                         <button key={p.id} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'team', uid, name: p.name, profile: p.name })}>
                           <span className="sc-chatrow">
-                            <span className="sc-name"><span className="sc-av" style={{ background: p.color }} /> {p.name}</span>
+                            <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name}</span>
                             {lm && <span className="sc-preview">{lm.from_profile === myName ? 'Você: ' : ''}{lm.body}</span>}
                           </span>
                         </button>
@@ -366,7 +374,7 @@ const SocialPanel: React.FC = () => {
                       {gMembers.map((m) => (
                         <div key={m.uid} className="sc-row">
                           <span className="sc-name">
-                            <span className="sc-av" style={{ background: senderColor(m.uid, m.label) }} />
+                            <span className="sc-av" style={avStyle(senderColor(m.uid, m.label), senderPhoto(m.uid, m.label))} />
                             {m.label || accLabel(byUid.get(m.uid))}{m.uid === uid ? ' (você)' : ''} {m.role === 'owner' && <small>dono</small>}
                           </span>
                           {groupView.owner === uid && m.uid !== uid && (
@@ -383,7 +391,7 @@ const SocialPanel: React.FC = () => {
                             ? <p className="sc-empty">Todos os seus amigos já estão no grupo.</p>
                             : addable.map((a) => (
                               <div key={a.uid} className="sc-row">
-                                <span className="sc-name"><span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} /> {accLabel(a)}</span>
+                                <span className="sc-name"><span className="sc-av" style={avStyle(a.profiles?.[0]?.color, a.profiles?.[0]?.photo)} /> {accLabel(a)}</span>
                                 <button className="sc-mini poke" onClick={() => S.addGroupMember(groupView.id, a.uid, accLabel(a)).then(() => loadGroup(groupView))}><IonIcon icon={addOutline} /> Add</button>
                               </div>
                             ));
@@ -424,7 +432,7 @@ const SocialPanel: React.FC = () => {
                 {friends.length === 0 ? <p className="sc-empty">Adicione amigos antes pra montar um grupo.</p> :
                   friends.map((a) => (
                     <button key={a.uid} className={'sc-row sc-tap' + (pick[a.uid] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, accLabel(a))}>
-                      <span className="sc-name"><span className="sc-av" style={{ background: a.profiles?.[0]?.color || '#888' }} /> {accLabel(a)}</span>
+                      <span className="sc-name"><span className="sc-av" style={avStyle(a.profiles?.[0]?.color, a.profiles?.[0]?.photo)} /> {accLabel(a)}</span>
                       {pick[a.uid] && <IonIcon icon={checkmark} />}
                     </button>
                   ))}

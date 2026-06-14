@@ -2,7 +2,26 @@
 // O schema vive no Supabase (tabelas social_accounts/friendships/pokes/messages + RLS).
 import { supabase } from './supabase';
 
-export interface PublicProfile { id: string; name: string; color?: string; }
+export interface PublicProfile { id: string; name: string; color?: string; photo?: string; }
+
+/** Miniatura pequena (jpeg) a partir de um dataURL — pra embutir leve no perfil público. */
+export function thumbFromDataUrl(dataUrl: string, max = 64): Promise<string | undefined> {
+  return new Promise((res) => {
+    if (!dataUrl) return res(undefined);
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w >= h && w > max) { h = Math.round((h * max) / w); w = max; }
+      else if (h > w && h > max) { w = Math.round((w * max) / h); h = max; }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = () => res(undefined);
+    img.src = dataUrl;
+  });
+}
 export interface SocialAccount { uid: string; email?: string; profiles: PublicProfile[] }
 export interface Friendship { id: string; requester: string; addressee: string; status: 'pending' | 'accepted'; created_at: string }
 export interface Poke { id: string; from_uid: string; from_label?: string; to_uid: string; to_profile?: string; emoji?: string; created_at: string; seen: boolean }
