@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.11.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.10.1...v0.11.0) (2026-06-14)
+
+
+### Features
+
+* **app:** Sub-foco + Meta de Shape — treino direcionado ao objetivo estético ([2d17f37](https://github.com/Tcordeir0/home-gym-app/commit/2d17f375fc3c00f36bac5c36a632cbd904ca9a31))
+* Sub-foco + Meta de Shape (treino direcionado ao objetivo) + perf ([b4bdb2f](https://github.com/Tcordeir0/home-gym-app/commit/b4bdb2f76c1ca0cf3eda4664827c732f75c92e2c))
+
+
+### Performance Improvements
+
+* **app:** lazy-load da Anatomia (code-split 169KB) + remove react-body-highlighter sem uso ([fb54541](https://github.com/Tcordeir0/home-gym-app/commit/fb54541a4ad18b1dc96d1189eb8c108e6cb3be3b))
+
 ## [0.10.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.10.0...v0.10.1) (2026-06-14)
 
 
