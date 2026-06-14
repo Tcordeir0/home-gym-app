@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.10.0...v0.10.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **app:** demo do Pike push-up estava mostrando desenvolvimento sentado com halteres ([acd0806](https://github.com/Tcordeir0/home-gym-app/commit/acd080638244b2bb59ae89c279091c1b169c4ed9))
+* demo errado do Pike push-up (mostrava desenvolvimento sentado) ([a4fff54](https://github.com/Tcordeir0/home-gym-app/commit/a4fff545addc8cf3012ab2f70db2c6d6199d9e69))
+
 ## [0.10.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.9.1...v0.10.0) (2026-06-14)
 
 
