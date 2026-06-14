@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.9.0...v0.9.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **app:** boneco masculino crashava no iOS ao selecionar músculo ([87e061c](https://github.com/Tcordeir0/home-gym-app/commit/87e061cdec11cac76b13ee530c5043c4aad15a80))
+* boneco masculino crashava no iOS ao selecionar músculo ([26cf06d](https://github.com/Tcordeir0/home-gym-app/commit/26cf06db2b0c41ec9381b1cdb95506922cd7c651))
+
 ## [0.9.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.2...v0.9.0) (2026-06-14)
 
 
