@@ -18,7 +18,7 @@ const DemoSheet: React.FC<Props> = ({ ex, onClose }) => {
   useEffect(() => {
     if (!id) return;
     setFrame(0);
-    const t = setInterval(() => setFrame((f) => (f === 0 ? 1 : 0)), 1100);
+    const t = setInterval(() => setFrame((f) => (f === 0 ? 1 : 0)), 950);
     return () => clearInterval(t);
   }, [id]);
 
