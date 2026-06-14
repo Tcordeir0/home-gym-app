@@ -20,16 +20,17 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 - **CREATOR**: fora da loja E **invisível** pra qualquer perfil que não seja o Talys de `talysmatheus12@gmail.com`.
 
 ### 2. 🦾 Anatomia granular + mais exercícios
-- Separar músculos: **bíceps, tríceps, antebraço, abdominal, trapézio, panturrilha** (só esq/dir do MESMO músculo se junta).
-- **Faltam exercícios**: antebraço (0 hoje), panturrilha (1), e mais variação geral.
-- Anatomia mostrar os músculos de verdade (remapear o boneco).
+- Separar músculos: **bíceps, tríceps, antebraço, abdominal, trapézio, panturrilha** (só esq/dir do MESMO músculo se junta). ⏳ remapear o boneco PENDENTE.
+- ✅ **Exercícios adicionados**: antebraço 0→5 (rosca de punho/invertida/inversa/elástico + dead hang), panturrilha 1→5 (sentado, em pé c/ halteres, unilateral, no degrau).
+- ⏳ Anatomia mostrar os músculos de verdade (remapear o boneco) — falta.
 
-### 3. 🔄 Melhorias no "Trocar" exercício
-- Mais variedade: flexão deveria poder virar **supino com halteres/barra** (variações de OUTRO equipamento do mesmo grupo) — hoje filtra só pelo equipamento do perfil; revisar.
-- **DEMO de cada alternativa ANTES de selecionar** (ver o gif pra ter certeza).
+### 3. 🔄 Melhorias no "Trocar" exercício ✅
+- ✅ Inclui variações de OUTRO equipamento (flexão → supino c/ halteres/barra), com as que dá pra fazer já no topo e as demais marcadas pelo equipamento (borda tracejada + tag).
+- ✅ **DEMO de cada alternativa ANTES de selecionar** (botão 👁 em cada opção abre a demonstração).
 
 ### 4. 🎞️ Corrigir os GIFs/DEMO
-- Tem exercício usando **gif repetido/errado** — a posição muda conforme o nome mesmo sendo variação. Cada exercício (ou variação) precisa do gif certo.
+- ✅ Auditado: 0 mapeamentos quebrados, todos os 58 assets têm os 2 frames, nenhum aponta pra pasta inexistente.
+- ⏳ Falta **gerar NOVAS imagens** de demonstração: muitos exercícios (shrug, face pull, Arnold, antebraço, novos de panturrilha) caem no fallback YouTube por não existir asset. Precisa de fonte de imagens.
 
 ### 5. 🏃 Cardio integrado em A/B/C com início/fim
 - Cardio sempre aparece em A/B/C; registrar por **horário de início e fim** (em vez de botão único).

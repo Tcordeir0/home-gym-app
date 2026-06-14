@@ -76,13 +76,21 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
       {openSwap && (
         <div className="ex-swap">
           {alts.length === 0 ? (
-            <p className="ex-swap-empty">Sem variação equivalente pro teu equipamento.</p>
+            <p className="ex-swap-empty">Sem variação equivalente pra essa ênfase.</p>
           ) : (
             alts.map((a) => (
-              <button key={a.nome} className="ex-swap-opt" onClick={() => { swapExercise(treino, exIdx, a); setOpenSwap(false); }}>
-                <span className="ex-swap-n">{a.nome}</span>
-                <span className="ex-swap-r">{a.series}×{a.reps}</span>
-              </button>
+              <div key={a.nome} className={'ex-swap-opt' + (a.owned ? '' : ' borrow')}>
+                <button className="ex-swap-pick" onClick={() => { swapExercise(treino, exIdx, a); setOpenSwap(false); }}>
+                  <span className="ex-swap-n">
+                    {a.nome}
+                    {!a.owned && <span className="ex-swap-eq">{a.equipLabel}</span>}
+                  </span>
+                  <span className="ex-swap-r">{a.series}×{a.reps}</span>
+                </button>
+                <button className="ex-swap-demo" aria-label={'Ver demonstração de ' + a.nome} onClick={() => onDemo(a)}>
+                  <IonIcon icon={eyeOutline} />
+                </button>
+              </div>
             ))
           )}
         </div>
