@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.9.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.2...v0.9.0) (2026-06-14)
+
+
+### Features
+
+* **app:** 8 aros temáticos pros temas novos (onda 1) ([86ac6f1](https://github.com/Tcordeir0/home-gym-app/commit/86ac6f108aaf0de8450aeab01a0f5dc10f5078f1))
+* **app:** 8 temas novos (onda 1) — wallpaper + Liquid Glass + fx ([83ee1c7](https://github.com/Tcordeir0/home-gym-app/commit/83ee1c7629ec782ddb20a0a511f356fb28d5b9a9))
+* **app:** anatomia granular — boneco em 13 músculos (bíceps/tríceps/antebraço/abdômen/oblíquos/trapézio/panturrilha separados) ([5a20f1c](https://github.com/Tcordeir0/home-gym-app/commit/5a20f1c5cda6ccae75f80ed4e538b18ae914de43))
+* **app:** anatomia híbrida gendered — masculino detalhado (vulovix, cabeças) + feminino (react-muscle-highlighter), sexo da Calculadora decide ([bc706b3](https://github.com/Tcordeir0/home-gym-app/commit/bc706b37d71a8a87c427e9d06f9c7363d6ba9894))
+* **app:** aros Hollow e Code usando as artes do Talys (moldura-imagem) ([15fa964](https://github.com/Tcordeir0/home-gym-app/commit/15fa9644a2bf13a8358e355b70bdda6005a0ae26))
+* **app:** boneco masculino acende a SUB-REGIÃO treinada via ênfase dos exercícios ([1293c62](https://github.com/Tcordeir0/home-gym-app/commit/1293c62dcbeac61aab45d26102c225f129a054a2))
+* **app:** boneco masculino no tom do TEMA + selecionar sub-região com exercícios que desenvolvem ([d8208ad](https://github.com/Tcordeir0/home-gym-app/commit/d8208ad459b09aa859cc5df87f2c04a81282c5a7))
+* **app:** borboletas do Hollow batem as asas de verdade + azul do wallpaper ([c24205e](https://github.com/Tcordeir0/home-gym-app/commit/c24205ea92527d088f6a21feb528025c0ca1394b))
+* **app:** borboletas mais realistas — 4 asas + voo errático zig-zag + rastro/brilho ([c0c2ad1](https://github.com/Tcordeir0/home-gym-app/commit/c0c2ad1c929c4f07898083a6b71ac79f8e9a8be9))
+* **app:** borboletas viram ANIMAÇÃO REAL (vídeo do green screen) no Hollow e Bruxa ([14b1cc6](https://github.com/Tcordeir0/home-gym-app/commit/14b1cc699da86e5d9c1ceaaf61c90fd8e9bc132c))
+* **app:** camada de ênfase nos exercícios (região/cabeça do músculo) ([6b848c8](https://github.com/Tcordeir0/home-gym-app/commit/6b848c8fcd206ae55f041a8e85b31bedb483ce2d))
+* **app:** catálogo +67 exercícios curados (98→165), todos com demo ([0f1331b](https://github.com/Tcordeir0/home-gym-app/commit/0f1331bb2208c7256718c2f70ff6a46f2f011f64))
+* **app:** fecha temas novos na barra de perfis e no compartilhar ([1d1bdf8](https://github.com/Tcordeir0/home-gym-app/commit/1d1bdf80d415a3a793897c17ecd6549dab57e7cd))
+* **app:** Lojinha + moeda CREATINA (₡) abaixo da roleta ([5c63b88](https://github.com/Tcordeir0/home-gym-app/commit/5c63b88a6b716a9498f05d8d2ddf802b96dc460f))
+* **app:** Lojinha vira ícone no header de Prêmios + modal dedicado ([ced9634](https://github.com/Tcordeir0/home-gym-app/commit/ced96340b5b623082f8132b0324a375bc223ce00))
+* **app:** miasma (Return/Bruxa) mais intenso, tipo fumaça billowing ([b7aa758](https://github.com/Tcordeir0/home-gym-app/commit/b7aa7588591d0c0c4922939a15d7d87c287c6a33))
+* **app:** move Calculadora (sexo/idade/altura/objetivo) da Dieta pro Perfil ([#9](https://github.com/Tcordeir0/home-gym-app/issues/9)) ([5e5552d](https://github.com/Tcordeir0/home-gym-app/commit/5e5552d34636b25462572d62608438003065eefe))
+* **app:** tema Bruxa ganha fx 'witch' — fantasma glitchado da Echidna + borboletas verde-lima ([9397cca](https://github.com/Tcordeir0/home-gym-app/commit/9397ccafc9557014caf0f3de7f574335296026e8))
+* **app:** tema Code com glitch profissional de 4 tipos full-screen ([98fb123](https://github.com/Tcordeir0/home-gym-app/commit/98fb123a244d63e1ce5c8966bfb81193309f2429))
+* **app:** tema Sete (The Boys) troca raios por SANGUE e TERROR ([a702122](https://github.com/Tcordeir0/home-gym-app/commit/a702122dad76f42f48af5426f56fbe1b45aaf1b1))
+* **app:** TODO exercício tem demo + nenhuma sub-região fica vazia ([a0db53b](https://github.com/Tcordeir0/home-gym-app/commit/a0db53b5c3ba7018d9bfbad3c2491ff0d0e8cf16))
+* **app:** treinos A-E configuráveis (3/4/5) + aquecimento opcional + cardio dentro do treino com início/fim ([#5](https://github.com/Tcordeir0/home-gym-app/issues/5)) ([94e4086](https://github.com/Tcordeir0/home-gym-app/commit/94e40863567d8ad8604754982cfa6c7c741f95a1))
+* **app:** Trocar com demo-antes-de-escolher + variações de outro equipamento; +9 exercícios (antebraço/panturrilha) ([c734f48](https://github.com/Tcordeir0/home-gym-app/commit/c734f48c6bcf76107438139994dfd57d398e6f48))
+* Loja CREATINA, Anatomia 2.0 (gendered + sub-regiões), catálogo +67 exercícios, Treino A–E e mais ([b1cc020](https://github.com/Tcordeir0/home-gym-app/commit/b1cc020d00ca1a2b5e43dfc9ed13b702e1866dbb))
+
+
+### Bug Fixes
+
+* **app:** changelog do app deixa de ser hardcoded — lê do CHANGELOG.md (release-please) ([fe15709](https://github.com/Tcordeir0/home-gym-app/commit/fe157092a5a1a72e586a8c093f3d7e2bcdf4b893))
+* **app:** legenda da anatomia sem quebra de linha (coluna 92px + nowrap) + Anatomia vira card próprio no topo do Progresso (fora dos Gráficos) ([75ece63](https://github.com/Tcordeir0/home-gym-app/commit/75ece63090b177a8598179b7ed45cac26f261837))
+
 ## [0.8.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.8.1...v0.8.2) (2026-06-13)
 
 
