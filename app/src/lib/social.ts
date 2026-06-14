@@ -164,7 +164,8 @@ export async function createGroup(name: string, myLabel: string, members: { uid:
   const gid = (data as { id: string }).id;
   const rows = [
     { group_id: gid, uid: id, label: myLabel, role: 'owner' },
-    ...members.filter((m) => m.uid !== id).map((m) => ({ group_id: gid, uid: m.uid, label: m.label, role: 'member' })),
+    // aceita membros da MINHA conta (outros perfis) — só não duplica a linha do dono
+    ...members.filter((m) => !(m.uid === id && (m.label || '') === myLabel)).map((m) => ({ group_id: gid, uid: m.uid, label: m.label || '', role: 'member' })),
   ];
   await supabase.from('group_members').insert(rows);
   return gid;

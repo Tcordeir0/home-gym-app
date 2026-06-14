@@ -40,7 +40,7 @@ const SocialPanel: React.FC = () => {
   const [gDraft, setGDraft] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [pick, setPick] = useState<Record<string, string>>({}); // uid -> label do membro
+  const [pick, setPick] = useState<Record<string, { uid: string; label: string }>>({}); // "uid:label" -> membro
   const gEnd = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<S.SocialEvent[]>([]);
   const [allMsgs, setAllMsgs] = useState<S.Message[]>([]);
@@ -176,13 +176,13 @@ const SocialPanel: React.FC = () => {
     loadGroup(groupView);
   };
   const doCreateGroup = async () => {
-    const members = Object.entries(pick).map(([u, label]) => ({ uid: u, label }));
+    const members = Object.values(pick);
     if (!newName.trim() || members.length === 0) { setToast('Dê um nome e escolha ao menos 1 pessoa.'); return; }
     const gid = await S.createGroup(newName.trim(), myName, members);
     if (gid) { setToast('Grupo criado! 🎉'); setCreateOpen(false); setNewName(''); setPick({}); loadAll(); }
     else setToast('Não consegui criar o grupo.');
   };
-  const togglePick = (u: string, label: string) => setPick((p) => { const n = { ...p }; if (n[u]) delete n[u]; else n[u] = label; return n; });
+  const togglePick = (u: string, label: string) => setPick((p) => { const k = u + ':' + label; const n = { ...p }; if (n[k]) delete n[k]; else n[k] = { uid: u, label }; return n; });
 
   return (
     <div className="sc-panel">
@@ -446,14 +446,20 @@ const SocialPanel: React.FC = () => {
                 <div className="sc-invite">
                   <input placeholder="Nome do grupo" value={newName} onChange={(e) => setNewName(e.target.value)} />
                 </div>
-                <p className="sc-grp-hint">Escolha quem entra (amigos). Sua equipe da mesma conta já vê o grupo.</p>
-                {friends.length === 0 ? <p className="sc-empty">Adicione amigos antes pra montar um grupo.</p> :
-                  friends.map((a) => (
-                    <button key={a.uid} className={'sc-row sc-tap' + (pick[a.uid] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, accLabel(a))}>
-                      <span className="sc-name"><span className="sc-av" style={avStyle(a.profiles?.[0]?.color, a.profiles?.[0]?.photo)} /> {accLabel(a)}</span>
-                      {pick[a.uid] && <IonIcon icon={checkmark} />}
-                    </button>
-                  ))}
+                <p className="sc-grp-hint">Escolha quem entra: seu time (mesma conta) e amigos, por perfil.</p>
+                {myProfiles.filter((p) => p.name !== myName).map((p) => (
+                  <button key={'me:' + p.name} className={'sc-row sc-tap' + (pick[uid + ':' + p.name] ? ' sc-picked' : '')} onClick={() => togglePick(uid, p.name)}>
+                    <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name} <small>seu time</small></span>
+                    {pick[uid + ':' + p.name] && <IonIcon icon={checkmark} />}
+                  </button>
+                ))}
+                {friends.flatMap((a) => (a.profiles?.length ? a.profiles : [{ id: a.uid, name: accLabel(a), color: undefined, photo: undefined }]).map((p) => (
+                  <button key={a.uid + ':' + p.name} className={'sc-row sc-tap' + (pick[a.uid + ':' + p.name] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, p.name)}>
+                    <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name} <small>{a.email}</small></span>
+                    {pick[a.uid + ':' + p.name] && <IonIcon icon={checkmark} />}
+                  </button>
+                )))}
+                {friends.length === 0 && myProfiles.filter((p) => p.name !== myName).length === 0 && <p className="sc-empty">Adicione amigos ou crie outro perfil pra montar um grupo.</p>}
                 <div className="sc-grp-actions">
                   <button className="sc-grp-cancel" onClick={() => { setCreateOpen(false); setNewName(''); setPick({}); }}>Cancelar</button>
                   <button className="sc-grp-create" onClick={doCreateGroup}>Criar grupo</button>
