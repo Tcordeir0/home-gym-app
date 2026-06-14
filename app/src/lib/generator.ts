@@ -38,11 +38,14 @@ export function alternativesFor(exNome: string, equip: string[]): Alt[] {
     .sort((a, b) => Number(b.owned) - Number(a.owned)); // primeiro as que dá pra fazer já
 }
 
-export function generateWorkout(equip: string[], focusKey: string, perDay = 6): Record<string, Exercise[]> {
+const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;
+
+export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3): Record<string, Exercise[]> {
   const pool = eligiblePool(equip);
   const byGroup: Record<string, PoolItem[]> = {};
   GEN_ROTATION.forEach((g) => { byGroup[g] = pool.filter((e) => e.g === g); });
   const used: Record<string, boolean> = {};
+  const n = Math.min(WORKOUT_LETTERS.length, Math.max(1, days));
 
   function pick(g: string): PoolItem | undefined {
     let cand = (byGroup[g] || []).filter((e) => !used[e.n]);
@@ -64,11 +67,18 @@ export function generateWorkout(equip: string[], focusKey: string, perDay = 6): 
   }
 
   const treinos: Record<string, Exercise[]> = {};
-  (['A', 'B', 'C'] as const).forEach((k) => {
+  WORKOUT_LETTERS.slice(0, n).forEach((k) => {
     treinos[k] = slots().map((g) => {
       const e = pick(g) || { n: 'Exercício', g, s: 3, r: '12', d: '' };
       return { nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d };
     });
   });
   return treinos;
+}
+
+/** Rótulos padrão pra N treinos (A..E) + aquecimento. */
+export function defaultLabels(days: number): Record<string, string> {
+  const out: Record<string, string> = { warm: 'Aquec.' };
+  WORKOUT_LETTERS.slice(0, Math.min(WORKOUT_LETTERS.length, Math.max(1, days))).forEach((k) => (out[k] = `Treino ${k}`));
+  return out;
 }

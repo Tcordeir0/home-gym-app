@@ -169,6 +169,7 @@ const Progresso: React.FC = () => {
               {fmtDate(e.date)}
               {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
               {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
+              {e.w === 'cardio' && e.start && e.end ? ` · ${e.start}–${e.end}` : ''}
             </span>
           </span>
           {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}

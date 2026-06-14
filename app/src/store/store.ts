@@ -182,7 +182,7 @@ export interface Store extends AppState {
   prevSets: (nome: string) => { kg: number; reps: number }[];
   exPR: (nome: string) => { kg: number; reps: number; e1rm: number } | null;
   prefillSets: (treino: string, exIdx: number, series: number, sets: { kg: number; reps: number }[]) => void;
-  addCardio: (label: string, emoji?: string, mins?: number) => void;
+  addCardio: (label: string, emoji?: string, mins?: number, start?: string, end?: string) => void;
   // Dieta
   latestMeasure: (field: 'weight' | 'arm' | 'chest' | 'waist') => number | null;
   setWeightToday: (kg: number) => void;
@@ -478,13 +478,13 @@ export const useStore = create<Store>((set, get) => {
         }
       })),
 
-    addCardio: (label, emoji, mins) =>
+    addCardio: (label, emoji, mins, start, end) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
         const today = todayISO();
         const h = (s.history[uid] = s.history[uid] || []);
-        h.push({ date: today, w: 'cardio', t: label, emoji, mins });
+        h.push({ date: today, w: 'cardio', t: label, emoji, mins, start, end });
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
         sc.byDay[today] = (sc.byDay[today] || 0) + PTS_CARDIO;
       })),

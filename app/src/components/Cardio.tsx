@@ -12,6 +12,7 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
   const [open, setOpen] = useState<CardioType | null>(null);
   const [secs, setSecs] = useState(0);
   const [running, setRunning] = useState(false);
+  const [startHM, setStartHM] = useState<string | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
@@ -19,14 +20,21 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
     return () => clearInterval(timer.current);
   }, [running]);
 
-  const start = (c: CardioType) => { setOpen(c); setSecs(0); setRunning(false); };
-  const close = () => { setRunning(false); setOpen(null); };
+  const nowHM = () => {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  };
+  const start = (c: CardioType) => { setOpen(c); setSecs(0); setRunning(false); setStartHM(null); };
+  const close = () => { setRunning(false); setOpen(null); setStartHM(null); };
+  const begin = () => { setStartHM(nowHM()); setRunning(true); };
   const fmt = (s: number) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   const register = () => {
     if (open) {
       const mins = secs > 0 ? Math.max(1, Math.round(secs / 60)) : undefined;
-      addCardio(open.label, open.emoji, mins);
-      onDone?.(open.label + (mins ? ` · ${mins} min` : ''));
+      const end = startHM ? nowHM() : undefined;
+      addCardio(open.label, open.emoji, mins, startHM || undefined, end);
+      const horario = startHM && end ? ` (${startHM}–${end})` : '';
+      onDone?.(open.label + (mins ? ` · ${mins} min` : '') + horario);
     }
     close();
   };
@@ -34,7 +42,7 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
   return (
     <>
       <div className="cardio-section">
-        <span className="cardio-label">Cardio extra</span>
+        <span className="cardio-label">🏃 Cardio do treino</span>
         <div className="cardio-bar">
           {(profile.cardios || []).map((c, i) => (
             <motion.button key={i} whileTap={{ scale: 0.95 }} className="cardio-pill" onClick={() => start(c)}>
@@ -51,8 +59,8 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
               <div className="cardio-title">{open.emoji || '🏃'} {open.label}</div>
               {!running ? (
                 <>
-                  <button className="cardio-primary" onClick={() => setRunning(true)}>
-                    <IonIcon icon={playOutline} /> Começar agora (cronometrar)
+                  <button className="cardio-primary" onClick={begin}>
+                    <IonIcon icon={playOutline} /> Iniciar agora (marca o horário)
                   </button>
                   <button className="cardio-secondary" onClick={register}>
                     <IonIcon icon={checkmarkOutline} /> Já fiz (registrar)
@@ -60,9 +68,10 @@ const Cardio: React.FC<{ onDone?: (label: string) => void }> = ({ onDone }) => {
                 </>
               ) : (
                 <>
+                  {startHM && <div className="cardio-start">Início {startHM}</div>}
                   <div className="cardio-clock">{fmt(secs)}</div>
                   <button className="cardio-primary" onClick={register}>
-                    <IonIcon icon={stopOutline} /> Parar e registrar
+                    <IonIcon icon={stopOutline} /> Finalizar e registrar
                   </button>
                 </>
               )}

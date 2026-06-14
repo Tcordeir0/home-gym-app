@@ -14,7 +14,8 @@ import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
 import './Treino.css';
 
-type Seg = 'A' | 'B' | 'C' | 'warm';
+type Seg = string; // 'A'..'E' | 'warm'
+const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'];
 const DEFAULT_LABELS = { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
 
 const Treino: React.FC = () => {
@@ -31,30 +32,37 @@ const Treino: React.FC = () => {
   const [demo, setDemo] = useState<Exercise | null>(null);
   const [toast, setToast] = useState('');
 
+  // segmentos = treinos presentes (A..E) + aquecimento (opcional)
+  const workoutSegs = WORKOUT_LETTERS.filter((k) => plan.treinos[k]?.length);
+  const warmOn = profile.warmupOn !== false;
+  const segs: Seg[] = warmOn ? [...workoutSegs, 'warm'] : workoutSegs;
+  // se o segmento ativo sumiu (ex.: trocou pra 3 dias), volta pro A
+  const safeSeg: Seg = segs.includes(seg) ? seg : (segs[0] || 'A');
+
   const swaps = useStore((s) => s.swaps[s.active]);
-  const baseExs: Exercise[] = seg === 'warm' ? AQUECIMENTO : plan.treinos[seg];
+  const baseExs: Exercise[] = (safeSeg === 'warm' ? AQUECIMENTO : plan.treinos[safeSeg]) || [];
   // aplica trocas de exercício salvas (mesma ênfase) por posição
-  const exercises: Exercise[] = seg === 'warm' ? baseExs : baseExs.map((ex, i) => swaps?.[`${seg}:${i}`] || ex);
-  const labels = plan.labels || { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
+  const exercises: Exercise[] = safeSeg === 'warm' ? baseExs : baseExs.map((ex, i) => swaps?.[`${safeSeg}:${i}`] || ex);
+  const labels = plan.labels || DEFAULT_LABELS;
 
   // nome descritivo do dia (ex.: "Glúteos + Posterior"); cai pro foco quando o rótulo é genérico
-  const generic = !labels[seg] || labels[seg] === `Treino ${seg}`;
+  const generic = !labels[safeSeg] || labels[safeSeg] === `Treino ${safeSeg}`;
   const dayName =
-    seg === 'warm'
+    safeSeg === 'warm'
       ? labels.warm && labels.warm !== 'Aquec.' ? labels.warm : 'Prepara o corpo'
-      : generic ? `Foco: ${plan.focus}` : (labels[seg] as string);
+      : generic ? `Foco: ${plan.focus}` : (labels[safeSeg] as string);
 
   // progresso do treino atual
   let done = 0;
   let total = 0;
   exercises.forEach((ex, i) => {
     total += ex.series;
-    done += rowsFor(setlog as never, active, seg, i, ex.series).filter((r) => r.done).length;
+    done += rowsFor(setlog as never, active, safeSeg, i, ex.series).filter((r) => r.done).length;
   });
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   const onComplete = () => {
-    const r = completeWorkout(seg, exercises);
+    const r = completeWorkout(safeSeg, exercises);
     if (r === 'dup') setToast('Você já registrou este treino hoje 💪');
     else if (r === 'empty') setToast('Marque ao menos uma série feita');
     else { fxSuccess(); setToast('Treino concluído! Pontos creditados 🎉'); }
@@ -65,36 +73,37 @@ const Treino: React.FC = () => {
       <TreinoBanner />
       <IonSegment
         className="treino-seg"
-        value={seg}
+        value={safeSeg}
         onIonChange={(e) => setSeg(e.detail.value as Seg)}
         scrollable
       >
-        {(['A', 'B', 'C', 'warm'] as Seg[]).map((k) => (
+        {segs.map((k) => (
           <IonSegmentButton key={k} value={k}>
             <IonLabel>{k === 'warm' ? 'Aquec.' : `Treino ${k}`}</IonLabel>
           </IonSegmentButton>
         ))}
       </IonSegment>
 
-      <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />
-
       <div className="treino-top">
         <span className="treino-focus">{dayName}</span>
-        {seg !== 'warm' && <span className="treino-pct">{pct}%</span>}
+        {safeSeg !== 'warm' && <span className="treino-pct">{pct}%</span>}
       </div>
-      {seg !== 'warm' && (
+      {safeSeg !== 'warm' && (
         <div className="treino-bar">
           <span style={{ width: pct + '%' }} />
         </div>
       )}
 
       {exercises.map((ex, i) => (
-        <ExerciseCard key={seg + i} ex={ex} treino={seg} exIdx={i} onDemo={setDemo} />
+        <ExerciseCard key={safeSeg + i} ex={ex} treino={safeSeg} exIdx={i} onDemo={setDemo} />
       ))}
 
-      {seg !== 'warm' && (
+      {/* Cardio integrado ao treino (faz parte do A–E; não aparece no aquecimento) */}
+      {safeSeg !== 'warm' && <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />}
+
+      {safeSeg !== 'warm' && (
         <motion.button whileTap={{ scale: 0.97 }} className="treino-done" onClick={onComplete}>
-          Concluir Treino {seg}
+          Concluir Treino {safeSeg}
         </motion.button>
       )}
 
