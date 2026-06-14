@@ -13,27 +13,28 @@ import './Anatomia.css';
 type Fine =
   | 'chest' | 'trapezius' | 'back' | 'lombar' | 'shoulders'
   | 'biceps' | 'triceps' | 'forearm'
-  | 'abs' | 'obliques'
+  | 'abs' | 'obliques' | 'serratus'
   | 'quads' | 'hamstring' | 'calves' | 'glutes';
 
-const FINE: Fine[] = ['chest', 'trapezius', 'back', 'lombar', 'shoulders', 'biceps', 'triceps', 'forearm', 'abs', 'obliques', 'quads', 'hamstring', 'calves', 'glutes'];
+const FINE: Fine[] = ['chest', 'serratus', 'trapezius', 'back', 'lombar', 'shoulders', 'biceps', 'triceps', 'forearm', 'abs', 'obliques', 'quads', 'hamstring', 'calves', 'glutes'];
 
 const FINE_LABEL: Record<Fine, string> = {
   chest: 'Peito', trapezius: 'Trapézio', back: 'Dorsal', lombar: 'Lombar', shoulders: 'Ombro',
   biceps: 'Bíceps', triceps: 'Tríceps', forearm: 'Antebraço',
-  abs: 'Abdômen', obliques: 'Oblíquos',
+  abs: 'Abdômen', obliques: 'Oblíquos', serratus: 'Serrátil',
   quads: 'Quadríceps', hamstring: 'Posterior', calves: 'Panturrilha', glutes: 'Glúteo',
 };
 
-// nosso músculo → slug do modelo (react-muscle-highlighter)
-const FINE_SLUG: Record<Fine, Slug> = {
+// nosso músculo → slug do modelo (react-muscle-highlighter, modelo FEMININO).
+// Serrátil não existe nessa lib → fica sem pintar no feminino (só conta na legenda).
+const FINE_SLUG: Partial<Record<Fine, Slug>> = {
   chest: 'chest', trapezius: 'trapezius', back: 'upper-back', lombar: 'lower-back', shoulders: 'deltoids',
   biceps: 'biceps', triceps: 'triceps', forearm: 'forearm',
   abs: 'abs', obliques: 'obliques',
   quads: 'quadriceps', hamstring: 'hamstring', calves: 'calves', glutes: 'gluteal',
 };
 const SLUG_FINE: Partial<Record<Slug, Fine>> = {};
-(Object.keys(FINE_SLUG) as Fine[]).forEach((f) => (SLUG_FINE[FINE_SLUG[f]] = f));
+(Object.keys(FINE_SLUG) as Fine[]).forEach((f) => { const s = FINE_SLUG[f]; if (s) SLUG_FINE[s] = f; });
 
 // nosso músculo → regiões da vulovix (modelo MASCULINO, com cabeças). Bases sem lado;
 // expandidas pra -left/-right na hora de montar o estado.
@@ -48,6 +49,7 @@ const FINE_VULOVIX: Record<Fine, string[]> = {
   forearm: ['forearm-flexors', 'forearm-extensors'],
   abs: ['abs-upper', 'abs-lower'],
   obliques: ['obliques'],
+  serratus: ['serratus-anterior'],
   quads: ['quads'],
   hamstring: ['hamstrings-lateral', 'hamstrings-medial'],
   calves: ['calves-gastroc-lateral', 'calves-gastroc-medial', 'calves-soleus'],
@@ -66,7 +68,7 @@ const BASE_LABEL: Record<string, string> = {
   'shoulder-front': 'Deltoide frontal', 'shoulder-side': 'Deltoide lateral', 'deltoid-rear': 'Deltoide posterior',
   'biceps': 'Bíceps', 'triceps-long': 'Tríceps · cabeça longa', 'triceps-lateral': 'Tríceps · cabeça lateral',
   'forearm-flexors': 'Antebraço · flexores', 'forearm-extensors': 'Antebraço · extensores',
-  'abs-upper': 'Abdômen superior', 'abs-lower': 'Abdômen inferior', 'obliques': 'Oblíquos',
+  'abs-upper': 'Abdômen superior', 'abs-lower': 'Abdômen inferior', 'obliques': 'Oblíquos', 'serratus-anterior': 'Serrátil',
   'quads': 'Quadríceps', 'adductors': 'Adutores',
   'hamstrings-lateral': 'Posterior · lateral', 'hamstrings-medial': 'Posterior · medial',
   'calves-gastroc-lateral': 'Panturrilha · gastroc. lateral', 'calves-gastroc-medial': 'Panturrilha · gastroc. medial', 'calves-soleus': 'Panturrilha · sóleo',
@@ -104,6 +106,7 @@ const TIPS: Record<Fine, string> = {
   forearm: 'Rosca de punho e dead hang dão pegada e antebraço grossos.',
   abs: 'Prancha, abdominal e elevação de pernas sustentam o tronco.',
   obliques: 'Russian twist e inclinação lateral marcam os oblíquos.',
+  serratus: 'Pullover, ab rollout e around-the-world desenham o serrátil (relevo nas costelas).',
   quads: 'Agachamento e afundo são a base — não pule perna.',
   hamstring: 'Stiff e terra romeno carregam o posterior de coxa.',
   calves: 'Panturrilha em pé e no degrau, amplitude total e bem devagar.',
@@ -237,8 +240,8 @@ const Anatomia: React.FC = () => {
   // o músculo SELECIONADO recebe intensity 6 = "glow".
   const data: ExtendedBodyPart[] = useMemo(() => {
     const max = Math.max(1, ...FINE.map((f) => counts[f]));
-    return FINE.filter((f) => counts[f] > 0 || f === sel).map((f) => ({
-      slug: FINE_SLUG[f],
+    return FINE.filter((f) => (counts[f] > 0 || f === sel) && FINE_SLUG[f]).map((f) => ({
+      slug: FINE_SLUG[f]!,
       intensity: f === sel ? 6 : Math.max(1, Math.ceil((counts[f] / max) * 5)),
     }));
   }, [counts, sel]);

@@ -13,7 +13,8 @@ const RULES: { re: RegExp; label: string; bases: string[] }[] = [
   // ---- Peito ----
   { re: /supino inclinad|pe(i)?to superior|pés elevados|pes elevados|incline (press|bench)/, label: 'superior', bases: ['chest-upper'] },
   { re: /flexão inclinada|inclinada \(mãos|mãos elevadas|maos elevadas|supino declinad|peito inferior|paralelas \(peito|mergulho nas paralelas \(peito/, label: 'inferior', bases: ['chest-lower'] },
-  { re: /crucifixo|fly|pullover|voador/, label: 'abertura', bases: ['chest-upper', 'chest-lower'] },
+  { re: /pullover|around the world|around-the-world/, label: 'serrátil + peito', bases: ['serratus-anterior', 'chest-lower'] },
+  { re: /crucifixo|fly|voador/, label: 'abertura', bases: ['chest-upper', 'chest-lower'] },
   { re: /flexão diamante|diamante|flexão fechada|fechada \(tríceps/, label: 'tríceps + peito interno', bases: ['triceps-lateral', 'chest-lower'] },
   // ---- Tríceps ----
   { re: /testa|francês|frances|overhead|extensão de tríceps|tríceps na polia alta/, label: 'cabeça longa', bases: ['triceps-long'] },
@@ -45,7 +46,8 @@ const RULES: { re: RegExp; label: string; bases: string[] }[] = [
   { re: /hip thrust|ponte|elevação pélvica|coice de glúteo|kickback de glúteo/, label: 'glúteo máximo', bases: ['gluteus-maximus'] },
   { re: /abdução|abductor/, label: 'glúteo médio', bases: ['gluteus-medius'] },
   // ---- Core ----
-  { re: /oblíqu|obliqu|russian|woodchopper|inclinação lateral|prancha lateral|twist|suitcase/, label: 'oblíquos', bases: ['obliques'] },
+  { re: /oblíqu|obliqu|russian|woodchopper|inclinação lateral|prancha lateral|twist|suitcase|rotação de tronco|rotacao de tronco|cotovelo no joelho/, label: 'oblíquos', bases: ['obliques'] },
+  { re: /ab rollout|rollout|abdominal rollout/, label: 'abdômen + serrátil', bases: ['abs-lower', 'serratus-anterior'] },
   { re: /elevação de pernas|leg raise|reverse crunch|flutter|canivete|v-up/, label: 'abdômen inferior', bases: ['abs-lower'] },
   { re: /abdominal|crunch|prancha|hollow|sit-?up/, label: 'abdômen superior', bases: ['abs-upper'] },
 ];

@@ -193,5 +193,18 @@ export const DEMOS: Record<string, string> = {
   "Supino declinado pegada aberta com barra": "Wide-Grip_Decline_Barbell_Bench_Press",
   "Crucifixo declinado com halteres": "Decline_Dumbbell_Flyes",
   "Supino reto com halteres": "Dumbbell_Bench_Press",
-  "Pullover com barra": "Bent-Arm_Barbell_Pullover"
+  "Pullover com barra": "Bent-Arm_Barbell_Pullover",
+"Pullover de braço reto com halter": "Straight-Arm_Dumbbell_Pullover",
+  "Pullover declinado pegada aberta com barra": "Wide-Grip_Decline_Barbell_Pullover",
+  "Supino inclinado pegada neutra com halteres": "Hammer_Grip_Incline_DB_Bench_Press",
+  "Abdominal rollout com barra (de joelhos)": "Barbell_Ab_Rollout_-_On_Knees",
+  "Elevação de pernas em L na barra (pike)": "Hanging_Pike",
+  "Abdominal declinado": "Decline_Crunch",
+  "Rosca martelo inclinada": "Incline_Hammer_Curls",
+  "Abdominal oblíquo no chão": "Oblique_Crunches_-_On_The_Floor",
+  "Abdominal oblíquo declinado": "Decline_Oblique_Crunch",
+  "Rotação de tronco sentado com barra": "Seated_Barbell_Twist",
+  "Abdominal curto (tuck)": "Tuck_Crunch",
+  "Abdominal rã (frog)": "Frog_Sit-Ups",
+  "Abdominal cotovelo no joelho": "Elbow_to_Knee"
 };
