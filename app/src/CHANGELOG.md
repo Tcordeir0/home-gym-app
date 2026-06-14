@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.13.0...v0.13.1) (2026-06-14)
+
+
+### Bug Fixes
+
+* **app:** valida foto de perfil no avatar do Social (só data:image base64) ([754e56a](https://github.com/Tcordeir0/home-gym-app/commit/754e56afd4b908113bd523ecab364f0ea7ac301e))
+* sanitiza foto de perfil no Social (segurança) ([ee137c3](https://github.com/Tcordeir0/home-gym-app/commit/ee137c33fe1b71ec04c52ca2a5cb9a4bebc0b302))
+
 ## [0.13.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.12.0...v0.13.0) (2026-06-14)
 
 
