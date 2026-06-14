@@ -99,16 +99,20 @@ export async function sendMessage(toUid: string, body: string, opts?: { fromProf
   const id = await uid();
   if (id && body.trim()) await supabase.from('messages').insert({ from_uid: id, to_uid: toUid, body: body.trim(), from_profile: opts?.fromProfile, to_profile: opts?.toProfile });
 }
-/** Chat com um AMIGO (outra conta). */
-export async function listMessages(friendUid: string): Promise<Message[]> {
+/** Chat entre o MEU perfil ativo e um PERFIL do amigo (isolado por perfil — sem vazar
+ *  pros outros perfis da minha conta). fail-closed: só mostra com os dois perfis batendo. */
+export async function listMessages(friendUid: string, myProfile?: string, friendProfile?: string): Promise<Message[]> {
   const id = await uid();
   if (!id) return [];
   const { data } = await supabase.from('messages')
     .select('*')
     .or(`and(from_uid.eq.${id},to_uid.eq.${friendUid}),and(from_uid.eq.${friendUid},to_uid.eq.${id})`)
-    .is('to_profile', null)
     .order('created_at', { ascending: true });
-  return (data as Message[]) || [];
+  const all = (data as Message[]) || [];
+  if (!myProfile || !friendProfile) return all.filter((m) => !m.from_profile && !m.to_profile); // legado (conta↔conta)
+  return all.filter((m) =>
+    (m.from_uid === id && m.from_profile === myProfile && m.to_profile === friendProfile) ||
+    (m.from_uid === friendUid && m.from_profile === friendProfile && m.to_profile === myProfile));
 }
 /** Chat entre dois perfis da MESMA conta (equipe). */
 export async function listTeamMessages(profileA: string, profileB: string): Promise<Message[]> {
@@ -160,6 +164,13 @@ export async function createGroup(name: string, myLabel: string, members: { uid:
 export async function listMyGroups(): Promise<Group[]> {
   const { data } = await supabase.from('groups').select('*').order('created_at', { ascending: false });
   return (data as Group[]) || [];
+}
+/** Minhas participações em grupos (group_id → label/perfil) — pra isolar grupos por perfil. */
+export async function listMyMemberships(): Promise<{ group_id: string; label?: string }[]> {
+  const id = await uid();
+  if (!id) return [];
+  const { data } = await supabase.from('group_members').select('group_id,label').eq('uid', id);
+  return (data as { group_id: string; label?: string }[]) || [];
 }
 export async function listGroupMembers(gid: string): Promise<GroupMember[]> {
   const { data } = await supabase.from('group_members').select('*').eq('group_id', gid);
