@@ -121,3 +121,9 @@
 @media (prefers-reduced-motion: reduce) {
   .anat-bar-fill, .anat-seg button { transition: none; }
 }
+
+/* Boneco masculino (vulovix): no iOS, drop-shadow + glow + transição num SVG grande
+   estouravam o WebView ao clicar ("ocorreu um problema repetidamente"). Removemos os
+   filtros (a seleção aparece pela cor/intensidade) e as transições. */
+.bm-male svg.body-chart-svg { filter: none !important; transition: none !important; }
+.bm-male svg.body-chart-svg path { filter: none !important; transition: none !important; }
