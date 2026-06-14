@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.12.0...v0.13.0) (2026-06-14)
+
+
+### Features
+
+* **app:** fotos de perfil no Social (avatares com foto) — [#6](https://github.com/Tcordeir0/home-gym-app/issues/6) ([a4c0dd1](https://github.com/Tcordeir0/home-gym-app/commit/a4c0dd18e04ad917fb72464b50f7fc91988e9d5d))
+* fotos de perfil no Social ([#6](https://github.com/Tcordeir0/home-gym-app/issues/6)) ([3219ee8](https://github.com/Tcordeir0/home-gym-app/commit/3219ee82db423259b23b9b97b462fe1a34a4e73d))
+
 ## [0.12.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.11.0...v0.12.0) (2026-06-14)
 
 
