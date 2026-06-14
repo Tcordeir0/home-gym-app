@@ -10,6 +10,7 @@ import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
 import { pushNow } from '../lib/sync';
 import Collapsible from '../components/Collapsible';
+import Calculadora from '../components/Calculadora';
 import GeneratorSheet from '../components/GeneratorSheet';
 import Ferramentas from '../components/Ferramentas';
 import ChangelogHistory from '../components/ChangelogHistory';
@@ -234,6 +235,9 @@ const Perfil: React.FC = () => {
           { text: 'Limpar', role: 'destructive', handler: () => { clearProfileData(profile.id); setToast('Dados do perfil limpos.'); } },
         ]}
       />
+
+      {/* Calculadora corporal — sexo/idade/altura/objetivo (o sexo define o boneco da Anatomia) */}
+      <Calculadora />
 
       {/* Personalizar: cor + tema + cosméticos (colapsável) */}
       <IonCard className="perfil-card">
