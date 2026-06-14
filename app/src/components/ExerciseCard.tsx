@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import type { Exercise } from '../data/types';
 import { useStore, rowsFor } from '../store/store';
 import { alternativesFor } from '../lib/generator';
+import { emphasisOf } from '../lib/emphasis';
 import { e1RM } from '../lib/stats';
 import { fxTick } from '../lib/feedback';
 import './ExerciseCard.css';
@@ -34,6 +35,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const doneCount = rows.filter((s) => s.done).length;
   const prev = prevSets(ex.nome);
   const pr = exPR(ex.nome);
+  const emp = emphasisOf(ex.nome);
 
   // pré-preenche os campos com a ÚLTIMA vez (só quando tudo vazio) — base pra progredir
   useEffect(() => {
@@ -54,7 +56,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
       <div className="ex-head">
         <div className="ex-info">
           <h3 className="ex-name">{ex.nome}</h3>
-          <span className="ex-muscle">{ex.musculo}</span>
+          <span className="ex-muscle">{ex.musculo}{emp ? <span className="ex-emph"> · {emp.label}</span> : null}</span>
         </div>
         <span className="ex-reps">
           {ex.series}<span className="x">×</span>{ex.reps}
@@ -83,7 +85,10 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
                 <button className="ex-swap-pick" onClick={() => { swapExercise(treino, exIdx, a); setOpenSwap(false); }}>
                   <span className="ex-swap-n">
                     {a.nome}
-                    {!a.owned && <span className="ex-swap-eq">{a.equipLabel}</span>}
+                    <span className="ex-swap-tags">
+                      {emphasisOf(a.nome) && <span className="ex-swap-emph">{emphasisOf(a.nome)!.label}</span>}
+                      {!a.owned && <span className="ex-swap-eq">{a.equipLabel}</span>}
+                    </span>
                   </span>
                   <span className="ex-swap-r">{a.series}×{a.reps}</span>
                 </button>
