@@ -126,9 +126,13 @@ const SocialPanel: React.FC = () => {
     loadChat(chatWith);
   };
   const accLabel = (a?: S.SocialAccount) => a?.profiles?.[0]?.name || a?.email || 'Amigo';
-  // estilo do avatar: foto (se houver) ou cor do perfil
-  const avStyle = (color?: string, photo?: string): React.CSSProperties =>
-    photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: color || '#888' };
+  // estilo do avatar: foto (se houver) ou cor do perfil.
+  // ⚠️ photo vem de dados de OUTROS usuários (sync) → só aceita data:image base64
+  // (bloqueia http(s)/javascript/CSS injection no background-image).
+  const avStyle = (color?: string, photo?: string): React.CSSProperties => {
+    const safe = photo && /^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/.test(photo) ? photo : undefined;
+    return safe ? { backgroundImage: `url("${safe}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: color || '#888' };
+  };
   // foto do remetente no grupo (mesmo critério da cor)
   const senderPhoto = (fuid: string, label?: string) => {
     const acc = byUid.get(fuid);
