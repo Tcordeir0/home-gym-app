@@ -60,6 +60,45 @@ function medal(rank?: number): string {
   return '🏅';
 }
 
+// Borboleta de 4 asas (o chamador define fillStyle/shadow). Usada por Hollow e Bruxa.
+function drawButterfly(ctx: CanvasRenderingContext2D, x: number, y: number, s: number) {
+  ctx.beginPath(); ctx.ellipse(x - s * 0.45, y - s * 0.1, s * 0.5, s * 0.7, -0.5, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + s * 0.45, y - s * 0.1, s * 0.5, s * 0.7, 0.5, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x - s * 0.38, y + s * 0.5, s * 0.34, s * 0.46, -0.5, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + s * 0.38, y + s * 0.5, s * 0.34, s * 0.46, 0.5, 0, 7); ctx.fill();
+}
+
+// Aro-imagem (PNG com furo central) ao redor do avatar. Espelha os av-frame-* do Perfil:
+// fx/fy = fração do centro do furo no PNG; fr = fração do raio do furo. half = corta na metade
+// (Hollow) com degradê discreto; glow = brilho temático.
+async function drawImageRing(
+  ctx: CanvasRenderingContext2D, cx: number, ay: number, R: number,
+  src: string, fx: number, fy: number, fr: number,
+  opts?: { half?: boolean; glow?: string },
+) {
+  let img: HTMLImageElement;
+  try { img = await loadImage(src); } catch { return; }
+  const Wimg = R / fr;
+  const dx = cx - fx * Wimg;
+  const dy = ay - fy * Wimg;
+  if (opts?.glow) { ctx.save(); ctx.shadowColor = opts.glow; ctx.shadowBlur = 28; }
+  if (opts?.half) {
+    const sz = Math.ceil(Wimg);
+    const off = document.createElement('canvas'); off.width = sz; off.height = sz;
+    const o = off.getContext('2d')!;
+    o.drawImage(img, 0, 0, Wimg, Wimg);
+    o.globalCompositeOperation = 'destination-in';
+    const mg = o.createLinearGradient(0, 0, 0, Wimg);
+    mg.addColorStop(0, '#000'); mg.addColorStop(0.46, '#000');
+    mg.addColorStop(0.53, 'rgba(0,0,0,0.55)'); mg.addColorStop(0.60, 'rgba(0,0,0,0)');
+    o.fillStyle = mg; o.fillRect(0, 0, Wimg, Wimg);
+    ctx.drawImage(off, dx, dy, Wimg, Wimg);
+  } else {
+    ctx.drawImage(img, dx, dy, Wimg, Wimg);
+  }
+  if (opts?.glow) ctx.restore();
+}
+
 // Desenha o aro (frame) ao redor do avatar conforme o cosmético escolhido.
 function drawRing(ctx: CanvasRenderingContext2D, cx: number, ay: number, R: number, lw: number, frame: string, accent: string) {
   if (frame === 'pokeball') {
@@ -262,6 +301,67 @@ async function drawThemeFx(ctx: CanvasRenderingContext2D, W: number, H: number, 
       for (let i = 0; i < 12; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, rnd() * 2 + 1, 0, 7); ctx.fill(); }
       break;
     }
+    case 'butterflies': {
+      // Hollow — enxame de borboletas azuis brilhando
+      ctx.shadowColor = 'rgba(95,209,255,0.9)'; ctx.shadowBlur = 16;
+      for (let i = 0; i < 20; i++) {
+        ctx.globalAlpha = 0.5 + rnd() * 0.45;
+        const s = 16 + rnd() * 26;
+        ctx.fillStyle = `rgb(${100 + Math.floor(rnd() * 70)},${195 + Math.floor(rnd() * 45)},255)`;
+        drawButterfly(ctx, rnd() * W, rnd() * H, s);
+      }
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      break;
+    }
+    case 'witch': {
+      // Bruxa — fantasma (Echidna) ao fundo + borboletas verde-lima
+      try {
+        const gh = await loadImage('/themes/bruxa-ghost.png');
+        const gw = W * 0.66, ghh = gw * (gh.height / gh.width);
+        ctx.globalAlpha = 0.14;
+        ctx.drawImage(gh, W / 2 - gw / 2, H * 0.16, gw, ghh);
+        ctx.globalAlpha = 1;
+      } catch { /* sem fantasma */ }
+      ctx.shadowColor = 'rgba(150,255,120,0.9)'; ctx.shadowBlur = 16;
+      for (let i = 0; i < 18; i++) {
+        ctx.globalAlpha = 0.5 + rnd() * 0.45;
+        const s = 16 + rnd() * 24;
+        ctx.fillStyle = rnd() < 0.5 ? '#eafff0' : `rgb(${110 + Math.floor(rnd() * 50)},255,${120 + Math.floor(rnd() * 60)})`;
+        drawButterfly(ctx, rnd() * W, rnd() * H, s);
+      }
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      break;
+    }
+    case 'glitch': {
+      // Code — scanlines verdes + fatias RGB deslocadas
+      ctx.fillStyle = 'rgba(57,255,136,0.05)';
+      for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 2);
+      for (let i = 0; i < 16; i++) {
+        const y = rnd() * H, h = 6 + rnd() * 26, off = 12 + rnd() * 44;
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = 'rgba(255,40,90,0.5)'; ctx.fillRect(-off, y, W, h);
+        ctx.fillStyle = 'rgba(60,150,255,0.5)'; ctx.fillRect(off, y + 2, W, h);
+        ctx.fillStyle = 'rgba(57,255,136,0.45)'; ctx.fillRect(0, y, W, h);
+      }
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case 'blood': {
+      // Sete (The Boys) — vinheta escura + sangue escorrendo do topo + respingos
+      const vg = ctx.createRadialGradient(W / 2, H * 0.4, 200, W / 2, H * 0.4, 900);
+      vg.addColorStop(0, 'rgba(90,0,0,0)'); vg.addColorStop(1, 'rgba(70,0,0,0.5)');
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 22; i++) {
+        const x = rnd() * W, w = 4 + rnd() * 11, len = 80 + rnd() * 440;
+        const g = ctx.createLinearGradient(0, 0, 0, len);
+        g.addColorStop(0, 'rgba(180,12,12,0.85)'); g.addColorStop(1, 'rgba(90,0,0,0.18)');
+        ctx.fillStyle = g; ctx.fillRect(x, 0, w, len);
+        ctx.beginPath(); ctx.arc(x + w / 2, len, w * 0.9, 0, 7); ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(140,0,0,0.5)';
+      for (let i = 0; i < 10; i++) { ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, 10 + rnd() * 30, 0, 7); ctx.fill(); }
+      break;
+    }
     case 'hands': {
       // poça escura no rodapé (de onde as mãos emergem)
       const pool = ctx.createLinearGradient(0, H, 0, H * 0.66);
@@ -350,8 +450,10 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   const frame = d.frame || 'none';
   // aros-imagem (coroas) são bem maiores que o avatar → reduzir o raio pra coroa
   // caber entre a marca e o nome (não invadir o "TCORDEIRO").
-  const R = frame === 'mine' ? 96 : frame === 'cha' ? 110 : 140;
+  const R = frame === 'mine' ? 96 : frame === 'cha' ? 110 : frame === 'code' ? 96 : frame === 'hollow' ? 130 : 140;
   const ringLw = frame === 'pokeball' ? 22 : 16;
+  // aros desenhados como IMAGEM (não anel conic): pulam o drawRing padrão
+  const imgFrame = frame === 'mine' || frame === 'cha' || frame === 'hollow' || frame === 'code';
   if (d.photo) {
     try {
       const img = await loadImage(d.photo);
@@ -362,7 +464,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       ctx.drawImage(img, cx - dw / 2, ay - dh / 2, dw, dh);
       ctx.restore();
     } catch { /* sem foto */ }
-    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (!imgFrame) drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   } else {
     // base + número do nível, depois o aro por cima
     ctx.fillStyle = surfCol;
@@ -370,7 +472,7 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.textAlign = 'center'; ctx.fillStyle = accent;
     ctx.font = '140px Anton, sans-serif'; ctx.fillText(String(d.level), cx, ay + 46);
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif'; ctx.fillText('NÍVEL', cx, ay + 100);
-    if (frame !== 'mine' && frame !== 'cha') drawRing(ctx, cx, ay, R, ringLw, frame, accent);
+    if (!imgFrame) drawRing(ctx, cx, ay, R, ringLw, frame, accent);
   }
 
   // ---- aro Tridente: tridente dourado como coroa em cima do aro (pequeno) ----
@@ -397,6 +499,15 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
       const Wimg = R / 0.261;               // buraco centrado (0.5, 0.5), raio 0.261
       ctx.drawImage(wreath, cx - 0.5 * Wimg, ay - 0.5 * Wimg, Wimg, Wimg);
     } catch { /* ok */ }
+  }
+
+  // ---- aro Hollow: moldura do Cavaleiro (arte do Talys), cortada na metade + brilho azul ----
+  if (frame === 'hollow') {
+    await drawImageRing(ctx, cx, ay, R, '/hollow-ring.png', 0.500, 0.474, 0.228, { half: true, glow: 'rgba(95,209,255,0.6)' });
+  }
+  // ---- aro Code: moldura hacker (arte do Talys), anel completo + brilho verde ----
+  if (frame === 'code') {
+    await drawImageRing(ctx, cx, ay, R, '/code-ring.png', 0.499, 0.458, 0.203, { glow: 'rgba(57,255,136,0.55)' });
   }
 
   // ---- cosmético (ícone pixel) no canto do avatar ----

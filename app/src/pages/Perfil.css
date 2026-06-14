@@ -105,10 +105,14 @@
 .av-frame-hollow::before { display: none; }
 .av-frame-hollow::after {
   content: ''; position: absolute; left: 50%; top: 50%;
-  width: 212%; aspect-ratio: 1; transform: translate(-50%, -47.4%);
+  width: 165%; aspect-ratio: 1; transform: translate(-50%, -47.4%);
   background: url('/hollow-ring.png') no-repeat center / contain;
   z-index: -1; pointer-events: none;
   filter: drop-shadow(0 0 9px rgba(95, 209, 255, 0.45));
+  /* só a metade de cima do aro; degradê discreto na ponta cortada
+     (a metade de baixo abria espaço pra câmera de trocar foto sem clashar) */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 46%, rgba(0,0,0,0.55) 53%, transparent 60%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 46%, rgba(0,0,0,0.55) 53%, transparent 60%);
 }
 .av-frame-aranha { --ring: conic-gradient(from 0deg, #ff3b3b, #160000, #ff3b3b, #160000); box-shadow: 0 0 13px rgba(255, 59, 59, 0.5); }
 .av-frame-aranha::before { animation-duration: 6s; }
