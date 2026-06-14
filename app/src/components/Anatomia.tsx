@@ -1,42 +1,66 @@
 import { useMemo, useState } from 'react';
-import Model, { type IExerciseData, type Muscle, type IMuscleStats } from 'react-body-highlighter';
+import Body, { type Slug, type ExtendedBodyPart } from 'react-muscle-highlighter';
+import type { BodyState } from 'body-muscles';
+import MaleBody from './MaleBody';
 import { useStore } from '../store/store';
 import { POOL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import './Anatomia.css';
 
-// Músculos granulares (o usuário pediu separar bíceps/tríceps/antebraço/abdômen/trapézio/panturrilha).
-// Só esquerdo/direito do MESMO músculo se junta — isso o próprio modelo já faz.
+// Músculos granulares (o usuário pediu separar bíceps/tríceps/antebraço/abdômen/trapézio/panturrilha
+// + dorsal/lombar). Boneco masculino/feminino conforme o sexo da Calculadora (Profile.body.sex).
 type Fine =
-  | 'chest' | 'trapezius' | 'back' | 'shoulders'
+  | 'chest' | 'trapezius' | 'back' | 'lombar' | 'shoulders'
   | 'biceps' | 'triceps' | 'forearm'
   | 'abs' | 'obliques'
   | 'quads' | 'hamstring' | 'calves' | 'glutes';
 
-const FINE: Fine[] = ['chest', 'trapezius', 'back', 'shoulders', 'biceps', 'triceps', 'forearm', 'abs', 'obliques', 'quads', 'hamstring', 'calves', 'glutes'];
+const FINE: Fine[] = ['chest', 'trapezius', 'back', 'lombar', 'shoulders', 'biceps', 'triceps', 'forearm', 'abs', 'obliques', 'quads', 'hamstring', 'calves', 'glutes'];
 
 const FINE_LABEL: Record<Fine, string> = {
-  chest: 'Peito', trapezius: 'Trapézio', back: 'Costas', shoulders: 'Ombro',
+  chest: 'Peito', trapezius: 'Trapézio', back: 'Dorsal', lombar: 'Lombar', shoulders: 'Ombro',
   biceps: 'Bíceps', triceps: 'Tríceps', forearm: 'Antebraço',
   abs: 'Abdômen', obliques: 'Oblíquos',
   quads: 'Quadríceps', hamstring: 'Posterior', calves: 'Panturrilha', glutes: 'Glúteo',
 };
 
-// nosso músculo → músculos do modelo anatômico (react-body-highlighter)
-const FINE_MUSCLES: Record<Fine, Muscle[]> = {
-  chest: ['chest'], trapezius: ['trapezius'], back: ['upper-back', 'lower-back'],
-  shoulders: ['front-deltoids', 'back-deltoids'],
-  biceps: ['biceps'], triceps: ['triceps'], forearm: ['forearm'],
-  abs: ['abs'], obliques: ['obliques'],
-  quads: ['quadriceps'], hamstring: ['hamstring'], calves: ['calves'], glutes: ['gluteal'],
+// nosso músculo → slug do modelo (react-muscle-highlighter)
+const FINE_SLUG: Record<Fine, Slug> = {
+  chest: 'chest', trapezius: 'trapezius', back: 'upper-back', lombar: 'lower-back', shoulders: 'deltoids',
+  biceps: 'biceps', triceps: 'triceps', forearm: 'forearm',
+  abs: 'abs', obliques: 'obliques',
+  quads: 'quadriceps', hamstring: 'hamstring', calves: 'calves', glutes: 'gluteal',
 };
-const MUSCLE_FINE: Partial<Record<Muscle, Fine>> = {};
-(Object.keys(FINE_MUSCLES) as Fine[]).forEach((f) => FINE_MUSCLES[f].forEach((m) => (MUSCLE_FINE[m] = f)));
+const SLUG_FINE: Partial<Record<Slug, Fine>> = {};
+(Object.keys(FINE_SLUG) as Fine[]).forEach((f) => (SLUG_FINE[FINE_SLUG[f]] = f));
+
+// nosso músculo → regiões da vulovix (modelo MASCULINO, com cabeças). Bases sem lado;
+// expandidas pra -left/-right na hora de montar o estado.
+const FINE_VULOVIX: Record<Fine, string[]> = {
+  chest: ['chest-upper', 'chest-lower'],
+  trapezius: ['traps-upper', 'traps-mid', 'traps-lower'],
+  back: ['lats-upper', 'lats-mid', 'lats-lower'],
+  lombar: ['lower-back-erectors', 'lower-back-ql'],
+  shoulders: ['shoulder-front', 'shoulder-side', 'deltoid-rear'],
+  biceps: ['biceps'],
+  triceps: ['triceps-long', 'triceps-lateral'],
+  forearm: ['forearm-flexors', 'forearm-extensors'],
+  abs: ['abs-upper', 'abs-lower'],
+  obliques: ['obliques'],
+  quads: ['quads'],
+  hamstring: ['hamstrings-lateral', 'hamstrings-medial'],
+  calves: ['calves-gastroc-lateral', 'calves-gastroc-medial', 'calves-soleus'],
+  glutes: ['gluteus-maximus', 'gluteus-medius'],
+};
+const VULOVIX_BASE_FINE: Record<string, Fine> = {};
+(Object.keys(FINE_VULOVIX) as Fine[]).forEach((f) => FINE_VULOVIX[f].forEach((b) => (VULOVIX_BASE_FINE[b] = f)));
+const vulovixBase = (id: string) => id.replace(/-(left|right)$/, '');
 
 const TIPS: Record<Fine, string> = {
   chest: 'Empurrar: flexões, supino e crucifixo constroem o peito.',
   trapezius: 'Encolhimento (shrug) e face pull dão volume e postura ao trapézio.',
-  back: 'Puxar: barra fixa e remada dão largura e densidade às costas.',
+  back: 'Puxar: barra fixa e remada dão largura e densidade ao dorsal.',
+  lombar: 'Superman e stiff fortalecem a lombar — base pra tudo.',
   shoulders: 'Desenvolvimento e elevações laterais arredondam os ombros.',
   biceps: 'Rosca direta, martelo e concentrada fecham o bíceps.',
   triceps: 'Tríceps testa, francês e mergulho são 2/3 do braço.',
@@ -58,6 +82,7 @@ function exToFine(nome: string, coarse: string): Fine {
     case 'shoulders': return 'shoulders';
     case 'back':
       if (/encolhimento|shrug|trapéz|trapez|face pull|y-raise|y raise|y no chão/.test(s)) return 'trapezius';
+      if (/lombar|superman|hiperexten|good morning/.test(s)) return 'lombar';
       return 'back';
     case 'arms':
       if (/tríceps|triceps|francês|frances|mergulho|coice|testa|fechada|kickback/.test(s)) return 'triceps';
@@ -80,7 +105,8 @@ function musToFine(m: string): Fine | null {
   const s = (m || '').toLowerCase();
   if (s.includes('peito')) return 'chest';
   if (s.includes('trap')) return 'trapezius';
-  if (s.includes('costas') || s.includes('dorsa') || s.includes('lombar')) return 'back';
+  if (s.includes('lombar')) return 'lombar';
+  if (s.includes('costas') || s.includes('dorsa')) return 'back';
   if (s.includes('ombro') || s.includes('deltoid')) return 'shoulders';
   if (s.includes('tríceps') || s.includes('triceps')) return 'triceps';
   if (s.includes('antebra') || s.includes('punho')) return 'forearm';
@@ -107,9 +133,12 @@ function mix(a: string, b: string, t: number): string {
 
 const Anatomia: React.FC = () => {
   const history = useStore((s) => s.history[s.active]) || [];
-  const theme = useStore((s) => s.users.find((u) => u.id === s.active)?.cosmetics?.theme || 'dark');
+  const profile = useStore((s) => s.users.find((u) => u.id === s.active));
+  const theme = profile?.cosmetics?.theme || 'dark';
+  // sexo da Calculadora define o boneco (m → masculino, f → feminino)
+  const gender: 'male' | 'female' = profile?.body?.sex === 'f' ? 'female' : 'male';
 
-  const [view, setView] = useState<'anterior' | 'posterior'>('anterior');
+  const [view, setView] = useState<'front' | 'back'>('front');
   const [sel, setSel] = useState<Fine | null>(null);
 
   // cores do tema (lidas em runtime; re-lê quando muda o tema)
@@ -122,7 +151,7 @@ const Anatomia: React.FC = () => {
     const ac = accent.startsWith('#') ? accent : '#c6ff3a';
     return {
       bodyColor: body.startsWith('#') ? body : '#' + body,
-      // 5 tons normais (freq 1-5) + 1 "glow" bem claro (freq 6) p/ o músculo selecionado
+      // 5 tons normais (intensity 1-5) + 1 "glow" claro (intensity 6) p/ o músculo selecionado
       shades: [...[0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(b, ac, t)), mix(ac, '#ffffff', 0.6)],
     };
   }, [theme]);
@@ -131,7 +160,6 @@ const Anatomia: React.FC = () => {
   const { counts, weekly, total, intensity } = useMemo(() => {
     const byName = new Map<string, Fine>();
     POOL.forEach((p) => byName.set(p.n, exToFine(p.n, p.g)));
-    // exercícios dos treinos PADRÃO (plans.ts): nome no POOL? usa; senão deriva do `musculo`
     const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
     planEx.forEach((ex) => {
       if (!byName.has(ex.nome)) { const f = musToFine(ex.musculo); if (f) byName.set(ex.nome, f); }
@@ -154,29 +182,48 @@ const Anatomia: React.FC = () => {
     return { counts: c, weekly: wk, total: tot, intensity: inten };
   }, [history]);
 
-  // dados pro modelo: 1 entrada por músculo treinado, frequência = nível 1..5 (índice de cor).
-  // o músculo SELECIONADO recebe freq 6 = "glow".
-  const data: IExerciseData[] = useMemo(() => {
+  // dados pro modelo: 1 entrada por músculo treinado, intensity = nível 1..5 (índice de cor).
+  // o músculo SELECIONADO recebe intensity 6 = "glow".
+  const data: ExtendedBodyPart[] = useMemo(() => {
     const max = Math.max(1, ...FINE.map((f) => counts[f]));
     return FINE.filter((f) => counts[f] > 0 || f === sel).map((f) => ({
-      name: FINE_LABEL[f],
-      muscles: FINE_MUSCLES[f],
-      frequency: f === sel ? 6 : Math.max(1, Math.ceil((counts[f] / max) * 5)),
+      slug: FINE_SLUG[f],
+      intensity: f === sel ? 6 : Math.max(1, Math.ceil((counts[f] / max) * 5)),
     }));
+  }, [counts, sel]);
+
+  // estado pro modelo MASCULINO (vulovix): intensidade 0-10 por região (heatmap nativo) + seleção
+  const maleState: BodyState = useMemo(() => {
+    const max = Math.max(1, ...FINE.map((f) => counts[f]));
+    const st: BodyState = {};
+    FINE.forEach((f) => {
+      const c = counts[f];
+      if (c <= 0 && f !== sel) return;
+      const intensity = c > 0 ? Math.min(10, Math.max(2, Math.round((c / max) * 8) + 2)) : 1;
+      FINE_VULOVIX[f].forEach((b) => {
+        st[b + '-left'] = { intensity, selected: f === sel };
+        st[b + '-right'] = { intensity, selected: f === sel };
+      });
+    });
+    return st;
   }, [counts, sel]);
 
   const weakest = useMemo(() => FINE.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
 
-  const onMuscle = (m: IMuscleStats) => {
-    const f = MUSCLE_FINE[m.muscle];
+  const onPart = (b: ExtendedBodyPart) => {
+    const f = b.slug ? SLUG_FINE[b.slug] : undefined;
+    if (f) setSel(f === sel ? null : f);
+  };
+  const onMaleMuscle = (id: string) => {
+    const f = VULOVIX_BASE_FINE[vulovixBase(id)];
     if (f) setSel(f === sel ? null : f);
   };
 
   return (
     <div className="anat">
       <div className="anat-seg">
-        <button className={view === 'anterior' ? 'on' : ''} onClick={() => setView('anterior')}>Frente</button>
-        <button className={view === 'posterior' ? 'on' : ''} onClick={() => setView('posterior')}>Costas</button>
+        <button className={view === 'front' ? 'on' : ''} onClick={() => setView('front')}>Frente</button>
+        <button className={view === 'back' ? 'on' : ''} onClick={() => setView('back')}>Costas</button>
       </div>
 
       {total === 0 ? (
@@ -184,14 +231,20 @@ const Anatomia: React.FC = () => {
       ) : null}
 
       <div className={'anat-model' + (sel ? ' sel' : '')}>
-        <Model
-          type={view}
-          data={data}
-          bodyColor={bodyColor}
-          highlightedColors={shades}
-          onClick={onMuscle}
-          style={{ width: '100%', maxWidth: 250 }}
-        />
+        {gender === 'male' ? (
+          <MaleBody view={view} bodyState={maleState} onMuscle={onMaleMuscle} />
+        ) : (
+          <Body
+            data={data}
+            side={view}
+            gender="female"
+            colors={shades}
+            defaultFill={bodyColor}
+            border="none"
+            onBodyPartPress={onPart}
+            scale={1.1}
+          />
+        )}
       </div>
 
       {sel ? (
