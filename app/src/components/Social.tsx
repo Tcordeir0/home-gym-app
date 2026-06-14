@@ -31,6 +31,7 @@ const SocialPanel: React.FC = () => {
   const [pokeTarget, setPokeTarget] = useState<{ uid: string; profile?: string; name: string } | null>(null);
   // grupos
   const [groups, setGroups] = useState<S.Group[]>([]);
+  const [memberships, setMemberships] = useState<{ group_id: string; label?: string }[]>([]);
   const [groupView, setGroupView] = useState<S.Group | null>(null);
   const [membersOpen, setMembersOpen] = useState(false);
   const [gMembers, setGMembers] = useState<S.GroupMember[]>([]);
@@ -48,8 +49,8 @@ const SocialPanel: React.FC = () => {
   const chatEnd = useRef<HTMLDivElement>(null);
 
   const loadAll = useCallback(async () => {
-    const [fs, ac, pk, ev, am, gr, gam] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages(), S.listMyGroups(), S.listAllGroupMessages()]);
-    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setGroups(gr); setAllGroupMsgs(gam); setLoading(false);
+    const [fs, ac, pk, ev, am, gr, gam, mm] = await Promise.all([S.listFriendships(), S.listAccounts(), S.listPokes(), S.listEvents(), S.listAllMessages(), S.listMyGroups(), S.listAllGroupMessages(), S.listMyMemberships()]);
+    setFriendships(fs); setAccounts(ac); setPokes(pk); setEvents(ev); setAllMsgs(am); setGroups(gr); setAllGroupMsgs(gam); setMemberships(mm); setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -61,7 +62,7 @@ const SocialPanel: React.FC = () => {
 
   // chat: carrega + realtime
   const loadChat = useCallback(async (c: { kind: 'friend' | 'team'; uid: string; profile?: string }) => {
-    setMsgs(c.kind === 'team' ? await S.listTeamMessages(myName, c.profile || '') : await S.listMessages(c.uid));
+    setMsgs(c.kind === 'team' ? await S.listTeamMessages(myName, c.profile || '') : await S.listMessages(c.uid, myName, c.profile));
     setTimeout(() => chatEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
   }, [myName]);
   useEffect(() => {
@@ -94,9 +95,14 @@ const SocialPanel: React.FC = () => {
   const incoming = friendships.filter((f) => f.status === 'pending' && f.addressee === uid);
   const outgoing = friendships.filter((f) => f.status === 'pending' && f.requester === uid);
   const friends = [...friendUids].map((u) => byUid.get(u)).filter(Boolean) as S.SocialAccount[];
+  // grupos do PERFIL ATIVO: cada perfil vê só os grupos em que ENTROU (label = perfil); legado sem label aparece
+  const myGroups = groups.filter((g) => memberships.some((mm) => mm.group_id === g.id && (mm.label === myName || !mm.label)));
   const recvPokes = pokes.filter((p) => p.to_uid === uid && p.from_uid !== uid);
   // última mensagem de cada conversa (allMsgs vem ordenado do mais novo → .find pega o último)
-  const lastFriendMsg = (fuid: string) => allMsgs.find((m) => !m.to_profile && (m.from_uid === fuid || m.to_uid === fuid));
+  // última msg do par (meu perfil ativo ↔ perfil do amigo) — isolado por perfil
+  const lastFriendMsg = (fuid: string, fprof: string) => allMsgs.find((m) =>
+    (m.from_uid === uid && m.from_profile === myName && m.to_uid === fuid && m.to_profile === fprof) ||
+    (m.from_uid === fuid && m.from_profile === fprof && m.to_uid === uid && m.to_profile === myName));
   const lastTeamMsg = (other: string) => allMsgs.find((m) => m.from_uid === uid && m.to_uid === uid && ((m.from_profile === myName && m.to_profile === other) || (m.from_profile === other && m.to_profile === myName)));
 
   const doInvite = async () => {
@@ -116,13 +122,13 @@ const SocialPanel: React.FC = () => {
     const optimistic: S.Message = {
       id: 'tmp' + Date.now(), body: b, created_at: new Date().toISOString(), seen: false,
       from_uid: uid, to_uid: chatWith.kind === 'team' ? uid : chatWith.uid,
-      from_profile: chatWith.kind === 'team' ? myName : null,
-      to_profile: chatWith.kind === 'team' ? chatWith.profile : null,
+      from_profile: myName, // sempre marca QUAL perfil meu enviou (isolamento)
+      to_profile: chatWith.profile || null,
     };
     setMsgs((m) => [...m, optimistic]);
     setTimeout(() => chatEnd.current?.scrollIntoView({ behavior: 'smooth' }), 40);
     if (chatWith.kind === 'team') await S.sendMessage(uid, b, { fromProfile: myName, toProfile: chatWith.profile });
-    else await S.sendMessage(chatWith.uid, b);
+    else await S.sendMessage(chatWith.uid, b, { fromProfile: myName, toProfile: chatWith.profile });
     loadChat(chatWith);
   };
   const accLabel = (a?: S.SocialAccount) => a?.profiles?.[0]?.name || a?.email || 'Amigo';
@@ -185,7 +191,7 @@ const SocialPanel: React.FC = () => {
         <button className={tab === 'chat' ? 'on' : ''} onClick={() => { setTab('chat'); setChatWith(null); }}><IonIcon icon={chatbubblesOutline} /> Chat</button>
         <button className={tab === 'grupos' ? 'on' : ''} onClick={() => { setTab('grupos'); setGroupView(null); setCreateOpen(false); }}>
           <IonIcon icon={peopleCircleOutline} /> Grupos
-          {groups.some((g) => groupUnread(g.id)) && <span className="sc-dot" />}
+          {myGroups.some((g) => groupUnread(g.id)) && <span className="sc-dot" />}
         </button>
       </div>
 
@@ -219,12 +225,12 @@ const SocialPanel: React.FC = () => {
               )}
               <div className="sc-sec"><h4>Amigos ({friends.length})</h4>
                 {friends.length === 0 ? <p className="sc-empty">Convide alguém por email pra começar.</p> :
-                  friends.map((a) => (
-                    <div key={a.uid} className="sc-row">
-                      <span className="sc-name">{accLabel(a)} <small>{a.email}</small></span>
-                      <button className="sc-mini" onClick={() => { setChatWith({ kind: 'friend', uid: a.uid, name: accLabel(a) }); setTab('chat'); }}><IonIcon icon={chatbubblesOutline} /></button>
+                  friends.flatMap((a) => (a.profiles?.length ? a.profiles : [{ id: a.uid, name: accLabel(a), color: undefined, photo: undefined }]).map((p) => (
+                    <div key={a.uid + ':' + p.name} className="sc-row">
+                      <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} />{p.name} <small>{a.email}</small></span>
+                      <button className="sc-mini" onClick={() => { setChatWith({ kind: 'friend', uid: a.uid, name: p.name, profile: p.name }); setTab('chat'); }}><IonIcon icon={chatbubblesOutline} /></button>
                     </div>
-                  ))}
+                  )))}
               </div>
               {outgoing.length > 0 && (
                 <div className="sc-sec"><h4>Convites enviados</h4>
@@ -343,17 +349,17 @@ const SocialPanel: React.FC = () => {
                 </div>
                 <div className="sc-sec"><h4>Amigos</h4>
                   {friends.length === 0 ? <p className="sc-empty">Adicione amigos pra conversar.</p> :
-                    friends.map((a) => {
-                      const lm = lastFriendMsg(a.uid);
+                    friends.flatMap((a) => (a.profiles?.length ? a.profiles : [{ id: a.uid, name: accLabel(a), color: undefined, photo: undefined }]).map((p) => {
+                      const lm = lastFriendMsg(a.uid, p.name);
                       return (
-                        <button key={a.uid} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'friend', uid: a.uid, name: accLabel(a) })}>
+                        <button key={a.uid + ':' + p.name} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'friend', uid: a.uid, name: p.name, profile: p.name })}>
                           <span className="sc-chatrow">
-                            <span className="sc-name"><IonIcon icon={chatbubblesOutline} /> {accLabel(a)}</span>
+                            <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name}</span>
                             {lm && <span className="sc-preview">{lm.from_uid === uid ? 'Você: ' : ''}{lm.body}</span>}
                           </span>
                         </button>
                       );
-                    })}
+                    }))}
                 </div>
               </>
             )
@@ -448,9 +454,9 @@ const SocialPanel: React.FC = () => {
             ) : (
               <>
                 <button className="sc-grp-new" onClick={() => setCreateOpen(true)}><IonIcon icon={addOutline} /> Criar grupo</button>
-                <div className="sc-sec"><h4>Seus grupos ({groups.length})</h4>
-                  {groups.length === 0 ? <p className="sc-empty">Crie um grupo pra conversar com a galera ao mesmo tempo.</p> :
-                    groups.map((g) => {
+                <div className="sc-sec"><h4>Seus grupos ({myGroups.length})</h4>
+                  {myGroups.length === 0 ? <p className="sc-empty">Crie um grupo pra conversar com a galera ao mesmo tempo.</p> :
+                    myGroups.map((g) => {
                       const lm = lastGroupMsg(g.id);
                       const unread = groupUnread(g.id);
                       return (
