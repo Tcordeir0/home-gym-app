@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.10.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.9.1...v0.10.0) (2026-06-14)
+
+
+### Features
+
+* **app:** +13 exercícios (serrátil, peito inferior, abdômen por região) + Serrátil vira divisão na anatomia ([fd64171](https://github.com/Tcordeir0/home-gym-app/commit/fd64171b6cbb7e0476cdfb6590464ef642b18d93))
+* **app:** +6 exercícios de peito (foco inferior) + corrige ênfase do mergulho nas paralelas ([011952a](https://github.com/Tcordeir0/home-gym-app/commit/011952a19a65ebc74bfb9c1756d97277c04f30b6))
+* **app:** demos com mais sensação de movimento (Ken Burns + crossfade ágil) ([3573598](https://github.com/Tcordeir0/home-gym-app/commit/3573598d1c6de7e65c61cd2a44148751877290f0))
+* catálogo +22 exercícios (peito inferior/serrátil/abdômen por região), demos com movimento ([d1612ce](https://github.com/Tcordeir0/home-gym-app/commit/d1612ce4cf4d2b4ee522d02de6f8d2c9b8aa1e16))
+
 ## [0.9.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.9.0...v0.9.1) (2026-06-14)
 
 
