@@ -113,3 +113,5 @@
 }
 .gen-warm.on { border-color: color-mix(in srgb, var(--brand-lime) 45%, transparent); }
 .gen-warm-state { font-weight: 800; color: var(--brand-lime); }
+
+.gen-sub-hint { font-size: 12px; color: var(--app-muted); margin: 8px 0 0; }

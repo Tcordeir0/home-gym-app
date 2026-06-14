@@ -1,5 +1,6 @@
 // Gerador de treino — portado do v1. Gera A/B/C por equipamento + foco.
 import { POOL, GROUP_LABEL, EQUIPMENT_OPTIONS, GEN_ROTATION, type PoolItem } from '../data/pool';
+import { emphasisOf } from './emphasis';
 import type { Exercise } from '../data/types';
 
 // rótulo de equipamento derivado da fonte única (EQUIPMENT_OPTIONS) — sem hardcoded espalhado
@@ -40,17 +41,22 @@ export function alternativesFor(exNome: string, equip: string[]): Alt[] {
 
 const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;
 
-export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3): Record<string, Exercise[]> {
+export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3, subFocus?: string | null): Record<string, Exercise[]> {
   const pool = eligiblePool(equip);
   const byGroup: Record<string, PoolItem[]> = {};
   GEN_ROTATION.forEach((g) => { byGroup[g] = pool.filter((e) => e.g === g); });
   const used: Record<string, boolean> = {};
   const n = Math.min(WORKOUT_LETTERS.length, Math.max(1, days));
 
-  function pick(g: string): PoolItem | undefined {
+  function pick(g: string, preferBase?: string | null): PoolItem | undefined {
     let cand = (byGroup[g] || []).filter((e) => !used[e.n]);
     if (!cand.length) cand = pool.filter((e) => !used[e.n]);
     if (!cand.length) cand = pool;
+    // sub-foco: prioriza exercícios cuja ênfase bate a sub-região escolhida
+    if (preferBase) {
+      const pref = cand.filter((e) => emphasisOf(e.n)?.bases.includes(preferBase));
+      if (pref.length) cand = pref;
+    }
     const ex = cand[Math.floor(Math.random() * cand.length)];
     if (ex) used[ex.n] = true;
     return ex;
@@ -69,7 +75,8 @@ export function generateWorkout(equip: string[], focusKey: string, perDay = 6, d
   const treinos: Record<string, Exercise[]> = {};
   WORKOUT_LETTERS.slice(0, n).forEach((k) => {
     treinos[k] = slots().map((g) => {
-      const e = pick(g) || { n: 'Exercício', g, s: 3, r: '12', d: '' };
+      // o sub-foco só enviesa os slots do MÚSCULO em foco
+      const e = pick(g, g === focusKey ? subFocus : undefined) || { n: 'Exercício', g, s: 3, r: '12', d: '' };
       return { nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d };
     });
   });

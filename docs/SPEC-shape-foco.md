@@ -33,7 +33,10 @@ Feature grande, em construção na branch `feat/peito-inferior-exercicios` (**se
 ### e) Atalho Anatomia → A/B…E
 - Clicar num exercício listado na parte do músculo → escolher em qual treino (A–E) entra (troca/adiciona).
 
-## Ordem de build sugerida
+## Status do build
+✅ 1-4 construídos (biotipo+meta, gap, sub-foco no gerador, atalho Anatomia→treino). ⏳ Falta só a UI de **ajuste-fino** das prioridades.
+
+## Ordem de build (original)
 1. ✅ shapeGoals.ts
 2. body.biotype + store.shapeGoal + Calculadora (sexo+biotipo+meta) — base de tudo
 3. Anatomia: gap vs meta (usa baseCounts que já existe)

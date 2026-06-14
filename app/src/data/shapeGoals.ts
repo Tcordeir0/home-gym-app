@@ -3,9 +3,9 @@
 // Peso: 0 = ignora · 1 = baseline (qualquer base não listada) · 2 = importante · 3 = máximo.
 // Alimenta: o gap na Anatomia (volume real × meta) e a sugestão de sub-foco no Montar treino.
 
-import type { Sex } from '../store/types';
+import type { Sex, Biotype } from '../store/types';
 
-export type Biotype = 'ecto' | 'meso' | 'endo';
+export type { Biotype };
 
 export interface ShapeGoal {
   id: string;
@@ -97,6 +97,29 @@ const BIOTYPE_NUDGE: Record<Biotype, Record<string, number>> = {
   ecto: { 'chest-upper': 1, 'chest-lower': 1, 'lats-mid': 1, 'quads': 1, 'shoulder-front': 1 },
   meso: {},
 };
+
+// Sub-focos oferecidos por grupo do gerador (base vulovix → rótulo curto).
+export const SUBFOCUS_BY_GROUP: Record<string, { base: string; label: string }[]> = {
+  chest: [{ base: 'chest-upper', label: 'Superior' }, { base: 'chest-lower', label: 'Inferior' }],
+  back: [{ base: 'lats-upper', label: 'Dorsal sup.' }, { base: 'lats-mid', label: 'Dorsal médio' }, { base: 'traps-upper', label: 'Trapézio' }],
+  shoulders: [{ base: 'shoulder-front', label: 'Frontal' }, { base: 'shoulder-side', label: 'Lateral' }, { base: 'deltoid-rear', label: 'Posterior' }],
+  arms: [{ base: 'biceps', label: 'Bíceps' }, { base: 'triceps-long', label: 'Tríceps longa' }, { base: 'triceps-lateral', label: 'Tríceps lateral' }, { base: 'forearm-flexors', label: 'Antebraço' }],
+  legs: [{ base: 'quads', label: 'Quadríceps' }, { base: 'hamstrings-lateral', label: 'Posterior' }, { base: 'calves-gastroc-lateral', label: 'Panturrilha' }],
+  glutes: [{ base: 'gluteus-maximus', label: 'Glúteo máx.' }, { base: 'gluteus-medius', label: 'Glúteo médio' }],
+  core: [{ base: 'abs-upper', label: 'Abdômen sup.' }, { base: 'abs-lower', label: 'Abdômen inf.' }, { base: 'obliques', label: 'Oblíquos' }],
+};
+
+/** Sub-região sugerida pra um grupo: a de maior peso na meta (+ biotipo). null se não houver. */
+export function suggestedSubFocus(group: string, presetId?: string, overrides?: Record<string, number>, biotype?: Biotype): string | null {
+  const opts = SUBFOCUS_BY_GROUP[group];
+  if (!opts || !opts.length) return null;
+  let best = opts[0].base, bestW = -1;
+  for (const o of opts) {
+    const w = weightFor(o.base, presetId, overrides, biotype);
+    if (w > bestW) { bestW = w; best = o.base; }
+  }
+  return bestW >= 2 ? best : null; // só sugere se a meta realmente prioriza
+}
 
 /** Peso final de uma base: preset + ajuste fino (override) + empurrão do biotipo. */
 export function weightFor(base: string, presetId?: string, overrides?: Record<string, number>, biotype?: Biotype): number {

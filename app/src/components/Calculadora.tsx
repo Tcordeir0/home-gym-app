@@ -1,8 +1,10 @@
 import { IonCard, IonCardContent, IonList, IonItem, IonInput, IonSelect, IonSelectOption } from '@ionic/react';
 import { useStore, useActiveProfile } from '../store/store';
 import { ACTIVITY, GOALS, targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
-import type { Sex, Goal } from '../store/types';
+import { goalsForGender, BIOTYPES, defaultShape, shapeGoalById } from '../data/shapeGoals';
+import type { Sex, Goal, Biotype } from '../store/types';
 import '../pages/Dieta.css';
+import './Calculadora.css';
 
 const num = (v: string | number | null | undefined): number | null => {
   const n = parseFloat(String(v ?? ''));
@@ -22,8 +24,14 @@ const Calculadora: React.FC = () => {
   const profile = useActiveProfile();
   const body = profile.body;
   const updateBody = useStore((s) => s.updateActiveBody);
+  const updateProfile = useStore((s) => s.updateProfile);
   const setWeight = useStore((s) => s.setWeightToday);
   const myMeasures = useStore((s) => s.measures[s.active]) || [];
+
+  // meta de shape (filtrada pelo sexo) + a escolhida (default por gênero)
+  const goals = goalsForGender(body.sex);
+  const shapeId = profile.shapeGoal?.preset || defaultShape(body.sex);
+  const setShape = (preset: string) => updateProfile(profile.id, { shapeGoal: { preset } });
 
   const latest = (f: 'weight' | 'waist') => {
     let v: number | null = null, d = '';
@@ -71,10 +79,16 @@ const Calculadora: React.FC = () => {
                 {ACTIVITY.map((a) => <IonSelectOption key={a.v} value={a.v}>{a.l}</IonSelectOption>)}
               </IonSelect>
             </IonItem>
-            <IonItem lines="none">
+            <IonItem>
               <IonSelect label="Objetivo" value={body.goal} interface="action-sheet"
                 onIonChange={(e) => updateBody({ goal: e.detail.value as Goal })}>
                 {GOALS.map((g) => <IonSelectOption key={g.v} value={g.v}>{g.l}</IonSelectOption>)}
+              </IonSelect>
+            </IonItem>
+            <IonItem lines="none">
+              <IonSelect label="Biotipo" value={body.biotype || 'meso'} interface="action-sheet"
+                onIonChange={(e) => updateBody({ biotype: e.detail.value as Biotype })}>
+                {BIOTYPES.map((b) => <IonSelectOption key={b.id} value={b.id}>{b.name}</IonSelectOption>)}
               </IonSelect>
             </IonItem>
           </IonList>
@@ -93,6 +107,24 @@ const Calculadora: React.FC = () => {
             </IonList>
             <p className="diet-note">A cintura vem das suas medidas (Progresso). Quadril só no cálculo feminino.</p>
           </details>
+        </IonCardContent>
+      </IonCard>
+
+      {/* Meta de shape — guia o sub-foco no Montar treino + o gap na Anatomia */}
+      <IonCard className="diet-card">
+        <IonCardContent>
+          <h2 className="card-title">🎯 Meta de shape</h2>
+          <p className="card-sub">O corpo que você quer — guia a sugestão de foco no treino e o "gap" na Anatomia.</p>
+          <div className="shape-grid">
+            {goals.map((g) => (
+              <button key={g.id} className={'shape-chip' + (shapeId === g.id ? ' on' : '')} onClick={() => setShape(g.id)}>
+                <span className="shape-emoji">{g.emoji}</span>
+                <span className="shape-name">{g.name}</span>
+              </button>
+            ))}
+          </div>
+          <p className="shape-desc">{shapeGoalById(shapeId)?.desc}</p>
+          <p className="diet-note">Biotipo <b>{BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.name}</b>: {BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.desc}</p>
         </IonCardContent>
       </IonCard>
 

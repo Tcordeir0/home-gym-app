@@ -4,6 +4,7 @@
 export type Sex = 'm' | 'f';
 export type Goal = 'lose' | 'losefast' | 'maintain' | 'gain';
 export type Feedback = 'both' | 'sound' | 'vibrate' | 'none';
+export type Biotype = 'ecto' | 'meso' | 'endo';
 
 export interface Body {
   height: number | null;
@@ -13,6 +14,13 @@ export interface Body {
   hip: number | null;
   activity: number; // fator (1.2..1.9)
   goal: Goal;
+  biotype?: Biotype; // ecto/meso/endo — ajusta a estratégia da meta de shape
+}
+
+/** Meta de shape do perfil: preset + ajustes finos (override de peso por sub-região). */
+export interface ShapeGoalSel {
+  preset: string;
+  overrides?: Record<string, number>;
 }
 
 export interface Cardio {
@@ -52,6 +60,7 @@ export interface Profile {
   treinos?: Record<string, unknown>;
   workoutDays?: number; // nº de treinos (3=A-C, 4=A-D, 5=A-E)
   warmupOn?: boolean; // mostra o segmento de aquecimento (padrão: true)
+  shapeGoal?: ShapeGoalSel; // meta estética que guia o sub-foco
   cosmetics: Cosmetics;
   spinsUsed: number;
   lifeSpinsUsed: number;

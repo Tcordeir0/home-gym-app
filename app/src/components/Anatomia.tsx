@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
+import { IonActionSheet } from '@ionic/react';
 import Body, { type Slug, type ExtendedBodyPart } from 'react-muscle-highlighter';
 import type { BodyState } from 'body-muscles';
 import MaleBody from './MaleBody';
 import { emphasisOf } from '../lib/emphasis';
+import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore } from '../store/store';
-import { POOL } from '../data/pool';
+import { POOL, GROUP_LABEL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import './Anatomia.css';
 
@@ -181,6 +183,21 @@ const Anatomia: React.FC = () => {
   const [view, setView] = useState<'front' | 'back'>('front');
   const [sel, setSel] = useState<Fine | null>(null);
   const [selBase, setSelBase] = useState<string | null>(null); // sub-região escolhida (ex.: 'chest-upper')
+  const [addingEx, setAddingEx] = useState<string | null>(null); // exercício a mandar pro treino
+
+  const addToWorkout = useStore((s) => s.addExerciseToWorkout);
+  // treinos disponíveis (A–E presentes) pra mandar o exercício
+  const workoutKeys = useMemo(() => {
+    const tr = profile?.treinos as Record<string, unknown> | undefined;
+    const keys = tr ? ['A', 'B', 'C', 'D', 'E'].filter((k) => tr[k]) : [];
+    return keys.length ? keys : ['A', 'B', 'C'];
+  }, [profile?.treinos]);
+  const sendToWorkout = (treino: string) => {
+    if (!addingEx) return;
+    const p = POOL.find((x) => x.n === addingEx);
+    if (p) addToWorkout(treino, { nome: p.n, musculo: GROUP_LABEL[p.g] || '', series: p.s || 3, reps: p.r, dica: p.d });
+    setAddingEx(null);
+  };
 
   // cores do tema (lidas em runtime; re-lê quando muda o tema)
   const { bodyColor, shades, maleColors } = useMemo(() => {
@@ -270,7 +287,23 @@ const Anatomia: React.FC = () => {
     return st;
   }, [baseCounts, sel, selBase]);
 
-  const weakest = useMemo(() => FINE.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
+  // GAP vs. META de shape: sub-regiões que mais te afastam do shape que você quer
+  // (compara a fatia ALVO de cada parte — peso da meta — com a fatia REAL treinada).
+  const shapeGoal = shapeGoalById(profile?.shapeGoal?.preset || defaultShape(profile?.body?.sex || 'm'));
+  const gaps = useMemo(() => {
+    const preset = profile?.shapeGoal?.preset || defaultShape(profile?.body?.sex || 'm');
+    const overrides = profile?.shapeGoal?.overrides;
+    const biotype = profile?.body?.biotype;
+    const bases = Object.keys(BASE_LABEL);
+    const w = bases.map((b) => weightFor(b, preset, overrides, biotype));
+    const sumW = w.reduce((a, x) => a + x, 0) || 1;
+    const totBase = bases.reduce((a, b) => a + (baseCounts[b] || 0), 0) || 1;
+    return bases
+      .map((b, i) => ({ base: b, weight: w[i], gap: w[i] / sumW - (baseCounts[b] || 0) / totBase }))
+      .filter((x) => x.weight >= 2) // só onde a meta dá prioridade real
+      .sort((a, b) => b.gap - a.gap)
+      .slice(0, 3);
+  }, [baseCounts, profile?.shapeGoal, profile?.body?.biotype, profile?.body?.sex]);
 
   // seleção: por GRUPO (legenda/feminino) zera a sub-região; clique no boneco masculino vai direto na sub-região
   const pickFine = (f: Fine | null) => { setSelBase(null); setSel((cur) => (f === cur ? null : f)); };
@@ -346,7 +379,9 @@ const Anatomia: React.FC = () => {
               <b className="anat-exos-h">💪 {BASE_LABEL[selBase] || selBase} — exercícios que desenvolvem:</b>
               {exercisesForBase(selBase).length ? (
                 <div className="anat-exos-list">
-                  {exercisesForBase(selBase).map((n) => <span key={n} className="anat-exo">{n}</span>)}
+                  {exercisesForBase(selBase).map((n) => (
+                    <button key={n} className="anat-exo" onClick={() => setAddingEx(n)}>{n} <span className="anat-exo-add">＋</span></button>
+                  ))}
                 </div>
               ) : (
                 <p className="anat-exos-empty">Sem exercício específico no catálogo ainda pra essa parte.</p>
@@ -357,9 +392,22 @@ const Anatomia: React.FC = () => {
       ) : total > 0 ? (
         <div className="anat-panel focus">
           <div className="anat-panel-top">
-            <b>🎯 Foco da semana: {FINE_LABEL[weakest]}</b>
+            <b>{shapeGoal?.emoji} Meta: {shapeGoal?.name}</b>
           </div>
-          <p>{TIPS[weakest]}</p>
+          {gaps.length ? (
+            <>
+              <p className="anat-gap-h">O que mais te afasta do shape (toque pra ver exercícios):</p>
+              <div className="anat-subs">
+                {gaps.map((g) => (
+                  <button key={g.base} className="anat-sub gap" onClick={() => pickBase(g.base)}>
+                    {BASE_LABEL[g.base] || g.base}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p>Você está no caminho da meta 👍 Continue equilibrando.</p>
+          )}
         </div>
       ) : null}
 
@@ -378,6 +426,17 @@ const Anatomia: React.FC = () => {
           </button>
         ))}
       </div>
+
+      {/* mandar exercício pro treino A–E */}
+      <IonActionSheet
+        isOpen={!!addingEx}
+        header={addingEx ? `Adicionar "${addingEx}" em:` : ''}
+        buttons={[
+          ...workoutKeys.map((k) => ({ text: `Treino ${k}`, handler: () => sendToWorkout(k) })),
+          { text: 'Cancelar', role: 'cancel' as const },
+        ]}
+        onDidDismiss={() => setAddingEx(null)}
+      />
     </div>
   );
 };
