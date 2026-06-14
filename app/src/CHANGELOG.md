@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.11.0...v0.12.0) (2026-06-14)
+
+
+### Features
+
+* ajuste-fino das prioridades por sub-região (fecha a Meta de Shape) ([74d1cb5](https://github.com/Tcordeir0/home-gym-app/commit/74d1cb5a920be987b19b6e3c9a2a9e0f049b229a))
+* **app:** ajuste-fino das prioridades por sub-região (fecha a Meta de Shape) ([1783f8f](https://github.com/Tcordeir0/home-gym-app/commit/1783f8f4376fabe0f8cc561944368e2a16296099))
+
 ## [0.11.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.10.1...v0.11.0) (2026-06-14)
 
 
