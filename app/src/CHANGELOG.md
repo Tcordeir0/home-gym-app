@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.13.1...v0.14.0) (2026-06-14)
+
+
+### Features
+
+* **app:** Social v3 — isolamento por perfil (sem vazar conversa entre perfis da conta) [#7](https://github.com/Tcordeir0/home-gym-app/issues/7) ([70308b2](https://github.com/Tcordeir0/home-gym-app/commit/70308b239dd482342b426bd103e6b8fbc75223ec))
+* Social v3 — isolamento por perfil (sem vazar conversa) [#7](https://github.com/Tcordeir0/home-gym-app/issues/7) ([420f654](https://github.com/Tcordeir0/home-gym-app/commit/420f654d20cc0eb2c28a522ec645f9b0995c23ee))
+
 ## [0.13.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.13.0...v0.13.1) (2026-06-14)
 
 
