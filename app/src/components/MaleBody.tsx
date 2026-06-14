@@ -22,23 +22,29 @@ const MaleBody: React.FC<{
   const cb = useRef(onMuscle);
   cb.current = onMuscle;
 
-  // cria uma vez
+  // cria uma vez. try/catch evita que um erro da lib derrube a árvore React e entre
+  // em loop de "ocorreu um problema repetidamente" (crash do WebView no iOS).
   useEffect(() => {
     if (!ref.current) return;
-    applyThemeColors(colors);
-    chart.current = new BodyChart(ref.current, {
-      view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT,
-      bodyState,
-      onMuscleClick: (id) => cb.current(id),
-    });
-    return () => { chart.current?.destroy(); chart.current = null; };
+    try {
+      applyThemeColors(colors);
+      chart.current = new BodyChart(ref.current, {
+        view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT,
+        bodyState,
+        onMuscleClick: (id) => cb.current(id),
+        enableTransitions: false, // transição em SVG grande crasha no iOS
+      });
+    } catch { /* sem boneco, mas app vivo */ }
+    return () => { try { chart.current?.destroy(); } catch { /* ok */ } chart.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // atualiza cores do tema + vista + estado quando mudam (repinta)
   useEffect(() => {
-    applyThemeColors(colors);
-    chart.current?.update({ view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT, bodyState });
+    try {
+      applyThemeColors(colors);
+      chart.current?.update({ view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT, bodyState });
+    } catch { /* ignora erro de repaint da lib */ }
   }, [view, bodyState, colors]);
 
   return <div ref={ref} className="bm-male" />;

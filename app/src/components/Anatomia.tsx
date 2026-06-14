@@ -257,7 +257,8 @@ const Anatomia: React.FC = () => {
       const c = baseCounts[b];
       // se há sub-região escolhida, só ela "brilha"; senão, o músculo-pai inteiro
       const selected = selBase ? b === selBase : VULOVIX_BASE_FINE[b] === sel;
-      const intensity = c > 0 ? Math.min(10, Math.max(2, Math.round((c / max) * 8) + 2)) : (selected ? 1 : 0);
+      // selecionado = cor mais forte (não depende só do glow, que é pesado no iOS)
+      const intensity = selected ? 10 : (c > 0 ? Math.min(9, Math.max(2, Math.round((c / max) * 8) + 1)) : 0);
       paint(b, intensity, selected);
     });
     // músculo/sub-região selecionado sem treino: ainda acende
