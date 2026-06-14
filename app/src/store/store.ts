@@ -11,6 +11,7 @@ import { frameUnlocked, FRAMES } from '../data/frames';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { statsFor, e1RM, totalPoints } from '../lib/stats';
 import { CREATINAS_PER_POINT, type ShopKind } from '../data/shop';
+import { PLANS } from '../data/plans';
 
 // itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
 const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
@@ -175,6 +176,7 @@ export interface Store extends AppState {
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   swapExercise: (treino: string, exIdx: number, ex: Exercise) => void;
+  addExerciseToWorkout: (treino: string, ex: Exercise) => void;
   creatinasBalance: () => number;
   buyCosmetic: (kind: ShopKind, id: string, cost: number) => 'ok' | 'owned' | 'poor';
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
@@ -392,6 +394,26 @@ export const useStore = create<Store>((set, get) => {
         sw[`${treino}:${exIdx}`] = ex;
         const sl = (s.setlog as Record<string, Record<string, Record<number, unknown>>>)[uid];
         if (sl && sl[treino]) delete sl[treino][exIdx];
+      })),
+
+    // anexa um exercício (ex.: vindo da Anatomia) a um treino A–E.
+    // materializa a ficha do plano padrão se o perfil ainda não tiver treinos próprios.
+    addExerciseToWorkout: (treino, ex) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const u = s.users.find((x) => x.id === s.active);
+        if (!u) return;
+        let tr = u.treinos as Record<string, Exercise[]> | undefined;
+        if (!tr || !tr.A) {
+          const plan = PLANS[u.id] || PLANS.u1;
+          tr = {};
+          Object.keys(plan.treinos).forEach((k) => { tr![k] = plan.treinos[k].map((e) => ({ ...e })); });
+          u.treinos = tr;
+          if (!u.labels) u.labels = { ...plan.labels };
+          if (!u.focus) u.focus = plan.focus;
+        }
+        if (!tr[treino]) tr[treino] = [];
+        if (!tr[treino].some((e) => e.nome === ex.nome)) tr[treino].push(ex);
       })),
 
     completeWorkout: (treino, exs) => {

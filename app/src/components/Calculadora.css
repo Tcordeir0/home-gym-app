@@ -1,0 +1,21 @@
+/* Meta de shape — chips de preset (filtrados pelo gênero) */
+.shape-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.shape-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 12px; cursor: pointer; text-align: left;
+  border: 1px solid var(--app-line); background: var(--app-surface-2, rgba(255, 255, 255, 0.04));
+  color: var(--ion-text-color); font-size: 13.5px; font-weight: 600;
+}
+.shape-chip.on {
+  border-color: var(--brand-lime);
+  background: color-mix(in srgb, var(--brand-lime) 14%, transparent);
+  color: var(--brand-lime);
+}
+.shape-emoji { font-size: 18px; line-height: 1; }
+.shape-name { min-width: 0; }
+.shape-desc { font-size: 13px; color: var(--ion-text-color); margin: 11px 0 4px; }

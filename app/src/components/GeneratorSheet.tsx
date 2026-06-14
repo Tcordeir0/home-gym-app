@@ -5,6 +5,7 @@ import { createOutline } from 'ionicons/icons';
 import { useStore, useActiveProfile } from '../store/store';
 import { FOCUS_OPTIONS, GROUP_LABEL, EQUIPMENT_OPTIONS } from '../data/pool';
 import { generateWorkout, defaultLabels } from '../lib/generator';
+import { SUBFOCUS_BY_GROUP, suggestedSubFocus, defaultShape } from '../data/shapeGoals';
 import './GeneratorSheet.css';
 
 const EQ_LABEL: Record<string, string> = Object.fromEntries(EQUIPMENT_OPTIONS.map((o) => [o.key, o.label]));
@@ -20,23 +21,38 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
   const updateProfile = useStore((s) => s.updateProfile);
   const router = useIonRouter();
   const [focus, setFocus] = useState('full');
+  const [subFocus, setSubFocus] = useState<string | null>(null);
   const [days, setDays] = useState(3);
   const [warm, setWarm] = useState(true);
 
   useEffect(() => {
     if (open) {
       setFocus('full');
+      setSubFocus(null);
       setDays(profile.workoutDays || 3);
       setWarm(profile.warmupOn !== false);
     }
   }, [open, profile.id, profile.workoutDays, profile.warmupOn]);
+
+  // meta de shape do perfil → sugestão de sub-foco
+  const presetId = profile.shapeGoal?.preset || defaultShape(profile.body?.sex || 'm');
+  const overrides = profile.shapeGoal?.overrides;
+  const biotype = profile.body?.biotype;
+  const subOptions = focus !== 'full' ? (SUBFOCUS_BY_GROUP[focus] || []) : [];
+  const suggestedBase = focus !== 'full' ? suggestedSubFocus(focus, presetId, overrides, biotype) : null;
+
+  // ao trocar o foco, já pré-seleciona a sugestão da meta (ou Equilibrado)
+  const pickFocus = (key: string) => {
+    setFocus(key);
+    setSubFocus(key !== 'full' ? suggestedSubFocus(key, presetId, overrides, biotype) : null);
+  };
 
   const equip = profile.equipment && profile.equipment.length ? profile.equipment : ['bodyweight'];
   const location = profile.location || 'casa';
   const equipNames = equip.map((k) => EQ_LABEL[k] || k).join(', ');
 
   const gen = () => {
-    const treinos = generateWorkout(equip, focus, 6, days);
+    const treinos = generateWorkout(equip, focus, 6, days, subFocus);
     const focusLabel = focus === 'full' ? 'Corpo todo' : GROUP_LABEL[focus] || focus;
     updateProfile(profile.id, {
       treinos,
@@ -88,12 +104,27 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
               <button
                 key={o.key}
                 className={'gen-chip' + (focus === o.key ? ' on' : '')}
-                onClick={() => setFocus(o.key)}
+                onClick={() => pickFocus(o.key)}
               >
                 {o.label}
               </button>
             ))}
           </div>
+
+          {subOptions.length > 0 && (
+            <>
+              <h3 className="gen-h">Sub-foco · {GROUP_LABEL[focus] || focus}</h3>
+              <div className="gen-chips">
+                <button className={'gen-chip' + (subFocus === null ? ' on' : '')} onClick={() => setSubFocus(null)}>Equilibrado</button>
+                {subOptions.map((o) => (
+                  <button key={o.base} className={'gen-chip' + (subFocus === o.base ? ' on' : '')} onClick={() => setSubFocus(o.base)}>
+                    {o.label}{suggestedBase === o.base ? ' 💡' : ''}
+                  </button>
+                ))}
+              </div>
+              {suggestedBase && <p className="gen-sub-hint">💡 = sugestão da tua meta de shape.</p>}
+            </>
+          )}
 
           <button className={'gen-warm' + (warm ? ' on' : '')} onClick={() => setWarm((w) => !w)}>
             <span>🔥 Incluir aquecimento</span>
