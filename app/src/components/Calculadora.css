@@ -19,3 +19,16 @@
 .shape-emoji { font-size: 18px; line-height: 1; }
 .shape-name { min-width: 0; }
 .shape-desc { font-size: 13px; color: var(--ion-text-color); margin: 11px 0 4px; }
+
+/* ajuste-fino de prioridades por sub-região */
+.tune-group { margin-top: 10px; }
+.tune-g-name { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--app-muted); margin-bottom: 4px; }
+.tune-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
+.tune-label { font-size: 13.5px; min-width: 0; }
+.tune-levels { display: flex; gap: 4px; flex: 0 0 auto; }
+.tune-lv {
+  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--app-line); background: transparent; color: var(--app-muted);
+}
+.tune-lv.on { border-color: var(--brand-lime); background: color-mix(in srgb, var(--brand-lime) 16%, transparent); color: var(--brand-lime); }
+.tune-reset { margin-top: 12px; font-size: 12.5px; color: var(--app-muted); background: transparent; border: 0; cursor: pointer; text-decoration: underline; }

@@ -1,7 +1,8 @@
 import { IonCard, IonCardContent, IonList, IonItem, IonInput, IonSelect, IonSelectOption } from '@ionic/react';
 import { useStore, useActiveProfile } from '../store/store';
 import { ACTIVITY, GOALS, targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
-import { goalsForGender, BIOTYPES, defaultShape, shapeGoalById } from '../data/shapeGoals';
+import { goalsForGender, BIOTYPES, defaultShape, shapeGoalById, SUBFOCUS_BY_GROUP, weightFor } from '../data/shapeGoals';
+import { GROUP_LABEL } from '../data/pool';
 import type { Sex, Goal, Biotype } from '../store/types';
 import '../pages/Dieta.css';
 import './Calculadora.css';
@@ -31,7 +32,12 @@ const Calculadora: React.FC = () => {
   // meta de shape (filtrada pelo sexo) + a escolhida (default por gênero)
   const goals = goalsForGender(body.sex);
   const shapeId = profile.shapeGoal?.preset || defaultShape(body.sex);
-  const setShape = (preset: string) => updateProfile(profile.id, { shapeGoal: { preset } });
+  const overrides = profile.shapeGoal?.overrides || {};
+  // trocar o preset mantém os ajustes finos atuais
+  const setShape = (preset: string) => updateProfile(profile.id, { shapeGoal: { preset, overrides } });
+  const setOverride = (base: string, val: number) => updateProfile(profile.id, { shapeGoal: { preset: shapeId, overrides: { ...overrides, [base]: val } } });
+  const resetOverrides = () => updateProfile(profile.id, { shapeGoal: { preset: shapeId } });
+  const levelOf = (base: string) => Math.min(3, Math.max(1, overrides[base] ?? Math.round(weightFor(base, shapeId, undefined, body.biotype))));
 
   const latest = (f: 'weight' | 'waist') => {
     let v: number | null = null, d = '';
@@ -125,6 +131,29 @@ const Calculadora: React.FC = () => {
           </div>
           <p className="shape-desc">{shapeGoalById(shapeId)?.desc}</p>
           <p className="diet-note">Biotipo <b>{BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.name}</b>: {BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.desc}</p>
+
+          <details className="diet-adv">
+            <summary>⚙️ Ajustar prioridades (avançado)</summary>
+            <p className="diet-note">Suba ou baixe a prioridade de cada parte. Isso afeta a sugestão de sub-foco e o gap na Anatomia.</p>
+            {Object.entries(SUBFOCUS_BY_GROUP).map(([g, subs]) => (
+              <div key={g} className="tune-group">
+                <div className="tune-g-name">{GROUP_LABEL[g] || g}</div>
+                {subs.map((s) => (
+                  <div key={s.base} className="tune-row">
+                    <span className="tune-label">{s.label}</span>
+                    <div className="tune-levels">
+                      {[1, 2, 3].map((v) => (
+                        <button key={v} className={'tune-lv' + (levelOf(s.base) === v ? ' on' : '')} onClick={() => setOverride(s.base, v)}>
+                          {['', 'Normal', 'Importante', 'Máx'][v]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+            <button className="tune-reset" onClick={resetOverrides}>↺ Resetar pros padrões da meta</button>
+          </details>
         </IonCardContent>
       </IonCard>
 
