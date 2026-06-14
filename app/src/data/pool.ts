@@ -76,7 +76,13 @@ export const POOL: PoolItem[] = [{"g":"chest","eq":["bodyweight"],"n":"Flexão (
 {"g":"core","eq":["bodyweight"],"n":"Canivete lateral","s":3,"r":"15/lado","d":"Deitado de lado, traga cotovelo e perna; oblíquos."},
 {"g":"core","eq":["bodyweight"],"n":"Reverse crunch declinado","s":3,"r":"12","d":"Num declive, leve os joelhos ao peito tirando o quadril."},
 {"g":"back","eq":["kettlebell"],"n":"Remada alta com kettlebell (sumô)","s":3,"r":"12","d":"Puxe a kettlebell ao queixo a partir do sumô; trapézio."},
-{"g":"arms","eq":["dumbbell","bench"],"n":"Rosca inclinada de bruços","s":3,"r":"12","d":"De bruços no banco inclinado, suba os halteres; pico."}];
+{"g":"arms","eq":["dumbbell","bench"],"n":"Rosca inclinada de bruços","s":3,"r":"12","d":"De bruços no banco inclinado, suba os halteres; pico."},
+{"g":"chest","eq":["barbell","bench"],"n":"Supino declinado com barra","s":4,"r":"8","d":"Banco declinado, desça a barra à parte de BAIXO do peito."},
+{"g":"chest","eq":["dumbbell","bench"],"n":"Supino declinado com halteres","s":4,"r":"10","d":"Banco declinado, empurre os halteres; foca o peito inferior."},
+{"g":"chest","eq":["barbell","bench"],"n":"Supino declinado pegada aberta com barra","s":3,"r":"10","d":"Pegada mais aberta no declinado; peito inferior e externo."},
+{"g":"chest","eq":["dumbbell","bench"],"n":"Crucifixo declinado com halteres","s":3,"r":"12","d":"Banco declinado, abra os braços; alonga o peito inferior."},
+{"g":"chest","eq":["dumbbell","bench"],"n":"Supino reto com halteres","s":4,"r":"10","d":"Deitado, empurre os halteres juntando no topo; peito médio."},
+{"g":"chest","eq":["barbell","bench"],"n":"Pullover com barra","s":3,"r":"12","d":"Deitado, leve a barra atrás da cabeça e volte; peito e serrátil."}];
 export const EQUIPMENT_OPTIONS = [{"key":"bodyweight","label":"Peso do corpo"},{"key":"dumbbell","label":"Halteres"},{"key":"barbell","label":"Barra"},{"key":"band","label":"Elástico / faixa"},{"key":"kettlebell","label":"Kettlebell"},{"key":"bench","label":"Banco"},{"key":"pullup_bar","label":"Barra fixa"},{"key":"machine","label":"Máquina"}];
 export const FOCUS_OPTIONS = [{"key":"chest","label":"Peito"},{"key":"back","label":"Costas"},{"key":"legs","label":"Pernas"},{"key":"glutes","label":"Glúteo"},{"key":"shoulders","label":"Ombro"},{"key":"arms","label":"Braços"},{"key":"core","label":"Core"},{"key":"full","label":"Corpo todo"}];
 export const GROUP_LABEL: Record<string,string> = { chest:"Peito", back:"Costas", legs:"Pernas", glutes:"Glúteo", shoulders:"Ombro", arms:"Braços", core:"Core" };

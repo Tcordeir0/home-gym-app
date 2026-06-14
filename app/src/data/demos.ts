@@ -187,5 +187,11 @@ export const DEMOS: Record<string, string> = {
   "Canivete lateral": "Side_Jackknife",
   "Reverse crunch declinado": "Decline_Reverse_Crunch",
   "Remada alta com kettlebell (sumô)": "Kettlebell_Sumo_High_Pull",
-  "Rosca inclinada de bruços": "Dumbbell_Prone_Incline_Curl"
+  "Rosca inclinada de bruços": "Dumbbell_Prone_Incline_Curl",
+"Supino declinado com barra": "Decline_Barbell_Bench_Press",
+  "Supino declinado com halteres": "Decline_Dumbbell_Bench_Press",
+  "Supino declinado pegada aberta com barra": "Wide-Grip_Decline_Barbell_Bench_Press",
+  "Crucifixo declinado com halteres": "Decline_Dumbbell_Flyes",
+  "Supino reto com halteres": "Dumbbell_Bench_Press",
+  "Pullover com barra": "Bent-Arm_Barbell_Pullover"
 };

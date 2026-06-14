@@ -12,7 +12,7 @@ export interface Emphasis {
 const RULES: { re: RegExp; label: string; bases: string[] }[] = [
   // ---- Peito ----
   { re: /supino inclinad|pe(i)?to superior|pés elevados|pes elevados|incline (press|bench)/, label: 'superior', bases: ['chest-upper'] },
-  { re: /flexão inclinada|inclinada \(mãos|mãos elevadas|maos elevadas|supino declinad|peito inferior/, label: 'inferior', bases: ['chest-lower'] },
+  { re: /flexão inclinada|inclinada \(mãos|mãos elevadas|maos elevadas|supino declinad|peito inferior|paralelas \(peito|mergulho nas paralelas \(peito/, label: 'inferior', bases: ['chest-lower'] },
   { re: /crucifixo|fly|pullover|voador/, label: 'abertura', bases: ['chest-upper', 'chest-lower'] },
   { re: /flexão diamante|diamante|flexão fechada|fechada \(tríceps/, label: 'tríceps + peito interno', bases: ['triceps-lateral', 'chest-lower'] },
   // ---- Tríceps ----
