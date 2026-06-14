@@ -73,15 +73,24 @@ const BASE_LABEL: Record<string, string> = {
   'gluteus-maximus': 'Glúteo máximo', 'gluteus-medius': 'Glúteo médio',
 };
 
-// Exercícios que desenvolvem uma sub-região (pela ênfase). Nomes únicos, no máximo 8.
+// Exercícios que desenvolvem uma sub-região. Primeiro os de ÊNFASE específica; se não houver,
+// cai pros exercícios do MÚSCULO-PAI (nunca fica vazio). Nomes únicos, no máximo 8.
 function exercisesForBase(base: string): string[] {
-  const out: string[] = [];
+  const specific: string[] = [];
   for (const p of POOL) {
     const e = emphasisOf(p.n);
-    if (e?.bases.includes(base) && !out.includes(p.n)) out.push(p.n);
-    if (out.length >= 8) break;
+    if (e?.bases.includes(base) && !specific.includes(p.n)) specific.push(p.n);
   }
-  return out;
+  if (specific.length) return specific.slice(0, 8);
+  // fallback: exercícios do músculo-pai (garante lista não-vazia)
+  const fine = VULOVIX_BASE_FINE[base];
+  if (!fine) return [];
+  const general: string[] = [];
+  for (const p of POOL) {
+    if (exToFine(p.n, p.g) === fine && !general.includes(p.n)) general.push(p.n);
+    if (general.length >= 8) break;
+  }
+  return general;
 }
 
 const TIPS: Record<Fine, string> = {
