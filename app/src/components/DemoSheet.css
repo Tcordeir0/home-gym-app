@@ -48,10 +48,21 @@
   height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transform: scale(1.005);
+  transition: opacity 0.38s ease;
+  will-change: opacity, transform;
 }
+/* Ken Burns: a foto ativa dá um zoom lento (sensação de movimento entre as 2 posições) */
 .demo-img.on {
   opacity: 1;
+  animation: demo-kenburns 1.05s ease-out both;
+}
+@keyframes demo-kenburns {
+  from { transform: scale(1.005); }
+  to { transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-img.on { animation: none; transform: none; }
 }
 .demo-empty {
   padding: 30px 14px;
