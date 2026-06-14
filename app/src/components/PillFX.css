@@ -118,4 +118,48 @@
 }
 @keyframes pf-pellet { to { background-position: 0 18px, 0 0; } }
 
+/* borboletas (Hollow azul / Bruxa verde) — asas batendo + voo zig-zag */
+.pill-fx .p-bfly { width: 8px; height: 7px; animation-name: pf-flutter; animation-duration: 3s; }
+.pill-fx .p-bfly::before, .pill-fx .p-bfly::after {
+  content: ''; position: absolute; top: 0; width: 4px; height: 7px;
+  background: radial-gradient(circle at 50% 38%, #d8f3ff, #3aa0ff);
+  box-shadow: 0 0 5px rgba(95, 209, 255, 0.9);
+  animation: pf-wing 0.42s ease-in-out infinite;
+}
+.pill-fx .p-bfly::before { left: 0; border-radius: 70% 30% 50% 60%; transform-origin: right center; }
+.pill-fx .p-bfly::after { right: 0; border-radius: 30% 70% 60% 50%; transform-origin: left center; }
+.pill-fx .p-bfly.green::before, .pill-fx .p-bfly.green::after {
+  background: radial-gradient(circle at 50% 38%, #f0ffe8, #6cff8a);
+  box-shadow: 0 0 5px rgba(150, 255, 120, 0.9);
+}
+.pill-fx .p-ghost { inset: 0; background: radial-gradient(circle at 50% 45%, rgba(120, 255, 140, 0.22), transparent 65%); animation-name: pf-pulse; animation-duration: 2.6s; }
+@keyframes pf-wing { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.36); } }
+@keyframes pf-flutter {
+  0% { transform: translate(0, 4px); opacity: 0.55; }
+  25% { transform: translate(-4px, -2px); opacity: 0.9; }
+  50% { transform: translate(3px, -6px); opacity: 0.8; }
+  75% { transform: translate(-2px, -1px); opacity: 0.9; }
+  100% { transform: translate(0, 4px); opacity: 0.55; }
+}
+
+/* glitch (Code) — fatias RGB deslocando e piscando */
+.pill-fx .p-slice { left: 0; right: 0; height: 3px; mix-blend-mode: screen; opacity: 0; animation-name: pf-glitch; animation-timing-function: steps(1, end); animation-duration: 2.2s; }
+.pill-fx .p-slice.r { background: rgba(255, 40, 90, 0.6); }
+.pill-fx .p-slice.g { background: rgba(57, 255, 136, 0.6); }
+.pill-fx .p-slice.b { background: rgba(60, 150, 255, 0.6); }
+@keyframes pf-glitch {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  6% { opacity: 0.9; transform: translateX(-3px); }
+  12% { opacity: 0.2; transform: translateX(3px); }
+  18% { opacity: 0; }
+  62% { opacity: 0; }
+  70% { opacity: 0.8; transform: translateX(2px); }
+  78% { opacity: 0; }
+}
+
+/* sangue (Sete) — gotas escorrendo + vinheta vermelha */
+.pill-fx .p-bdrip { top: -8px; width: 2px; height: 11px; background: linear-gradient(#ff3a3a, #7a0000); box-shadow: 0 0 4px rgba(255, 30, 30, 0.7); border-radius: 0 0 60% 60%; animation-name: pf-drip; animation-timing-function: ease-in; }
+.pill-fx .p-bvig { inset: 0; background: radial-gradient(circle at 50% 35%, transparent 42%, rgba(120, 0, 0, 0.42)); animation-name: pf-pulse; animation-duration: 2.4s; }
+@keyframes pf-drip { 0% { transform: translateY(0); opacity: 0; } 16% { opacity: 0.95; } 100% { transform: translateY(34px); opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) { .pill-fx { display: none; } }

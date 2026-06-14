@@ -1,28 +1,51 @@
 // Gerador de treino — portado do v1. Gera A/B/C por equipamento + foco.
-import { POOL, GROUP_LABEL, GEN_ROTATION, type PoolItem } from '../data/pool';
+import { POOL, GROUP_LABEL, EQUIPMENT_OPTIONS, GEN_ROTATION, type PoolItem } from '../data/pool';
 import type { Exercise } from '../data/types';
 
-function eligiblePool(equip: string[]): PoolItem[] {
+// rótulo de equipamento derivado da fonte única (EQUIPMENT_OPTIONS) — sem hardcoded espalhado
+const EQUIP_LABEL: Record<string, string> = Object.fromEntries(EQUIPMENT_OPTIONS.map((o) => [o.key, o.label]));
+
+/** Alternativa de exercício: além do Exercise, diz o equipamento e se o perfil já o tem. */
+export interface Alt extends Exercise { equipKey: string; equipLabel: string; owned: boolean; }
+
+function ownedSet(equip: string[]): Record<string, boolean> {
   const allowed: Record<string, boolean> = { bodyweight: true };
   (equip || []).forEach((k) => { allowed[k] = true; });
+  return allowed;
+}
+
+function eligiblePool(equip: string[]): PoolItem[] {
+  const allowed = ownedSet(equip);
   return POOL.filter((e) => e.eq.every((k) => allowed[k]));
 }
 
-/** Outras opções com a MESMA ênfase (mesmo grupo) que o exercício, respeitando o
- *  equipamento do perfil — pra trocar uma variação que não serve. */
-export function alternativesFor(exNome: string, equip: string[]): Exercise[] {
+/** Outras opções com a MESMA ênfase (mesmo grupo) que o exercício. Inclui também
+ *  variações de OUTRO equipamento (ex.: flexão → supino com halteres), com as que o
+ *  perfil já consegue fazer no topo e as demais marcadas pelo equipamento que pedem. */
+export function alternativesFor(exNome: string, equip: string[]): Alt[] {
   const cur = POOL.find((e) => e.n === exNome);
   if (!cur) return [];
-  return eligiblePool(equip)
+  const allowed = ownedSet(equip);
+  return POOL
     .filter((e) => e.g === cur.g && e.n !== exNome)
-    .map((e) => ({ nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d }));
+    .map((e) => {
+      const key = e.eq.find((k) => k !== 'bodyweight') || 'bodyweight';
+      return {
+        nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d,
+        equipKey: key, equipLabel: EQUIP_LABEL[key] || key, owned: e.eq.every((k) => allowed[k]),
+      };
+    })
+    .sort((a, b) => Number(b.owned) - Number(a.owned)); // primeiro as que dá pra fazer já
 }
 
-export function generateWorkout(equip: string[], focusKey: string, perDay = 6): Record<string, Exercise[]> {
+const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;
+
+export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3): Record<string, Exercise[]> {
   const pool = eligiblePool(equip);
   const byGroup: Record<string, PoolItem[]> = {};
   GEN_ROTATION.forEach((g) => { byGroup[g] = pool.filter((e) => e.g === g); });
   const used: Record<string, boolean> = {};
+  const n = Math.min(WORKOUT_LETTERS.length, Math.max(1, days));
 
   function pick(g: string): PoolItem | undefined {
     let cand = (byGroup[g] || []).filter((e) => !used[e.n]);
@@ -44,11 +67,18 @@ export function generateWorkout(equip: string[], focusKey: string, perDay = 6): 
   }
 
   const treinos: Record<string, Exercise[]> = {};
-  (['A', 'B', 'C'] as const).forEach((k) => {
+  WORKOUT_LETTERS.slice(0, n).forEach((k) => {
     treinos[k] = slots().map((g) => {
       const e = pick(g) || { n: 'Exercício', g, s: 3, r: '12', d: '' };
       return { nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d };
     });
   });
   return treinos;
+}
+
+/** Rótulos padrão pra N treinos (A..E) + aquecimento. */
+export function defaultLabels(days: number): Record<string, string> {
+  const out: Record<string, string> = { warm: 'Aquec.' };
+  WORKOUT_LETTERS.slice(0, Math.min(WORKOUT_LETTERS.length, Math.max(1, days))).forEach((k) => (out[k] = `Treino ${k}`));
+  return out;
 }

@@ -6,6 +6,7 @@ import Calendar from '../components/Calendar';
 import Collapsible from '../components/Collapsible';
 import Medidas from '../components/Medidas';
 import Graficos from '../components/Graficos';
+import Anatomia from '../components/Anatomia';
 import FotoProgresso from '../components/FotoProgresso';
 import { useStore } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
@@ -168,6 +169,7 @@ const Progresso: React.FC = () => {
               {fmtDate(e.date)}
               {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
               {e.w === 'cardio' && e.mins ? ` · ${e.mins} min` : ''}
+              {e.w === 'cardio' && e.start && e.end ? ` · ${e.start}–${e.end}` : ''}
             </span>
           </span>
           {e.w !== 'cardio' && <IonIcon className="sess-chev" icon={chevronDown} />}
@@ -249,6 +251,14 @@ const Progresso: React.FC = () => {
           <span className="pstat-l">Dias ativos</span>
         </div>
       </div>
+
+      {/* Anatomia — músculos trabalhados (próprio card, no topo; separado dos Gráficos) */}
+      <IonCard className="prog-card">
+        <IonCardContent>
+          <h2 className="card-title">Anatomia</h2>
+          <Anatomia />
+        </IonCardContent>
+      </IonCard>
 
       {/* Foto de progresso — logo abaixo do nível/stats (linha de mudança) */}
       <FotoProgresso />

@@ -103,3 +103,13 @@
   text-transform: uppercase;
   cursor: pointer;
 }
+
+/* toggle de aquecimento na folha de gerar treino */
+.gen-warm {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--app-line); background: var(--app-surface-2, rgba(255,255,255,0.04));
+  color: var(--ion-text-color); font-size: 14px; font-weight: 600;
+}
+.gen-warm.on { border-color: color-mix(in srgb, var(--brand-lime) 45%, transparent); }
+.gen-warm-state { font-weight: 800; color: var(--brand-lime); }

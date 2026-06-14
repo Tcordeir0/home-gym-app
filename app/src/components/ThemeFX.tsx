@@ -163,17 +163,21 @@ const ThemeFX: React.FC = () => {
         <div className="fx-miasma">
           {/* pulso vermelho — o "aperto no coração" do Return by Death */}
           <div className="miasma-pulse" />
-          {/* névoa da Bruxa subindo (sombra/miasma) */}
-          {Array.from({ length: 16 }).map((_, i) => (
+          {/* banco de fumaça denso subindo do chão */}
+          <div className="miasma-floor" />
+          {/* baforadas de fumaça billowing (sobem, incham, giram e derivam) */}
+          {Array.from({ length: 26 }).map((_, i) => (
             <span
               key={i}
               className="wisp"
               style={{
-                left: `${(i * 61 + 5) % 98}%`,
-                width: `${24 + (i % 4) * 12}px`,
-                height: `${24 + (i % 4) * 12}px`,
-                animationDuration: `${7 + (i % 5)}s`,
-                animationDelay: `${(i * 0.6) % 7}s`,
+                left: `${(i * 47 + 4) % 99}%`,
+                width: `${70 + (i % 5) * 46}px`,
+                height: `${70 + (i % 5) * 46}px`,
+                animationDuration: `${9 + (i % 6)}s`,
+                animationDelay: `-${(i * 0.55) % 11}s`,
+                ['--sway' as string]: `${((i % 5) - 2) * 26}px`,
+                ['--spin' as string]: `${(i % 2 ? 1 : -1) * (20 + (i % 4) * 18)}deg`,
               }}
             />
           ))}
@@ -299,6 +303,71 @@ const ThemeFX: React.FC = () => {
             />
           ))}
         </div>
+      )}
+      {themeObj?.fx === 'glitch' && themeObj.image && (
+        <div className="fx-glitch" style={{ ['--wp' as string]: `url("${themeObj.image}")` }}>
+          {/* tipo 1: split cromático RGB (2 cópias do wallpaper tintadas) */}
+          <div className="glx-r" />
+          <div className="glx-c" />
+          {/* tipo 2: tearing — fatias do wallpaper deslocadas */}
+          <div className="glx-slices"><i /><i /><i /><i /></div>
+          {/* tipo 3: ruído/static */}
+          <div className="glx-noise" />
+          {/* tipo 4: signal roll/jump (scanlines + salto) */}
+          <div className="glx-roll" />
+        </div>
+      )}
+      {themeObj?.fx === 'blood' && (
+        <div className="fx-blood">
+          <div className="blood-vig" />
+          <div className="blood-floor" />
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span
+              key={'d' + i}
+              className="drip"
+              style={{
+                left: `${(i * 37 + 3) % 98}%`,
+                width: `${4 + (i % 4) * 3}px`,
+                animationDuration: `${6 + (i % 6) * 1.6}s`,
+                animationDelay: `-${(i * 0.8) % 10}s`,
+              }}
+            />
+          ))}
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span
+              key={'s' + i}
+              className="splat"
+              style={{
+                left: `${(i * 53 + 8) % 90}%`,
+                top: `${(i * 41 + 8) % 84}%`,
+                width: `${38 + (i % 4) * 34}px`,
+                height: `${38 + (i % 4) * 34}px`,
+                animationDuration: `${3.5 + (i % 4)}s`,
+                animationDelay: `-${(i * 1.1) % 6}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      {themeObj?.fx === 'butterflies' && (
+        <video className="fx-vbutterfly" autoPlay loop muted playsInline aria-hidden="true">
+          <source src="/themes/butterfly.mov" type="video/quicktime" />
+          <source src="/themes/butterfly.webm" type="video/webm" />
+        </video>
+      )}
+      {themeObj?.fx === 'witch' && (
+        <>
+          {/* fantasma glitchado da Echidna (aparece/some piscando, verde-branco) */}
+          <div className="fx-witchghost" style={{ ['--ghost' as string]: 'url("/themes/bruxa-ghost.png")' }}>
+            <div className="ghost g1" />
+            <div className="ghost g2" />
+          </div>
+          {/* borboletas reais (vídeo) tingidas de verde-lima */}
+          <video className="fx-vbutterfly green" autoPlay loop muted playsInline aria-hidden="true">
+            <source src="/themes/butterfly.mov" type="video/quicktime" />
+            <source src="/themes/butterfly.webm" type="video/webm" />
+          </video>
+        </>
       )}
     </div>
   );

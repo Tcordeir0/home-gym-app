@@ -7,6 +7,7 @@ import { familyLeague, weekDates } from '../lib/league';
 import { QUESTS } from '../data/quests';
 import { type Prize } from '../data/roulette';
 import Roleta from '../components/Roleta';
+import Shop from '../components/Shop';
 import { waterGoal } from '../lib/diet';
 import { fxReward } from '../lib/feedback';
 import { postEvent } from '../lib/social';
@@ -67,7 +68,7 @@ const Premios: React.FC = () => {
   };
 
   return (
-    <AppPage title="Prêmios">
+    <AppPage title="Prêmios" accessory={<Shop />}>
       <IonCard className="prem-card">
         <IonCardContent>
           <div className="prem-head">

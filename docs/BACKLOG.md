@@ -19,20 +19,28 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 - Loja **abaixo da roleta** (Prêmios), comprar temas/aros/decos. Bonita em TODOS os temas.
 - **CREATOR**: fora da loja E **invisível** pra qualquer perfil que não seja o Talys de `talysmatheus12@gmail.com`.
 
-### 2. 🦾 Anatomia granular + mais exercícios
-- Separar músculos: **bíceps, tríceps, antebraço, abdominal, trapézio, panturrilha** (só esq/dir do MESMO músculo se junta).
-- **Faltam exercícios**: antebraço (0 hoje), panturrilha (1), e mais variação geral.
-- Anatomia mostrar os músculos de verdade (remapear o boneco).
+### 2. 🦾 Anatomia 2.0 — gendered + granular + ênfase ✅ (conferir no device)
+- ✅ **Boneco gendered**: masculino = `body-muscles` (vulovix, 85+ regiões com cabeças); feminino = `react-muscle-highlighter`. **Sexo da Calculadora** (`body.sex`) decide — absorve o #9 "sexo define anatomia".
+- ✅ **Sub-regiões no masculino**: peito superior/inferior, tríceps longa/lateral, deltoide frontal/lateral/posterior, lats/traps por faixa, gastrocnêmio/sóleo.
+- ✅ **Camada de ênfase** (`lib/emphasis.ts`): cada exercício marca a região/cabeça pelo nome → mostra no card e no **Trocar** (escolher a parte do músculo) + acende a sub-região certa no boneco masculino.
+- ✅ Exercícios: antebraço 0→5, panturrilha 1→5. Legenda sem quebra de linha. Anatomia virou card próprio no topo do Progresso.
+- ⚠️ **CONFERIR NO DEVICE**: render real dos SVGs masc/fem (build ok, mas não validei visualmente o boneco gendered sem logar). Decidir: colorir o masc com o tema? lazy-load das libs (perf)? remover `react-body-highlighter` (sobrou sem uso).
+- ⏳ Fase 2 (pintar cada cabeça no FEMININO também): só com SVG custom dual-gênero (pago/comissão) — vulovix é só masc. Decisão futura do Talys.
 
-### 3. 🔄 Melhorias no "Trocar" exercício
-- Mais variedade: flexão deveria poder virar **supino com halteres/barra** (variações de OUTRO equipamento do mesmo grupo) — hoje filtra só pelo equipamento do perfil; revisar.
-- **DEMO de cada alternativa ANTES de selecionar** (ver o gif pra ter certeza).
+### 3. 🔄 Melhorias no "Trocar" exercício ✅
+- ✅ Inclui variações de OUTRO equipamento (flexão → supino c/ halteres/barra), com as que dá pra fazer já no topo e as demais marcadas pelo equipamento (borda tracejada + tag).
+- ✅ **DEMO de cada alternativa ANTES de selecionar** (botão 👁 em cada opção abre a demonstração).
 
-### 4. 🎞️ Corrigir os GIFs/DEMO
-- Tem exercício usando **gif repetido/errado** — a posição muda conforme o nome mesmo sendo variação. Cada exercício (ou variação) precisa do gif certo.
+### 4. 🎞️ Corrigir os GIFs/DEMO ✅
+- ✅ **143 demos** (era 58): baixados do free-exercise-db (MIT). **TODO exercício tem demo** (0 sem demo).
+- ✅ Catálogo expandido **+67 exercícios curados** (98→165), cada um com nome PT-BR + dica + equipamento + ênfase + demo.
 
-### 5. 🏃 Cardio integrado em A/B/C com início/fim
-- Cardio sempre aparece em A/B/C; registrar por **horário de início e fim** (em vez de botão único).
+### 5. 🏃 Cardio integrado em A/B/C com início/fim ✅
+- ✅ Cardio agora aparece **dentro do treino** (depois dos exercícios, em A–E; não no aquecimento).
+- ✅ Cronometrado registra **horário de início e fim** reais; Progresso mostra `HH:MM–HH:MM`.
+
+### 🆕 Treino A–E configurável ✅
+- ✅ Nº de treinos 3/4/5 (A–C / A–D / A–E) no Perfil › Montar treino; aquecimento opcional (toggle).
 
 ### 6. 📸 Fotos no Social + miniaturas nos grupos
 - Avatares (foto do perfil) nas linhas do Social; no grupo, miniaturas de todos os membros.
@@ -44,3 +52,8 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 ### 8. 🔔 Push real de notificações
 - Notificação de grupo/PV com app fechado (precisa push server; tabela `push_subs` já existe).
 - Hoje só notifica com app aberto. O lembrete/relógio já funciona.
+
+## 9. 🧮 Mover a Calculadora pra Perfil + sexo define a anatomia ✅
+- ✅ Calculadora migrou da Dieta pro **Perfil** (componente `Calculadora.tsx`, após a identidade).
+- ✅ O **sexo** define o boneco da Anatomia (masc/fem).
+- ✅ Dieta mostra resumo da meta + botão "Ajustar" → Perfil.

@@ -56,6 +56,40 @@ const PillFX: React.FC<{ theme?: string | null }> = ({ theme }) => {
       </span>
     );
   }
+  // borboletas (Hollow = azul) / bruxa (witch = verde-branco + fantasma)
+  if (fx === 'butterflies' || fx === 'witch') {
+    const green = fx === 'witch';
+    return (
+      <span className={'pill-fx pfx-' + fx} aria-hidden="true">
+        {green && <span className="pf p-ghost" />}
+        {POS.slice(0, 4).map(([x, y], i) => (
+          <span key={i} className={'pf p-bfly' + (green ? ' green' : '')} style={{ left: `${x}%`, top: `${y}%`, animationDelay: `-${i * 0.7}s` }} />
+        ))}
+      </span>
+    );
+  }
+  // glitch (Code) — fatias RGB piscando
+  if (fx === 'glitch') {
+    const slices: [string, number][] = [['r', 22], ['g', 48], ['b', 72]];
+    return (
+      <span className="pill-fx pfx-glitch" aria-hidden="true">
+        {slices.map(([c, top], i) => (
+          <span key={i} className={'pf p-slice ' + c} style={{ top: `${top}%`, animationDelay: `-${i * 0.5}s` }} />
+        ))}
+      </span>
+    );
+  }
+  // sangue (Sete/The Boys) — gotas escorrendo + vinheta vermelha
+  if (fx === 'blood') {
+    return (
+      <span className="pill-fx pfx-blood" aria-hidden="true">
+        <span className="pf p-bvig" />
+        {[14, 36, 56, 76, 90].map((x, i) => (
+          <span key={i} className="pf p-bdrip" style={{ left: `${x}%`, animationDelay: `-${i * 0.6}s`, animationDuration: `${2.4 + (i % 2) * 0.6}s` }} />
+        ))}
+      </span>
+    );
+  }
   // partículas espalhadas (runas, símbolos, corações, bolhas, neve, vaga-lumes)
   if (fx === 'enchant' || fx === 'math' || fx === 'hearts' || fx === 'bubbles' || fx === 'snow' || fx === 'fireflies') {
     const n = fx === 'fireflies' ? 5 : 6;

@@ -360,6 +360,64 @@ html[data-theme='cha'] {
   --app-line: rgba(150, 90, 210, 0.22);
 }
 
+/* ===== Temas novos (onda 1) ===== */
+html[data-theme='hollow'] {
+  --ion-color-primary: #5fd1ff; --ion-color-primary-contrast: #06121a; --brand-lime: #5fd1ff;
+  --ion-background-color: #0a1622; --ion-background-color-rgb: 10, 22, 34; --ion-text-color: #e6f3fb;
+  --ion-toolbar-background: rgba(10, 22, 34, 0.5); --ion-tab-bar-background: rgba(8, 18, 30, 0.62);
+  --ion-item-background: rgba(19, 38, 59, 0.46); --ion-card-background: rgba(19, 38, 59, 0.46);
+  --app-surface-2: rgba(24, 46, 70, 0.5); --app-line: rgba(95, 209, 255, 0.2);
+}
+html[data-theme='aranha'] {
+  --ion-color-primary: #ff3b3b; --ion-color-primary-contrast: #ffffff; --brand-lime: #ff3b3b;
+  --ion-background-color: #0d0d0e; --ion-background-color-rgb: 13, 13, 14; --ion-text-color: #f0f0f0;
+  --ion-toolbar-background: rgba(13, 13, 14, 0.5); --ion-tab-bar-background: rgba(10, 10, 11, 0.62);
+  --ion-item-background: rgba(28, 28, 31, 0.5); --ion-card-background: rgba(28, 28, 31, 0.5);
+  --app-surface-2: rgba(38, 38, 42, 0.55); --app-line: rgba(255, 255, 255, 0.12);
+}
+html[data-theme='code'] {
+  --ion-color-primary: #39ff88; --ion-color-primary-contrast: #04130a; --brand-lime: #39ff88;
+  --ion-background-color: #06090d; --ion-background-color-rgb: 6, 9, 13; --ion-text-color: #d8f5e4;
+  --ion-toolbar-background: rgba(6, 9, 13, 0.5); --ion-tab-bar-background: rgba(5, 8, 11, 0.62);
+  --ion-item-background: rgba(14, 22, 34, 0.5); --ion-card-background: rgba(14, 22, 34, 0.5);
+  --app-surface-2: rgba(18, 30, 44, 0.5); --app-line: rgba(57, 255, 136, 0.18);
+}
+html[data-theme='vice'] {
+  --ion-color-primary: #ff4da6; --ion-color-primary-contrast: #1a0612; --brand-lime: #ff4da6;
+  --ion-background-color: #1a0a1c; --ion-background-color-rgb: 26, 10, 28; --ion-text-color: #fbe9f3;
+  --ion-toolbar-background: rgba(26, 10, 28, 0.5); --ion-tab-bar-background: rgba(20, 8, 22, 0.62);
+  --ion-item-background: rgba(42, 16, 48, 0.46); --ion-card-background: rgba(42, 16, 48, 0.46);
+  --app-surface-2: rgba(56, 22, 64, 0.5); --app-line: rgba(255, 77, 166, 0.22);
+}
+html[data-theme='miami'] {
+  --ion-color-primary: #ff5cc8; --ion-color-primary-contrast: #170622; --brand-lime: #ff5cc8;
+  --ion-background-color: #170b2a; --ion-background-color-rgb: 23, 11, 42; --ion-text-color: #f3e9fb;
+  --ion-toolbar-background: rgba(23, 11, 42, 0.5); --ion-tab-bar-background: rgba(18, 8, 34, 0.62);
+  --ion-item-background: rgba(36, 16, 64, 0.46); --ion-card-background: rgba(36, 16, 64, 0.46);
+  --app-surface-2: rgba(48, 22, 82, 0.5); --app-line: rgba(255, 92, 200, 0.22);
+}
+html[data-theme='bruxa'] {
+  --ion-color-primary: #ff5b8a; --ion-color-primary-contrast: #1a0610; --brand-lime: #ff5b8a;
+  --ion-background-color: #160a1e; --ion-background-color-rgb: 22, 10, 30; --ion-text-color: #f6e9ef;
+  --ion-toolbar-background: rgba(22, 10, 30, 0.5); --ion-tab-bar-background: rgba(18, 8, 26, 0.62);
+  --ion-item-background: rgba(36, 20, 51, 0.46); --ion-card-background: rgba(36, 20, 51, 0.46);
+  --app-surface-2: rgba(50, 28, 66, 0.5); --app-line: rgba(255, 91, 138, 0.22);
+}
+html[data-theme='homelander'] {
+  --ion-color-primary: #d62b3a; --ion-color-primary-contrast: #ffffff; --brand-lime: #d62b3a;
+  --ion-background-color: #0a0a0c; --ion-background-color-rgb: 10, 10, 12; --ion-text-color: #efe6e7;
+  --ion-toolbar-background: rgba(10, 10, 12, 0.5); --ion-tab-bar-background: rgba(8, 8, 10, 0.62);
+  --ion-item-background: rgba(28, 22, 26, 0.5); --ion-card-background: rgba(28, 22, 26, 0.5);
+  --app-surface-2: rgba(38, 28, 32, 0.55); --app-line: rgba(214, 43, 58, 0.22);
+}
+html[data-theme='pi'] {
+  --ion-color-primary: #e23b3b; --ion-color-primary-contrast: #ffffff; --brand-lime: #e23b3b;
+  --ion-background-color: #0a0a0a; --ion-background-color-rgb: 10, 10, 10; --ion-text-color: #ededed;
+  --ion-toolbar-background: rgba(10, 10, 10, 0.5); --ion-tab-bar-background: rgba(8, 8, 8, 0.62);
+  --ion-item-background: rgba(28, 28, 28, 0.5); --ion-card-background: rgba(28, 28, 28, 0.5);
+  --app-surface-2: rgba(40, 40, 40, 0.55); --app-line: rgba(226, 59, 59, 0.2);
+}
+
 /* Splash curto enquanto carrega a sessão */
 .app-splash {
   position: fixed;

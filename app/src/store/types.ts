@@ -50,6 +50,8 @@ export interface Profile {
   focus?: string;
   labels?: Record<string, string>;
   treinos?: Record<string, unknown>;
+  workoutDays?: number; // nº de treinos (3=A-C, 4=A-D, 5=A-E)
+  warmupOn?: boolean; // mostra o segmento de aquecimento (padrão: true)
   cosmetics: Cosmetics;
   spinsUsed: number;
   lifeSpinsUsed: number;
@@ -76,6 +78,8 @@ export interface HistoryEntry {
   t?: string; // tipo de cardio
   emoji?: string;
   mins?: number; // duração do cardio (minutos), quando cronometrado
+  start?: string; // horário de início do cardio (HH:MM)
+  end?: string; // horário de fim do cardio (HH:MM)
   exercises?: { nome: string; sets: SetEntry[] }[];
 }
 
@@ -131,6 +135,7 @@ export interface AppState {
   notifyOn: boolean; // notificações ativadas (só depois de conceder permissão)
   reminder: { on: boolean; time: string }; // lembrete diário de treino (HH:MM)
   swaps: Record<string, Record<string, import('../data/types').Exercise>>; // uid → "treino:idx" → exercício trocado
+  wallet: Record<string, { spent: number }>; // uid → creatinas já gastas na loja
   appTheme: 'dark' | 'light';
   pokes: Record<string, Poke>;
   session: Record<string, unknown>;

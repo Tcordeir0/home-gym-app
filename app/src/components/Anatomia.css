@@ -78,7 +78,7 @@
 .anat-legend { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 .anat-bar {
   display: grid;
-  grid-template-columns: 64px 1fr 26px;
+  grid-template-columns: 92px 1fr 26px;
   align-items: center;
   gap: 10px;
   border: 0;
@@ -89,7 +89,8 @@
   transition: background 0.15s ease;
 }
 .anat-bar.on { background: var(--app-surface-2, rgba(255, 255, 255, 0.05)); }
-.anat-bar-l { text-align: left; font-size: 13px; font-weight: 600; opacity: 0.85; }
+/* rótulos como Antebraço/Quadríceps/Panturrilha não podem quebrar linha (ficava 1 letra sobrando) */
+.anat-bar-l { text-align: left; font-size: 12.5px; font-weight: 600; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .anat-bar-track {
   height: 8px;
   border-radius: 999px;
@@ -98,6 +99,24 @@
 }
 .anat-bar-fill { display: block; height: 100%; border-radius: 999px; transition: width 0.4s ease; min-width: 2px; }
 .anat-bar-n { text-align: right; font-size: 12px; font-weight: 700; color: var(--brand-lime); }
+
+/* partes do músculo (sub-regiões) + exercícios que desenvolvem */
+.anat-subs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.anat-sub {
+  font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--app-line); background: var(--app-surface-2, rgba(255, 255, 255, 0.04));
+  color: var(--ion-text-color); cursor: pointer;
+}
+.anat-sub.on { border-color: var(--brand-lime); background: color-mix(in srgb, var(--brand-lime) 16%, transparent); color: var(--brand-lime); }
+.anat-exos { margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--app-line); }
+.anat-exos-h { display: block; font-size: 12.5px; margin-bottom: 8px; }
+.anat-exos-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.anat-exo {
+  font-size: 12px; padding: 5px 10px; border-radius: 9px;
+  background: color-mix(in srgb, var(--brand-lime) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 22%, transparent);
+}
+.anat-exos-empty { font-size: 12.5px; color: var(--app-muted); margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .anat-bar-fill, .anat-seg button { transition: none; }
