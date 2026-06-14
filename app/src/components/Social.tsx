@@ -40,7 +40,7 @@ const SocialPanel: React.FC = () => {
   const [gDraft, setGDraft] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [pick, setPick] = useState<Record<string, string>>({}); // uid -> label do membro
+  const [pick, setPick] = useState<Record<string, { uid: string; label: string }>>({}); // "uid:label" -> membro
   const gEnd = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<S.SocialEvent[]>([]);
   const [allMsgs, setAllMsgs] = useState<S.Message[]>([]);
@@ -63,8 +63,9 @@ const SocialPanel: React.FC = () => {
   // chat: carrega + realtime
   const loadChat = useCallback(async (c: { kind: 'friend' | 'team'; uid: string; profile?: string }) => {
     setMsgs(c.kind === 'team' ? await S.listTeamMessages(myName, c.profile || '') : await S.listMessages(c.uid, myName, c.profile));
+    if (c.kind === 'friend') { await S.markMessagesSeen(c.uid, myName); loadAll(); } // zera o não-lido deste chat
     setTimeout(() => chatEnd.current?.scrollIntoView({ behavior: 'smooth' }), 60);
-  }, [myName]);
+  }, [myName, loadAll]);
   useEffect(() => {
     if (!chatWith) return;
     loadChat(chatWith);
@@ -97,7 +98,10 @@ const SocialPanel: React.FC = () => {
   const friends = [...friendUids].map((u) => byUid.get(u)).filter(Boolean) as S.SocialAccount[];
   // grupos do PERFIL ATIVO: cada perfil vê só os grupos em que ENTROU (label = perfil); legado sem label aparece
   const myGroups = groups.filter((g) => memberships.some((mm) => mm.group_id === g.id && (mm.label === myName || !mm.label)));
-  const recvPokes = pokes.filter((p) => p.to_uid === uid && p.from_uid !== uid);
+  const recvPokes = pokes.filter((p) => p.to_uid === uid && p.from_uid !== uid && (p.to_profile === myName || !p.to_profile));
+  // DMs não-vistas endereçadas ao perfil ATIVO (pra badge da aba Chat + por conversa)
+  const dmUnreadFrom = (fuid: string, fprof: string) => allMsgs.some((m) => m.to_uid === uid && m.from_uid === fuid && m.from_profile === fprof && m.to_profile === myName && !m.seen);
+  const anyDmUnread = allMsgs.some((m) => m.to_uid === uid && m.from_uid !== uid && m.to_profile === myName && !m.seen);
   // última mensagem de cada conversa (allMsgs vem ordenado do mais novo → .find pega o último)
   // última msg do par (meu perfil ativo ↔ perfil do amigo) — isolado por perfil
   const lastFriendMsg = (fuid: string, fprof: string) => allMsgs.find((m) =>
@@ -172,13 +176,13 @@ const SocialPanel: React.FC = () => {
     loadGroup(groupView);
   };
   const doCreateGroup = async () => {
-    const members = Object.entries(pick).map(([u, label]) => ({ uid: u, label }));
+    const members = Object.values(pick);
     if (!newName.trim() || members.length === 0) { setToast('Dê um nome e escolha ao menos 1 pessoa.'); return; }
     const gid = await S.createGroup(newName.trim(), myName, members);
     if (gid) { setToast('Grupo criado! 🎉'); setCreateOpen(false); setNewName(''); setPick({}); loadAll(); }
     else setToast('Não consegui criar o grupo.');
   };
-  const togglePick = (u: string, label: string) => setPick((p) => { const n = { ...p }; if (n[u]) delete n[u]; else n[u] = label; return n; });
+  const togglePick = (u: string, label: string) => setPick((p) => { const k = u + ':' + label; const n = { ...p }; if (n[k]) delete n[k]; else n[k] = { uid: u, label }; return n; });
 
   return (
     <div className="sc-panel">
@@ -188,7 +192,10 @@ const SocialPanel: React.FC = () => {
           <IonIcon icon={handLeftOutline} /> Cutucar
           {recvPokes.some((p) => !p.seen) && <span className="sc-dot" />}
         </button>
-        <button className={tab === 'chat' ? 'on' : ''} onClick={() => { setTab('chat'); setChatWith(null); }}><IonIcon icon={chatbubblesOutline} /> Chat</button>
+        <button className={tab === 'chat' ? 'on' : ''} onClick={() => { setTab('chat'); setChatWith(null); }}>
+          <IonIcon icon={chatbubblesOutline} /> Chat
+          {anyDmUnread && <span className="sc-dot" />}
+        </button>
         <button className={tab === 'grupos' ? 'on' : ''} onClick={() => { setTab('grupos'); setGroupView(null); setCreateOpen(false); }}>
           <IonIcon icon={peopleCircleOutline} /> Grupos
           {myGroups.some((g) => groupUnread(g.id)) && <span className="sc-dot" />}
@@ -351,10 +358,11 @@ const SocialPanel: React.FC = () => {
                   {friends.length === 0 ? <p className="sc-empty">Adicione amigos pra conversar.</p> :
                     friends.flatMap((a) => (a.profiles?.length ? a.profiles : [{ id: a.uid, name: accLabel(a), color: undefined, photo: undefined }]).map((p) => {
                       const lm = lastFriendMsg(a.uid, p.name);
+                      const unread = dmUnreadFrom(a.uid, p.name);
                       return (
-                        <button key={a.uid + ':' + p.name} className="sc-row sc-tap" onClick={() => setChatWith({ kind: 'friend', uid: a.uid, name: p.name, profile: p.name })}>
+                        <button key={a.uid + ':' + p.name} className={'sc-row sc-tap' + (unread ? ' sc-unread' : '')} onClick={() => setChatWith({ kind: 'friend', uid: a.uid, name: p.name, profile: p.name })}>
                           <span className="sc-chatrow">
-                            <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name}</span>
+                            <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name}{unread && <span className="sc-dot" />}</span>
                             {lm && <span className="sc-preview">{lm.from_uid === uid ? 'Você: ' : ''}{lm.body}</span>}
                           </span>
                         </button>
@@ -438,14 +446,20 @@ const SocialPanel: React.FC = () => {
                 <div className="sc-invite">
                   <input placeholder="Nome do grupo" value={newName} onChange={(e) => setNewName(e.target.value)} />
                 </div>
-                <p className="sc-grp-hint">Escolha quem entra (amigos). Sua equipe da mesma conta já vê o grupo.</p>
-                {friends.length === 0 ? <p className="sc-empty">Adicione amigos antes pra montar um grupo.</p> :
-                  friends.map((a) => (
-                    <button key={a.uid} className={'sc-row sc-tap' + (pick[a.uid] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, accLabel(a))}>
-                      <span className="sc-name"><span className="sc-av" style={avStyle(a.profiles?.[0]?.color, a.profiles?.[0]?.photo)} /> {accLabel(a)}</span>
-                      {pick[a.uid] && <IonIcon icon={checkmark} />}
-                    </button>
-                  ))}
+                <p className="sc-grp-hint">Escolha quem entra: seu time (mesma conta) e amigos, por perfil.</p>
+                {myProfiles.filter((p) => p.name !== myName).map((p) => (
+                  <button key={'me:' + p.name} className={'sc-row sc-tap' + (pick[uid + ':' + p.name] ? ' sc-picked' : '')} onClick={() => togglePick(uid, p.name)}>
+                    <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name} <small>seu time</small></span>
+                    {pick[uid + ':' + p.name] && <IonIcon icon={checkmark} />}
+                  </button>
+                ))}
+                {friends.flatMap((a) => (a.profiles?.length ? a.profiles : [{ id: a.uid, name: accLabel(a), color: undefined, photo: undefined }]).map((p) => (
+                  <button key={a.uid + ':' + p.name} className={'sc-row sc-tap' + (pick[a.uid + ':' + p.name] ? ' sc-picked' : '')} onClick={() => togglePick(a.uid, p.name)}>
+                    <span className="sc-name"><span className="sc-av" style={avStyle(p.color, p.photo)} /> {p.name} <small>{a.email}</small></span>
+                    {pick[a.uid + ':' + p.name] && <IonIcon icon={checkmark} />}
+                  </button>
+                )))}
+                {friends.length === 0 && myProfiles.filter((p) => p.name !== myName).length === 0 && <p className="sc-empty">Adicione amigos ou crie outro perfil pra montar um grupo.</p>}
                 <div className="sc-grp-actions">
                   <button className="sc-grp-cancel" onClick={() => { setCreateOpen(false); setNewName(''); setPick({}); }}>Cancelar</button>
                   <button className="sc-grp-create" onClick={doCreateGroup}>Criar grupo</button>
@@ -485,22 +499,28 @@ const Social: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [alerts, setAlerts] = useState(0);
   const notifyOn = useStore((s) => s.notifyOn);
+  const myName = useStore((s) => s.users.find((u) => u.id === s.active)?.name || '');
   const prevAlerts = useRef<number | null>(null);
 
-  // badge no botão: convites recebidos + cutucadas não vistas + grupos não-lidos (realtime)
+  // badge no botão: SÓ do perfil ativo (cutucadas/grupos/DMs deste perfil) + convites da conta
   useEffect(() => {
     const refresh = async () => {
       const { data } = await supabase.auth.getUser();
       const myUid = data.user?.id || '';
       if (!myUid) return;
-      const [fs, pk, gr, gam] = await Promise.all([S.listFriendships(), S.listPokes(), S.listMyGroups(), S.listAllGroupMessages()]);
+      const [fs, pk, gr, gam, mm, am] = await Promise.all([S.listFriendships(), S.listPokes(), S.listMyGroups(), S.listAllGroupMessages(), S.listMyMemberships(), S.listAllMessages()]);
       const incoming = fs.filter((f) => f.status === 'pending' && f.addressee === myUid).length;
-      const unseen = pk.filter((p) => p.to_uid === myUid && p.from_uid !== myUid && !p.seen).length;
+      // cutucadas: só as deste perfil (ou legado sem perfil)
+      const unseen = pk.filter((p) => p.to_uid === myUid && p.from_uid !== myUid && !p.seen && (p.to_profile === myName || !p.to_profile)).length;
+      // DMs novas pro perfil ativo (de amigo, endereçadas a este perfil)
+      const dmUnread = am.filter((m) => m.to_uid === myUid && m.from_uid !== myUid && m.to_profile === myName && !m.seen).length;
       const read = getGroupRead();
+      const myGids = new Set(mm.filter((x) => x.label === myName || !x.label).map((x) => x.group_id));
       const unreadGroups = gr
+        .filter((g) => myGids.has(g.id))
         .map((g) => ({ g, lm: gam.find((m) => m.group_id === g.id) }))
         .filter((x) => x.lm && x.lm.from_uid !== myUid && x.lm.created_at > (read[x.g.id] || ''));
-      const total = incoming + unseen + unreadGroups.length;
+      const total = incoming + unseen + unreadGroups.length + dmUnread;
       // notifica só quando AUMENTA (chegou coisa nova) e o usuário permitiu
       if (prevAlerts.current !== null && total > prevAlerts.current && notifyOn) {
         if (unreadGroups.length) {
@@ -516,7 +536,7 @@ const Social: React.FC = () => {
     refresh();
     const unsub = S.subscribeSocial(refresh);
     return unsub;
-  }, [notifyOn]);
+  }, [notifyOn, myName]);
 
   return (
     <>

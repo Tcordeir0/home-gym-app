@@ -126,6 +126,14 @@ export async function listTeamMessages(profileA: string, profileB: string): Prom
     (m.from_profile === profileB && m.to_profile === profileA));
 }
 
+/** Marca como vistas as DMs recebidas de um amigo endereçadas ao meu perfil ativo. */
+export async function markMessagesSeen(friendUid: string, myProfile?: string): Promise<void> {
+  const id = await uid();
+  if (!id || !myProfile) return;
+  await supabase.from('messages').update({ seen: true })
+    .eq('to_uid', id).eq('from_uid', friendUid).eq('to_profile', myProfile).eq('seen', false);
+}
+
 /** Todas as minhas mensagens (pra preview da última de cada conversa). */
 export async function listAllMessages(): Promise<Message[]> {
   const id = await uid();
@@ -156,7 +164,8 @@ export async function createGroup(name: string, myLabel: string, members: { uid:
   const gid = (data as { id: string }).id;
   const rows = [
     { group_id: gid, uid: id, label: myLabel, role: 'owner' },
-    ...members.filter((m) => m.uid !== id).map((m) => ({ group_id: gid, uid: m.uid, label: m.label, role: 'member' })),
+    // aceita membros da MINHA conta (outros perfis) — só não duplica a linha do dono
+    ...members.filter((m) => !(m.uid === id && (m.label || '') === myLabel)).map((m) => ({ group_id: gid, uid: m.uid, label: m.label || '', role: 'member' })),
   ];
   await supabase.from('group_members').insert(rows);
   return gid;
