@@ -22,7 +22,7 @@ export const DEMOS: Record<string, string> = {
   "Elevação pélvica unilateral": "Single_Leg_Glute_Bridge",
   "Hip thrust (apoio no sofá)": "Barbell_Hip_Thrust",
   "Mobilidade de quadril": "Standing_Hip_Circles",
-  "Pike push-up": "Dumbbell_Shoulder_Press",
+  "Pike push-up": "Handstand_Push-Ups",
   "Polichinelo": "Star_Jump",
   "Remada com elástico": "Bent_Over_Two-Dumbbell_Row",
   "Remada com halter (apoio na cadeira)": "One-Arm_Dumbbell_Row",
