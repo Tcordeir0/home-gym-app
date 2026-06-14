@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { BodyChart, ViewSide, type BodyState } from 'body-muscles';
+import { BodyChart, ViewSide, INTENSITY_COLORS, type BodyState } from 'body-muscles';
+
+// A lib pinta os músculos pelo array global INTENSITY_COLORS (intensity 0-10). Pra o heatmap
+// sair no TOM DO TEMA (e não no vermelho fixo), sobrescrevemos os índices 1..10 com a rampa do tema.
+function applyThemeColors(cols?: string[]) {
+  if (!cols) return;
+  for (let i = 1; i <= 10; i++) if (cols[i]) INTENSITY_COLORS[i] = cols[i];
+}
 
 /** Wrapper React pra lib imperativa `body-muscles` (vulovix) — modelo MASCULINO detalhado
  *  (85+ regiões com cabeças: peito sup/inf, tríceps longa/lateral, deltoide f/l/posterior...). */
@@ -7,7 +14,8 @@ const MaleBody: React.FC<{
   view: 'front' | 'back';
   bodyState: BodyState;
   onMuscle: (id: string) => void;
-}> = ({ view, bodyState, onMuscle }) => {
+  colors?: string[]; // rampa de 11 tons (intensity 0-10) no tom do tema
+}> = ({ view, bodyState, onMuscle, colors }) => {
   const ref = useRef<HTMLDivElement>(null);
   const chart = useRef<BodyChart | null>(null);
   // callback sempre atual sem recriar o chart
@@ -17,6 +25,7 @@ const MaleBody: React.FC<{
   // cria uma vez
   useEffect(() => {
     if (!ref.current) return;
+    applyThemeColors(colors);
     chart.current = new BodyChart(ref.current, {
       view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT,
       bodyState,
@@ -26,10 +35,11 @@ const MaleBody: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // atualiza vista + estado quando mudam
+  // atualiza cores do tema + vista + estado quando mudam (repinta)
   useEffect(() => {
+    applyThemeColors(colors);
     chart.current?.update({ view: view === 'back' ? ViewSide.BACK : ViewSide.FRONT, bodyState });
-  }, [view, bodyState]);
+  }, [view, bodyState, colors]);
 
   return <div ref={ref} className="bm-male" />;
 };

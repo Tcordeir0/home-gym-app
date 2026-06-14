@@ -57,6 +57,33 @@ const VULOVIX_BASE_FINE: Record<string, Fine> = {};
 (Object.keys(FINE_VULOVIX) as Fine[]).forEach((f) => FINE_VULOVIX[f].forEach((b) => (VULOVIX_BASE_FINE[b] = f)));
 const vulovixBase = (id: string) => id.replace(/-(left|right)$/, '');
 
+// rótulo PT-BR de cada sub-região (pra descrição "qual parte do músculo")
+const BASE_LABEL: Record<string, string> = {
+  'chest-upper': 'Peito superior', 'chest-lower': 'Peito inferior',
+  'traps-upper': 'Trapézio superior', 'traps-mid': 'Trapézio médio', 'traps-lower': 'Trapézio inferior',
+  'lats-upper': 'Dorsal superior', 'lats-mid': 'Dorsal médio', 'lats-lower': 'Dorsal inferior',
+  'lower-back-erectors': 'Eretores da espinha', 'lower-back-ql': 'Quadrado lombar',
+  'shoulder-front': 'Deltoide frontal', 'shoulder-side': 'Deltoide lateral', 'deltoid-rear': 'Deltoide posterior',
+  'biceps': 'Bíceps', 'triceps-long': 'Tríceps · cabeça longa', 'triceps-lateral': 'Tríceps · cabeça lateral',
+  'forearm-flexors': 'Antebraço · flexores', 'forearm-extensors': 'Antebraço · extensores',
+  'abs-upper': 'Abdômen superior', 'abs-lower': 'Abdômen inferior', 'obliques': 'Oblíquos',
+  'quads': 'Quadríceps', 'adductors': 'Adutores',
+  'hamstrings-lateral': 'Posterior · lateral', 'hamstrings-medial': 'Posterior · medial',
+  'calves-gastroc-lateral': 'Panturrilha · gastroc. lateral', 'calves-gastroc-medial': 'Panturrilha · gastroc. medial', 'calves-soleus': 'Panturrilha · sóleo',
+  'gluteus-maximus': 'Glúteo máximo', 'gluteus-medius': 'Glúteo médio',
+};
+
+// Exercícios que desenvolvem uma sub-região (pela ênfase). Nomes únicos, no máximo 8.
+function exercisesForBase(base: string): string[] {
+  const out: string[] = [];
+  for (const p of POOL) {
+    const e = emphasisOf(p.n);
+    if (e?.bases.includes(base) && !out.includes(p.n)) out.push(p.n);
+    if (out.length >= 8) break;
+  }
+  return out;
+}
+
 const TIPS: Record<Fine, string> = {
   chest: 'Empurrar: flexões, supino e crucifixo constroem o peito.',
   trapezius: 'Encolhimento (shrug) e face pull dão volume e postura ao trapézio.',
@@ -141,19 +168,26 @@ const Anatomia: React.FC = () => {
 
   const [view, setView] = useState<'front' | 'back'>('front');
   const [sel, setSel] = useState<Fine | null>(null);
+  const [selBase, setSelBase] = useState<string | null>(null); // sub-região escolhida (ex.: 'chest-upper')
 
   // cores do tema (lidas em runtime; re-lê quando muda o tema)
-  const { bodyColor, shades } = useMemo(() => {
+  const { bodyColor, shades, maleColors } = useMemo(() => {
     const root = typeof document !== 'undefined' ? getComputedStyle(document.documentElement) : null;
     const accent = (root?.getPropertyValue('--brand-lime').trim()) || '#c6ff3a';
     const base = (root?.getPropertyValue('--app-line').trim()) || '#2a2f3a';
     const body = /^#?[0-9a-f]{3,6}$/i.test(base) ? base : '#2a2f3a';
     const b = body.startsWith('#') ? body : '#2a2f3a';
     const ac = accent.startsWith('#') ? accent : '#c6ff3a';
+    // rampa de 11 tons (intensity 0-10) p/ o modelo masculino (vulovix) no tom do TEMA:
+    // 0 = neutro (inativo), 1..10 = accent escuro → accent cheio (heatmap na cor do tema)
+    const lo = mix(ac, '#141414', 0.58);
+    const mc = ['#8b94a3'];
+    for (let i = 1; i <= 10; i++) mc.push(mix(lo, ac, (i - 1) / 9));
     return {
       bodyColor: body.startsWith('#') ? body : '#' + body,
       // 5 tons normais (intensity 1-5) + 1 "glow" claro (intensity 6) p/ o músculo selecionado
       shades: [...[0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(b, ac, t)), mix(ac, '#ffffff', 0.6)],
+      maleColors: mc,
     };
   }, [theme]);
 
@@ -212,25 +246,29 @@ const Anatomia: React.FC = () => {
     // sub-regiões treinadas (heatmap por ênfase: peito superior ≠ inferior)
     bases.forEach((b) => {
       const c = baseCounts[b];
-      const selected = VULOVIX_BASE_FINE[b] === sel;
+      // se há sub-região escolhida, só ela "brilha"; senão, o músculo-pai inteiro
+      const selected = selBase ? b === selBase : VULOVIX_BASE_FINE[b] === sel;
       const intensity = c > 0 ? Math.min(10, Math.max(2, Math.round((c / max) * 8) + 2)) : (selected ? 1 : 0);
       paint(b, intensity, selected);
     });
-    // músculo selecionado sem treino: ainda acende suas sub-regiões
-    if (sel) FINE_VULOVIX[sel].forEach((b) => { if (!(b in baseCounts)) paint(b, 1, true); });
+    // músculo/sub-região selecionado sem treino: ainda acende
+    if (selBase && !(selBase in baseCounts)) paint(selBase, 1, true);
+    else if (sel && !selBase) FINE_VULOVIX[sel].forEach((b) => { if (!(b in baseCounts)) paint(b, 1, true); });
     return st;
-  }, [baseCounts, sel]);
+  }, [baseCounts, sel, selBase]);
 
   const weakest = useMemo(() => FINE.slice().sort((a, b) => counts[a] - counts[b])[0], [counts]);
 
-  const onPart = (b: ExtendedBodyPart) => {
-    const f = b.slug ? SLUG_FINE[b.slug] : undefined;
-    if (f) setSel(f === sel ? null : f);
+  // seleção: por GRUPO (legenda/feminino) zera a sub-região; clique no boneco masculino vai direto na sub-região
+  const pickFine = (f: Fine | null) => { setSelBase(null); setSel((cur) => (f === cur ? null : f)); };
+  const pickBase = (base: string) => {
+    const f = VULOVIX_BASE_FINE[base];
+    if (!f) return;
+    setSel(f);
+    setSelBase((cur) => (cur === base ? null : base));
   };
-  const onMaleMuscle = (id: string) => {
-    const f = VULOVIX_BASE_FINE[vulovixBase(id)];
-    if (f) setSel(f === sel ? null : f);
-  };
+  const onPart = (b: ExtendedBodyPart) => { if (b.slug && SLUG_FINE[b.slug]) pickFine(SLUG_FINE[b.slug]!); };
+  const onMaleMuscle = (id: string) => pickBase(vulovixBase(id));
 
   return (
     <div className="anat">
@@ -245,7 +283,7 @@ const Anatomia: React.FC = () => {
 
       <div className={'anat-model' + (sel ? ' sel' : '')}>
         {gender === 'male' ? (
-          <MaleBody view={view} bodyState={maleState} onMuscle={onMaleMuscle} />
+          <MaleBody view={view} bodyState={maleState} onMuscle={onMaleMuscle} colors={maleColors} />
         ) : (
           <Body
             data={data}
@@ -273,6 +311,35 @@ const Anatomia: React.FC = () => {
             </span> (alvo 10–20)
           </p>
           <p>{TIPS[sel]}</p>
+
+          {/* partes do músculo — escolher uma sub-região (ex.: peito superior) */}
+          {FINE_VULOVIX[sel].length > 1 && (
+            <div className="anat-subs">
+              {FINE_VULOVIX[sel].map((b) => (
+                <button
+                  key={b}
+                  className={'anat-sub' + (selBase === b ? ' on' : '')}
+                  onClick={() => pickBase(b)}
+                >
+                  {BASE_LABEL[b] || b}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* exercícios que desenvolvem a parte escolhida */}
+          {selBase && (
+            <div className="anat-exos">
+              <b className="anat-exos-h">💪 {BASE_LABEL[selBase] || selBase} — exercícios que desenvolvem:</b>
+              {exercisesForBase(selBase).length ? (
+                <div className="anat-exos-list">
+                  {exercisesForBase(selBase).map((n) => <span key={n} className="anat-exo">{n}</span>)}
+                </div>
+              ) : (
+                <p className="anat-exos-empty">Sem exercício específico no catálogo ainda pra essa parte.</p>
+              )}
+            </div>
+          )}
         </div>
       ) : total > 0 ? (
         <div className="anat-panel focus">
@@ -288,7 +355,7 @@ const Anatomia: React.FC = () => {
           <button
             key={f}
             className={'anat-bar' + (sel === f ? ' on' : '')}
-            onClick={() => setSel(f === sel ? null : f)}
+            onClick={() => pickFine(f)}
           >
             <span className="anat-bar-l">{FINE_LABEL[f]}</span>
             <span className="anat-bar-track">
