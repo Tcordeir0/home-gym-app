@@ -31,12 +31,16 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 - ✅ Inclui variações de OUTRO equipamento (flexão → supino c/ halteres/barra), com as que dá pra fazer já no topo e as demais marcadas pelo equipamento (borda tracejada + tag).
 - ✅ **DEMO de cada alternativa ANTES de selecionar** (botão 👁 em cada opção abre a demonstração).
 
-### 4. 🎞️ Corrigir os GIFs/DEMO
-- ✅ Auditado: 0 mapeamentos quebrados, todos os 58 assets têm os 2 frames, nenhum aponta pra pasta inexistente.
-- ⏳ Falta **gerar NOVAS imagens** de demonstração: muitos exercícios (shrug, face pull, Arnold, antebraço, novos de panturrilha) caem no fallback YouTube por não existir asset. Precisa de fonte de imagens.
+### 4. 🎞️ Corrigir os GIFs/DEMO ✅
+- ✅ **143 demos** (era 58): baixados do free-exercise-db (MIT). **TODO exercício tem demo** (0 sem demo).
+- ✅ Catálogo expandido **+67 exercícios curados** (98→165), cada um com nome PT-BR + dica + equipamento + ênfase + demo.
 
-### 5. 🏃 Cardio integrado em A/B/C com início/fim
-- Cardio sempre aparece em A/B/C; registrar por **horário de início e fim** (em vez de botão único).
+### 5. 🏃 Cardio integrado em A/B/C com início/fim ✅
+- ✅ Cardio agora aparece **dentro do treino** (depois dos exercícios, em A–E; não no aquecimento).
+- ✅ Cronometrado registra **horário de início e fim** reais; Progresso mostra `HH:MM–HH:MM`.
+
+### 🆕 Treino A–E configurável ✅
+- ✅ Nº de treinos 3/4/5 (A–C / A–D / A–E) no Perfil › Montar treino; aquecimento opcional (toggle).
 
 ### 6. 📸 Fotos no Social + miniaturas nos grupos
 - Avatares (foto do perfil) nas linhas do Social; no grupo, miniaturas de todos os membros.
@@ -49,7 +53,7 @@ Lista viva do que o Talys pediu. Cada item grande vira um épico próprio, testa
 - Notificação de grupo/PV com app fechado (precisa push server; tabela `push_subs` já existe).
 - Hoje só notifica com app aberto. O lembrete/relógio já funciona.
 
-## 9. 🧮 Mover a Calculadora pra Perfil + sexo define a anatomia
-- A **Calculadora** (corpo: sexo/idade/altura/objetivo) sai da **Dieta** e vai pro **Perfil**.
-- O **sexo** setado na calculadora define a **anatomia** mostrada (boneco masculino/feminino).
-- Na **Dieta**, mostrar um atalho/aviso de onde configurar (Perfil): tanto a **meta diária** quanto a **anatomia**.
+## 9. 🧮 Mover a Calculadora pra Perfil + sexo define a anatomia ✅
+- ✅ Calculadora migrou da Dieta pro **Perfil** (componente `Calculadora.tsx`, após a identidade).
+- ✅ O **sexo** define o boneco da Anatomia (masc/fem).
+- ✅ Dieta mostra resumo da meta + botão "Ajustar" → Perfil.
