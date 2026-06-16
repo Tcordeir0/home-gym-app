@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { IonActionSheet, IonIcon, useIonViewWillLeave } from '@ionic/react';
-import { eyeOutline, arrowBackOutline } from 'ionicons/icons';
+import { eyeOutline, arrowBackOutline, shareOutline } from 'ionicons/icons';
 import DemoSheet from './DemoSheet';
 import type { Exercise } from '../data/types';
 import Body, { type Slug, type ExtendedBodyPart } from 'react-muscle-highlighter';
 import type { BodyState } from 'body-muscles';
 import MaleBody from './MaleBody';
+import { shareAnatomy } from '../lib/shareCard';
 import { emphasisOf } from '../lib/emphasis';
 import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore } from '../store/store';
@@ -176,6 +177,49 @@ function mix(a: string, b: string, t: number): string {
   return '#' + [0, 1, 2].map((i) => Math.round(A[i] + (B[i] - A[i]) * t).toString(16).padStart(2, '0')).join('');
 }
 
+// Conta séries por músculo (fine) e por sub-região (base) num intervalo [from, to] (ISO, inclusivo).
+// Fonte única usada pela visão ao vivo (30d/7d) E pelo card de compartilhar (período escolhido).
+function countRange(
+  history: { date: string; exercises?: { nome: string; sets?: unknown[] }[] }[],
+  byName: Map<string, Fine>,
+  from: string,
+  to: string,
+): { counts: Record<Fine, number>; baseCounts: Record<string, number>; total: number } {
+  const c = Object.fromEntries(FINE.map((f) => [f, 0])) as Record<Fine, number>;
+  const bc: Record<string, number> = {};
+  history.forEach((h) => {
+    if (h.date < from || h.date > to) return;
+    (h.exercises || []).forEach((ex) => {
+      const f = byName.get(ex.nome);
+      if (!f) return;
+      const n = ex.sets?.length || 0;
+      c[f] += n;
+      const emp = emphasisOf(ex.nome);
+      const bases = emp?.bases?.length ? emp.bases : FINE_VULOVIX[f];
+      bases.forEach((b) => { bc[b] = (bc[b] || 0) + n; });
+    });
+  });
+  return { counts: c, baseCounts: bc, total: FINE.reduce((a, f) => a + c[f], 0) };
+}
+
+const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const MONTHS_ABBR = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+const isoDay = (d: Date) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+// Semanas do calendário (segunda→domingo) que tocam o mês, recortadas aos limites do mês.
+function weeksOfMonth(year: number, month: number): { from: string; to: string }[] {
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+  const start = new Date(first);
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7)); // recua até segunda-feira
+  const weeks: { from: string; to: string }[] = [];
+  for (const cur = new Date(start); cur <= last; cur.setDate(cur.getDate() + 7)) {
+    const we = new Date(cur); we.setDate(we.getDate() + 6);
+    weeks.push({ from: isoDay(cur < first ? first : cur), to: isoDay(we > last ? last : we) });
+  }
+  return weeks;
+}
+
 const Anatomia: React.FC = () => {
   const history = useStore((s) => s.history[s.active]) || [];
   const profile = useStore((s) => s.users.find((u) => u.id === s.active));
@@ -234,38 +278,24 @@ const Anatomia: React.FC = () => {
     };
   }, [theme, profileColor]);
 
+  // mapa NOME do exercício → músculo granular (POOL + treinos padrão). Fonte única.
+  const byName = useMemo(() => {
+    const m = new Map<string, Fine>();
+    POOL.forEach((p) => m.set(p.n, exToFine(p.n, p.g)));
+    const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
+    planEx.forEach((ex) => { if (!m.has(ex.nome)) { const f = musToFine(ex.musculo); if (f) m.set(ex.nome, f); } });
+    return m;
+  }, []);
+
   // séries por músculo (30 dias p/ o mapa + 7 dias p/ o alvo semanal)
   const { counts, weekly, total, intensity, baseCounts } = useMemo(() => {
-    const byName = new Map<string, Fine>();
-    POOL.forEach((p) => byName.set(p.n, exToFine(p.n, p.g)));
-    const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
-    planEx.forEach((ex) => {
-      if (!byName.has(ex.nome)) { const f = musToFine(ex.musculo); if (f) byName.set(ex.nome, f); }
-    });
-    const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
-    const cutoffWk = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
-    const c = Object.fromEntries(FINE.map((f) => [f, 0])) as Record<Fine, number>;
-    const wk = Object.fromEntries(FINE.map((f) => [f, 0])) as Record<Fine, number>;
-    const bc: Record<string, number> = {}; // séries por SUB-REGIÃO (vulovix) — via ênfase do exercício
-    history.forEach((h) => {
-      if (h.date < cutoff) return;
-      (h.exercises || []).forEach((ex) => {
-        const f = byName.get(ex.nome);
-        if (!f) return;
-        const n = ex.sets?.length || 0;
-        c[f] += n; if (h.date >= cutoffWk) wk[f] += n;
-        // a ênfase manda a série pra sub-região certa (peito superior etc.); senão, todo o músculo
-        const emp = emphasisOf(ex.nome);
-        const bases = emp?.bases?.length ? emp.bases : FINE_VULOVIX[f];
-        bases.forEach((b) => { bc[b] = (bc[b] || 0) + n; });
-      });
-    });
-    const tot = FINE.reduce((a, f) => a + c[f], 0);
-    const max = Math.max(1, ...FINE.map((f) => c[f]));
+    const c30 = countRange(history, byName, new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10), '9999-12-31');
+    const c7 = countRange(history, byName, new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10), '9999-12-31');
+    const max = Math.max(1, ...FINE.map((f) => c30.counts[f]));
     const inten = {} as Record<Fine, number>;
-    FINE.forEach((f) => (inten[f] = c[f] / max));
-    return { counts: c, weekly: wk, total: tot, intensity: inten, baseCounts: bc };
-  }, [history]);
+    FINE.forEach((f) => (inten[f] = c30.counts[f] / max));
+    return { counts: c30.counts, weekly: c7.counts, total: c30.total, intensity: inten, baseCounts: c30.baseCounts };
+  }, [history, byName]);
 
   // dados pro modelo: 1 entrada por músculo treinado, intensity = nível 1..5 (índice de cor).
   // o músculo SELECIONADO recebe intensity 6 = "glow".
@@ -334,6 +364,80 @@ const Anatomia: React.FC = () => {
   };
   const onPart = (b: ExtendedBodyPart) => { if (b.slug && SLUG_FINE[b.slug]) pickFine(SLUG_FINE[b.slug]!); };
   const onMaleMuscle = (id: string) => pickBase(vulovixBase(id));
+
+  // ===== Compartilhar Anatomia: período (semana/mês/ano) + bonecos escondidos p/ o card =====
+  const nowD = new Date();
+  const [pKind, setPKind] = useState<'week' | 'month' | 'year'>('week');
+  const [pYear, setPYear] = useState(nowD.getFullYear());
+  const [pMonth, setPMonth] = useState(nowD.getMonth());
+  const [pWeek, setPWeek] = useState(0);
+  const [sharing, setSharing] = useState(false);
+  const frontRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
+  const years = [nowD.getFullYear(), nowD.getFullYear() - 1, nowD.getFullYear() - 2];
+  const monthWeeks = useMemo(() => weeksOfMonth(pYear, pMonth), [pYear, pMonth]);
+  const wIdx = Math.min(pWeek, monthWeeks.length - 1);
+
+  const periodRange = useMemo(() => {
+    if (pKind === 'year') return { from: `${pYear}-01-01`, to: `${pYear}-12-31`, label: `${pYear}` };
+    if (pKind === 'month') return { from: isoDay(new Date(pYear, pMonth, 1)), to: isoDay(new Date(pYear, pMonth + 1, 0)), label: `${MONTHS[pMonth]} ${pYear}` };
+    const w = monthWeeks[wIdx] || monthWeeks[0];
+    return { from: w.from, to: w.to, label: `Semana ${wIdx + 1} · ${MONTHS_ABBR[pMonth]} ${pYear}` };
+  }, [pKind, pYear, pMonth, wIdx, monthWeeks]);
+
+  const periodStats = useMemo(() => countRange(history, byName, periodRange.from, periodRange.to), [history, byName, periodRange]);
+
+  const periodMuscles = useMemo(() =>
+    FINE.map((f) => ({ label: FINE_LABEL[f], pct: periodStats.total ? Math.round((periodStats.counts[f] / periodStats.total) * 100) : 0 }))
+      .filter((m) => m.pct > 0).sort((a, b) => b.pct - a.pct), [periodStats]);
+
+  // heatmap do período pro modelo MASCULINO (sem seleção)
+  const periodMaleState: BodyState = useMemo(() => {
+    const bases = Object.keys(periodStats.baseCounts);
+    const max = Math.max(1, ...bases.map((b) => periodStats.baseCounts[b]));
+    const st: BodyState = {};
+    bases.forEach((b) => {
+      const cnt = periodStats.baseCounts[b];
+      const intensity = cnt > 0 ? Math.min(9, Math.max(2, Math.round((cnt / max) * 8) + 1)) : 0;
+      st[b + '-left'] = { intensity, selected: false };
+      st[b + '-right'] = { intensity, selected: false };
+    });
+    return st;
+  }, [periodStats]);
+
+  // heatmap do período pro modelo FEMININO (react-muscle-highlighter)
+  const periodData: ExtendedBodyPart[] = useMemo(() => {
+    const max = Math.max(1, ...FINE.map((f) => periodStats.counts[f]));
+    return FINE.filter((f) => periodStats.counts[f] > 0 && FINE_SLUG[f]).map((f) => ({
+      slug: FINE_SLUG[f]!, intensity: Math.max(1, Math.ceil((periodStats.counts[f] / max) * 5)),
+    }));
+  }, [periodStats]);
+
+  // serializa o <svg> do boneco escondido pra um dataURL rasterizável
+  const svgToUrl = (el: HTMLElement | null): string | null => {
+    const svg = el?.querySelector('svg');
+    if (!svg) return null;
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    const vb = clone.getAttribute('viewBox');
+    if (vb) { const p = vb.split(/[\s,]+/).map(Number); if (p.length === 4) { clone.setAttribute('width', String(p[2])); clone.setAttribute('height', String(p[3])); } }
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+  };
+
+  const doShareAnatomy = async () => {
+    if (sharing || periodStats.total === 0) return;
+    setSharing(true);
+    try {
+      // garante o repaint dos bonecos escondidos com o estado do período antes de capturar
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r(null))));
+      const frontImg = svgToUrl(frontRef.current);
+      const backImg = svgToUrl(backRef.current);
+      if (frontImg && backImg) {
+        await shareAnatomy({ name: profile?.name || 'Atleta', periodLabel: periodRange.label, frontImg, backImg, muscles: periodMuscles, theme, color: profileColor });
+      }
+    } catch { /* cancelado/erro de share */ }
+    finally { setSharing(false); }
+  };
 
   return (
     <div className="anat">
@@ -451,6 +555,48 @@ const Anatomia: React.FC = () => {
             <span className="anat-bar-n">{counts[f]}</span>
           </button>
         ))}
+      </div>
+
+      {/* ===== Compartilhar músculos treinados (card de Anatomia) ===== */}
+      <div className="anat-share">
+        <div className="anat-share-h">📤 Compartilhar músculos treinados</div>
+        <div className="ds-seg anat-share-kind">
+          <button className={pKind === 'week' ? 'on' : ''} onClick={() => setPKind('week')}>Semana</button>
+          <button className={pKind === 'month' ? 'on' : ''} onClick={() => setPKind('month')}>Mês</button>
+          <button className={pKind === 'year' ? 'on' : ''} onClick={() => setPKind('year')}>Ano</button>
+        </div>
+        <div className="anat-share-pick">
+          {pKind === 'week' && (
+            <select aria-label="Semana" value={wIdx} onChange={(e) => setPWeek(Number(e.target.value))}>
+              {monthWeeks.map((_, i) => <option key={i} value={i}>Semana {i + 1}</option>)}
+            </select>
+          )}
+          {pKind !== 'year' && (
+            <select aria-label="Mês" value={pMonth} onChange={(e) => { setPMonth(Number(e.target.value)); setPWeek(0); }}>
+              {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
+            </select>
+          )}
+          <select aria-label="Ano" value={pYear} onChange={(e) => setPYear(Number(e.target.value))}>
+            {years.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+        <button className="anat-share-btn" onClick={doShareAnatomy} disabled={sharing || periodStats.total === 0}>
+          <IonIcon icon={shareOutline} /> {sharing ? 'Gerando…' : periodStats.total === 0 ? 'Sem treino nesse período' : `Compartilhar · ${periodRange.label}`}
+        </button>
+      </div>
+
+      {/* bonecos escondidos (frente+verso) p/ rasterizar o card no período escolhido */}
+      <div aria-hidden className="anat-hidden">
+        <div ref={frontRef}>
+          {gender === 'male'
+            ? <MaleBody view="front" bodyState={periodMaleState} onMuscle={() => {}} colors={maleColors} />
+            : <Body data={periodData} side="front" gender="female" colors={shades} defaultFill={bodyColor} border="none" scale={1.1} />}
+        </div>
+        <div ref={backRef}>
+          {gender === 'male'
+            ? <MaleBody view="back" bodyState={periodMaleState} onMuscle={() => {}} colors={maleColors} />
+            : <Body data={periodData} side="back" gender="female" colors={shades} defaultFill={bodyColor} border="none" scale={1.1} />}
+        </div>
       </div>
 
       {/* mandar exercício pro treino A–E */}

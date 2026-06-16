@@ -580,9 +580,15 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
     ctx.fillText('NA SEMANA', cx, ty + th + 56);
     // chips com a MESMA linguagem dos tiles (tint do accent + borda), centrados em grupo
-    const chipH = 72, padX = 32, gapC = 24;
+    const chipH = 72, padX = 36, gapC = 24;
     ctx.font = '34px Anton, sans-serif';
-    const chips = extras.map((label) => ({ label, w: ctx.measureText(label).width + padX * 2 }));
+    // Emoji (🏋️/💧) é sub-medido pelo measureText — o glifo colorido do SO renderiza
+    // mais largo que o advance, então o texto vazava a pill. Folga extra só quando há
+    // emoji (Extended_Pictographic não pega dígitos, ao contrário de \p{Emoji}).
+    const chips = extras.map((label) => ({
+      label,
+      w: ctx.measureText(label).width + padX * 2 + (/\p{Extended_Pictographic}/u.test(label) ? 34 : 0),
+    }));
     const totalW = chips.reduce((a, c) => a + c.w, 0) + gapC * (chips.length - 1);
     let chx = cx - totalW / 2;
     const chy = ty + th + 80;
@@ -608,6 +614,134 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
   ctx.fillText(`v${APP_VERSION}`, cx, H - 80);
 
   return c.toDataURL('image/png');
+}
+
+// ===================== Card da ANATOMIA (músculos treinados) =====================
+
+export interface AnatomyShareData {
+  name: string;
+  periodLabel: string;            // ex.: "Semana 2 · Jun 2026", "Junho 2026", "2026"
+  frontImg: string;               // dataURL do SVG da frente (heatmap no tom do tema)
+  backImg: string;                // dataURL do SVG do verso
+  muscles: { label: string; pct: number }[]; // fatia % por músculo (desc)
+  theme?: string;                 // id do tema (fundo + fx herdam dele)
+  color?: string;                 // accent do perfil
+}
+
+/** Desenha o card da Anatomia (frente+verso + fatia % por músculo) e devolve o dataURL. */
+export async function buildAnatomyCard(d: AnatomyShareData): Promise<string> {
+  try { await (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready; } catch { /* ok */ }
+
+  const W = 1080, H = 1920, cx = W / 2;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d')!;
+
+  const themeObj = THEMES.find((t) => t.id === d.theme) || THEMES[0];
+  const bgCol = themeObj.swatch[0];
+  const surfCol = themeObj.swatch[1];
+  const accent = d.color || themeObj.swatch[2];
+  const light = isLight(bgCol);
+  const INK = light ? '#0b0c0f' : '#ffffff';
+  const MUTED = light ? '#5a6068' : '#9098a4';
+  const [tar, tag, tab] = hexToRgb(accent);
+
+  // ---- fundo: wallpaper do tema (com véu) ou gradiente + identidade procedural ----
+  let drewImage = false;
+  if (themeObj.image) {
+    try {
+      const img = await loadImage(themeObj.image);
+      const s = Math.max(W / img.width, H / img.height);
+      const dw = img.width * s, dh = img.height * s;
+      ctx.drawImage(img, cx - dw / 2, 0, dw, dh);
+      const [br, bg2, bb] = hexToRgb(bgCol);
+      const veil = ctx.createLinearGradient(0, 0, 0, H);
+      veil.addColorStop(0, `rgba(${br},${bg2},${bb},0.82)`);
+      veil.addColorStop(0.42, `rgba(${br},${bg2},${bb},0.7)`);
+      veil.addColorStop(1, `rgba(${br},${bg2},${bb},0.92)`);
+      ctx.fillStyle = veil; ctx.fillRect(0, 0, W, H);
+      drewImage = true;
+    } catch { /* cai no gradiente */ }
+  }
+  if (!drewImage) {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, surfCol); grad.addColorStop(1, bgCol);
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+    drawThemeBackdrop(ctx, W, H, themeObj.id, accent);
+  }
+  if (themeObj.fx) await drawThemeFx(ctx, W, H, themeObj.fx, accent);
+
+  // ---- marca + título ----
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.font = '52px Anton, sans-serif';
+  ctx.fillStyle = INK; ctx.fillText('HOME ', cx - ctx.measureText('GYM').width / 2, 120);
+  // (marca simples centralizada; o foco é a anatomia)
+  ctx.fillStyle = INK; ctx.font = '64px Anton, sans-serif';
+  ctx.fillText('MÚSCULOS TREINADOS', cx, 210);
+  ctx.fillStyle = accent; ctx.font = '42px Anton, sans-serif';
+  ctx.fillText(d.periodLabel.toUpperCase(), cx, 270);
+
+  // ---- bonecos frente + verso lado a lado ----
+  const boxW = 430, boxH = 760, gap = 40;
+  const x0 = cx - (boxW * 2 + gap) / 2;
+  const bodyY = 320;
+  const drawBody = async (src: string, bx: number, label: string) => {
+    if (drewImage) {
+      ctx.fillStyle = light ? 'rgba(255,255,255,0.42)' : 'rgba(12,13,16,0.4)';
+      roundRect(ctx, bx, bodyY, boxW, boxH, 28); ctx.fill();
+    }
+    try {
+      const img = await loadImage(src);
+      const s = Math.min(boxW / img.width, boxH / img.height);
+      const dw = img.width * s, dh = img.height * s;
+      ctx.drawImage(img, bx + (boxW - dw) / 2, bodyY + (boxH - dh) / 2, dw, dh);
+    } catch { /* sem boneco */ }
+    ctx.fillStyle = MUTED; ctx.font = '34px Anton, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(label, bx + boxW / 2, bodyY + boxH + 46);
+  };
+  await drawBody(d.frontImg, x0, 'FRENTE');
+  await drawBody(d.backImg, x0 + boxW + gap, 'VERSO');
+
+  // ---- fatia % por músculo (barras) ----
+  const listY = bodyY + boxH + 110;
+  ctx.textAlign = 'left'; ctx.fillStyle = MUTED; ctx.font = '32px Anton, sans-serif';
+  ctx.fillText('FATIA POR MÚSCULO', x0, listY);
+  const rows = d.muscles.filter((m) => m.pct > 0).slice(0, 8);
+  const maxPct = Math.max(1, ...rows.map((m) => m.pct));
+  const rowH = 64, barX = x0 + 280, barW = W - barX - x0;
+  rows.forEach((m, i) => {
+    const ry = listY + 40 + i * rowH;
+    ctx.fillStyle = INK; ctx.font = '34px Anton, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(m.label, x0, ry + 30);
+    // trilho + preenchimento no tom do accent
+    ctx.fillStyle = `rgba(${tar},${tag},${tab},0.16)`;
+    roundRect(ctx, barX, ry + 8, barW, 30, 15); ctx.fill();
+    const fw = Math.max(30, (m.pct / maxPct) * barW);
+    ctx.fillStyle = accent;
+    roundRect(ctx, barX, ry + 8, fw, 30, 15); ctx.fill();
+    ctx.fillStyle = INK; ctx.font = '30px Anton, sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(`${m.pct}%`, W - x0, ry + 32);
+  });
+
+  // ---- rodapé ----
+  ctx.textAlign = 'center'; ctx.font = '34px Anton, sans-serif'; ctx.fillStyle = MUTED;
+  ctx.fillText(`${d.name.toUpperCase()} · HOME GYM v${APP_VERSION}`, cx, H - 70);
+
+  return c.toDataURL('image/png');
+}
+
+/** Compartilha (share nativo) ou baixa o card da Anatomia. */
+export async function shareAnatomy(d: AnatomyShareData): Promise<'shared' | 'downloaded'> {
+  const dataUrl = await buildAnatomyCard(d);
+  const file = dataUrlToFile(dataUrl, 'home-gym-anatomia.png');
+  const nav = navigator as Navigator & { canShare?: (data: unknown) => boolean };
+  if (nav.share && nav.canShare && nav.canShare({ files: [file] })) {
+    await nav.share({ files: [file], title: 'Músculos treinados — Home Gym', text: d.periodLabel });
+    return 'shared';
+  }
+  const a = document.createElement('a');
+  a.href = dataUrl; a.download = 'home-gym-anatomia.png'; a.click();
+  return 'downloaded';
 }
 
 function dataUrlToFile(dataUrl: string, name: string): File {
