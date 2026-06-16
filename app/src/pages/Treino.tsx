@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
 import DemoSheet from '../components/DemoSheet';
+import RestTimer from '../components/RestTimer';
 import Cardio from '../components/Cardio';
 import LevelBadge from '../components/LevelBadge';
 import Social from '../components/Social';
@@ -136,6 +137,7 @@ const Treino: React.FC = () => {
       )}
 
       <DemoSheet ex={demo} onClose={() => setDemo(null)} />
+      <RestTimer />
       <IonToast
         isOpen={!!toast}
         message={toast}

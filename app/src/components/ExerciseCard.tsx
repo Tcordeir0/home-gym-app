@@ -27,6 +27,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const prefillSets = useStore((s) => s.prefillSets);
   const swapExercise = useStore((s) => s.swapExercise);
   const equip = useStore((s) => s.users.find((u) => u.id === s.active)?.equipment || []);
+  const restOn = useStore((s) => s.users.find((u) => u.id === s.active)?.restTimer?.on);
   const latestMeasure = useStore((s) => s.latestMeasure);
 
   // exercício corporal (sem carga): o app usa o PESO DO PERFIL no lugar de pedir kg na mão.
@@ -171,7 +172,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
                 whileTap={{ scale: 0.88 }}
                 className="set-done"
                 aria-label="Marcar série"
-                onClick={() => { if (!s.done) fxTick(); toggleSetDone(treino, exIdx, i, ex.series); }}
+                onClick={() => { if (!s.done) { fxTick(); if (restOn) window.dispatchEvent(new CustomEvent('hg:set-done')); } toggleSetDone(treino, exIdx, i, ex.series); }}
               >
                 ✓
               </motion.button>
