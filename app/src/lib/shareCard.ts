@@ -580,9 +580,15 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
     ctx.fillText('NA SEMANA', cx, ty + th + 56);
     // chips com a MESMA linguagem dos tiles (tint do accent + borda), centrados em grupo
-    const chipH = 72, padX = 32, gapC = 24;
+    const chipH = 72, padX = 36, gapC = 24;
     ctx.font = '34px Anton, sans-serif';
-    const chips = extras.map((label) => ({ label, w: ctx.measureText(label).width + padX * 2 }));
+    // Emoji (🏋️/💧) é sub-medido pelo measureText — o glifo colorido do SO renderiza
+    // mais largo que o advance, então o texto vazava a pill. Folga extra só quando há
+    // emoji (Extended_Pictographic não pega dígitos, ao contrário de \p{Emoji}).
+    const chips = extras.map((label) => ({
+      label,
+      w: ctx.measureText(label).width + padX * 2 + (/\p{Extended_Pictographic}/u.test(label) ? 34 : 0),
+    }));
     const totalW = chips.reduce((a, c) => a + c.w, 0) + gapC * (chips.length - 1);
     let chx = cx - totalW / 2;
     const chy = ty + th + 80;
