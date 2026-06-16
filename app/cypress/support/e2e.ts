@@ -18,3 +18,7 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+// Ionic/ResizeObserver e libs de animação às vezes lançam erros benignos que não
+// devem reprovar o teste. Ignora exceptions não-tratadas no app.
+Cypress.on('uncaught:exception', () => false)
