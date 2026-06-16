@@ -93,9 +93,13 @@
   color: var(--ion-text-color);
   font: 700 13.5px/1 var(--ion-font-family);
   cursor: pointer;
+  list-style: none; /* some com o triângulo nativo do <summary> */
 }
+.ds-expander::-webkit-details-marker { display: none; }
 .ds-expander::after { content: '⌄'; color: var(--brand-lime); transition: transform var(--dur) ease; }
-.ds-expander[aria-expanded='true']::after { transform: rotate(180deg); }
+/* gira a seta: botão (aria-expanded) OU <details open><summary> */
+.ds-expander[aria-expanded='true']::after,
+details[open] > .ds-expander::after { transform: rotate(180deg); }
 
 /* ===== CARD (padroniza prog-card / diet-card / perfil-card) ===== */
 .ds-card {

@@ -88,7 +88,7 @@ const Calculadora: React.FC = () => {
           </IonList>
 
           <details className="diet-adv">
-            <summary>Medidas pra % de gordura (opcional)</summary>
+            <summary className="ds-expander">Medidas pra % de gordura (opcional)</summary>
             <IonList className="diet-list" lines="full">
               <IonItem>
                 <IonInput label="Pescoço (cm)" type="number" inputmode="decimal" placeholder="cm"
@@ -121,7 +121,7 @@ const Calculadora: React.FC = () => {
           <p className="diet-note">Biotipo <b>{BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.name}</b>: {BIOTYPES.find((b) => b.id === (body.biotype || 'meso'))?.desc}</p>
 
           <details className="diet-adv">
-            <summary>⚙️ Ajustar prioridades (avançado)</summary>
+            <summary className="ds-expander">⚙️ Ajustar prioridades (avançado)</summary>
             <p className="diet-note">Suba ou baixe a prioridade de cada parte. Isso afeta a sugestão de sub-foco e o gap na Anatomia.</p>
             {Object.entries(SUBFOCUS_BY_GROUP).map(([g, subs]) => (
               <div key={g} className="tune-group">
