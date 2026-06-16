@@ -111,7 +111,7 @@ const Calculadora: React.FC = () => {
           <p className="card-sub">O corpo que você quer — guia a sugestão de foco no treino e o "gap" na Anatomia.</p>
           <div className="shape-grid">
             {goals.map((g) => (
-              <button key={g.id} className={'shape-chip' + (shapeId === g.id ? ' on' : '')} onClick={() => setShape(g.id)}>
+              <button key={g.id} className={'ds-chip ds-chip--block' + (shapeId === g.id ? ' on' : '')} onClick={() => setShape(g.id)}>
                 <span className="shape-emoji">{g.emoji}</span>
                 <span className="shape-name">{g.name}</span>
               </button>

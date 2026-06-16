@@ -7,22 +7,6 @@
   gap: 7px;
   margin: 12px 0 4px;
 }
-.gr-chip {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--app-line);
-  background: var(--app-surface-2);
-  color: var(--app-muted);
-  font-family: var(--ion-font-family);
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-}
-.gr-chip.on {
-  border-color: var(--brand-lime);
-  background: rgba(198, 255, 58, 0.12);
-  color: var(--brand-lime);
-}
 /* seletor de período (semana/mês/ano/tudo) */
 .gr-range { display: flex; gap: 6px; margin: 10px 0 4px; }
 .gr-range-btn {

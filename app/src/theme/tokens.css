@@ -56,6 +56,8 @@
 .ds-chip.on,
 .ds-chip[aria-pressed='true'] { border-color: var(--brand-lime); background: var(--tint-on); color: var(--brand-lime); }
 .ds-chip--strong.on { background: var(--brand-lime); color: var(--ion-color-primary-contrast); }
+/* variante TILE: retangular, full-width, alinhado à esquerda (pra grids de seleção, ex. Meta de shape) */
+.ds-chip--block { width: 100%; justify-content: flex-start; text-align: left; border-radius: var(--r-md); padding: 10px 12px; font-weight: 600; }
 
 /* ===== BOTÃO de ação (substitui treino-done, gen-go, perfil-gen-btn, treino-onboard-btn…) ===== */
 .ds-btn {
