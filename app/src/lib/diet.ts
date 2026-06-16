@@ -20,6 +20,8 @@ export interface Targets {
   target: number;
   tdee: number;
   protein: number;
+  carbs: number; // meta de carboidrato (g) — resto das calorias
+  fat: number; // meta de gordura (g)
   floored: boolean;
   goalAdj: number;
 }
@@ -28,22 +30,39 @@ export function targetsFor(body: Body, weight: number | null): Targets | null {
   if (!body.age || !body.height || !weight) return null;
   const bmr = 10 * weight + 6.25 * body.height - 5 * body.age + (body.sex === 'f' ? -161 : 5);
   const tdee = bmr * (body.activity || 1.55);
-  const goal = GOALS.find((g) => g.v === (body.goal || 'lose')) || GOALS[0];
+  const goalV = body.goal || 'lose';
+  const goal = GOALS.find((g) => g.v === goalV) || GOALS[0];
   let target = tdee + goal.adj;
   const floor = body.sex === 'f' ? 1200 : 1500;
   const floored = target < floor;
   if (floored) target = floor;
-  const protein = Math.round((body.sex === 'f' ? 1.8 : 2) * weight);
-  return { target: Math.round(target / 10) * 10, tdee: Math.round(tdee / 10) * 10, protein, floored, goalAdj: goal.adj };
+  target = Math.round(target / 10) * 10;
+
+  // Macros derivados do OBJETIVO (g/kg de peso), base científica:
+  // - cutting preserva músculo com MAIS proteína e gordura mínima;
+  // - bulk eleva carbo; manutenção no meio. Carbo = resto das calorias.
+  const cut = goalV === 'lose' || goalV === 'losefast';
+  const proteinPerKg = cut ? (body.sex === 'f' ? 2.0 : 2.2) : goalV === 'gain' ? 2.0 : 1.8;
+  const fatPerKg = goalV === 'gain' ? 0.9 : cut ? 0.6 : 0.8;
+  const protein = Math.round(proteinPerKg * weight);
+  const fat = Math.round(fatPerKg * weight);
+  const carbs = Math.max(0, Math.round((target - protein * 4 - fat * 9) / 4));
+
+  return { target, tdee: Math.round(tdee / 10) * 10, protein, carbs, fat, floored, goalAdj: goal.adj };
 }
 
 export function bmi(weight: number, heightCm: number): number {
   return weight / Math.pow(heightCm / 100, 2);
 }
 
-/** Meta diária de água (ml) por peso (~35ml/kg), piso de 2L. Fonte única de verdade. */
-export function waterGoal(weight: number | null | undefined): number {
-  return weight ? Math.max(2000, Math.round((weight * 35) / 50) * 50) : 2000;
+/** Meta diária de água (ml). Por peso + nível de atividade: 30ml/kg (sedentário) a
+ *  40ml/kg (atleta); o default 1.55 ≈ 35ml/kg (mantém o valor antigo p/ quem não passa atividade).
+ *  Piso de 2L. Fonte única de verdade. */
+export function waterGoal(weight: number | null | undefined, activity = 1.55): number {
+  if (!weight) return 2000;
+  const a = Math.min(1.9, Math.max(1.2, activity));
+  const perKg = 30 + (a - 1.2) * 14.3; // 30 (sedentário) .. 40 (atleta); 1.55 ≈ 35
+  return Math.max(2000, Math.round((weight * perKg) / 50) * 50);
 }
 
 export function bmiClass(b: number): { l: string; c: string } {
