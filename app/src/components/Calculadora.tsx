@@ -1,6 +1,6 @@
 import { IonCard, IonCardContent, IonList, IonItem, IonInput, IonSelect, IonSelectOption } from '@ionic/react';
 import { useStore, useActiveProfile } from '../store/store';
-import { ACTIVITY, GOALS, targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
+import { ACTIVITY, GOALS } from '../lib/diet';
 import { goalsForGender, BIOTYPES, defaultShape, shapeGoalById, SUBFOCUS_BY_GROUP, weightFor } from '../data/shapeGoals';
 import { GROUP_LABEL } from '../data/pool';
 import type { Sex, Goal, Biotype } from '../store/types';
@@ -12,15 +12,9 @@ const num = (v: string | number | null | undefined): number | null => {
   return isNaN(n) ? null : n;
 };
 
-const Stat: React.FC<{ v: string | number; l: string; c?: string }> = ({ v, l, c }) => (
-  <div className="dstat">
-    <div className="dstat-v" style={c ? { color: c } : undefined}>{v}</div>
-    <div className="dstat-l">{l}</div>
-  </div>
-);
-
 /** Calculadora corporal (sexo/idade/altura/peso/atividade/objetivo) — vive no PERFIL.
- *  O sexo aqui define o boneco da Anatomia (Progresso). */
+ *  O sexo aqui define o boneco da Anatomia (Progresso). As metas (kcal/IMC/gordura)
+ *  aparecem na aba DIETA, pra não duplicar. */
 const Calculadora: React.FC = () => {
   const profile = useActiveProfile();
   const body = profile.body;
@@ -45,12 +39,6 @@ const Calculadora: React.FC = () => {
     return v;
   };
   const weight = latest('weight');
-  const waist = latest('waist');
-
-  const t = targetsFor(body, weight);
-  const m = weight && body.height ? bmi(weight, body.height) : null;
-  const mc = m ? bmiClass(m) : null;
-  const bf = body.height ? bodyFatNavy(body.sex, body.height, waist, body.neck, body.hip) : null;
 
   return (
     <>
@@ -154,37 +142,6 @@ const Calculadora: React.FC = () => {
             ))}
             <button className="tune-reset" onClick={resetOverrides}>↺ Resetar pros padrões da meta</button>
           </details>
-        </IonCardContent>
-      </IonCard>
-
-      <IonCard className="diet-results">
-        <IonCardContent>
-          {t ? (
-            <>
-              <div className="meta-wrap">
-                <div className="meta-label">Meta diária</div>
-                <div className="meta-kcal">{t.target}<span className="meta-unit"> kcal</span></div>
-                {t.floored && <div className="meta-floor">déficit limitado a um mínimo seguro</div>}
-              </div>
-              <div className="dstats">
-                <Stat v={t.tdee} l="manutenção (kcal)" />
-                <Stat v={`${t.protein}g`} l="proteína/dia" />
-              </div>
-              <div className="dstats">
-                {m && mc ? <Stat v={m.toFixed(1)} l={`IMC · ${mc.l}`} c={mc.c} /> : <Stat v="—" l="IMC" />}
-                {bf != null ? <Stat v={`${bf.toFixed(1)}%`} l="gordura corporal" />
-                  : <div className="dstat hint">Preencha pescoço{body.sex === 'f' ? ' e quadril' : ''} + cintura</div>}
-              </div>
-              <p className="diet-base">
-                Base: <b>Mifflin-St Jeor</b> × atividade.{' '}
-                {t.goalAdj === 0 ? 'Comendo isso você mantém o peso.'
-                  : t.goalAdj < 0 ? 'O déficit faz emagrecer; proteína alta segura o músculo.'
-                  : 'O superávit leve favorece ganho de massa.'}
-              </p>
-            </>
-          ) : (
-            <p className="diet-empty">Preencha <b>idade</b>, <b>altura</b> e <b>peso</b> pra ver suas metas.</p>
-          )}
         </IonCardContent>
       </IonCard>
     </>

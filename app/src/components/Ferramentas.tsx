@@ -5,6 +5,7 @@ import {
 import { motion } from 'framer-motion';
 import { calendarOutline, downloadOutline, cloudUploadOutline } from 'ionicons/icons';
 import { useStore, useActiveProfile } from '../store/store';
+import type { HistoryEntry } from '../store/types';
 import './Ferramentas.css';
 
 const todayISO = () => {
@@ -12,13 +13,18 @@ const todayISO = () => {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 };
 
-type Tp = 'A' | 'B' | 'C' | 'cardio';
+type Tp = HistoryEntry['w']; // A–E ou cardio
 
 const Ferramentas: React.FC<{ onToast: (m: string) => void; bare?: boolean }> = ({ onToast, bare }) => {
   const profile = useActiveProfile();
   const addBackdated = useStore((s) => s.addBackdated);
   const exportState = useStore((s) => s.exportState);
   const importState = useStore((s) => s.importState);
+
+  // treinos disponíveis (A–E presentes no perfil) + cardio — sem hardcoded A/B/C
+  const tr = profile.treinos as Record<string, unknown> | undefined;
+  const letters = (['A', 'B', 'C', 'D', 'E'] as const).filter((k) => tr?.[k]);
+  const types: Tp[] = [...(letters.length ? letters : (['A', 'B', 'C'] as const)), 'cardio'];
 
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(todayISO());
@@ -75,7 +81,7 @@ const Ferramentas: React.FC<{ onToast: (m: string) => void; bare?: boolean }> = 
           <div className="ferr-wrap">
             <h2 className="ferr-title">Registrar em outra data</h2>
             <div className="ferr-types">
-              {(['A', 'B', 'C', 'cardio'] as Tp[]).map((t) => (
+              {types.map((t) => (
                 <button key={t} className={'ferr-type' + (type === t ? ' on' : '')} onClick={() => setType(t)}>
                   {t === 'cardio' ? 'Cardio' : 'Treino ' + t}
                 </button>

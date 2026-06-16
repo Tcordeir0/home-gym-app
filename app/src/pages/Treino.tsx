@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IonSegment, IonSegmentButton, IonLabel, IonToast } from '@ionic/react';
+import { IonSegment, IonSegmentButton, IonLabel, IonToast, useIonRouter } from '@ionic/react';
 import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
@@ -16,11 +16,15 @@ import './Treino.css';
 
 type Seg = string; // 'A'..'E' | 'warm'
 const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'];
-const DEFAULT_LABELS = { A: 'Treino A', B: 'Treino B', C: 'Treino C', warm: 'Aquec.' };
+// rótulos padrão derivados (A–E) — sem hardcoded incompleto
+const DEFAULT_LABELS: Record<string, string> = { warm: 'Aquec.', ...Object.fromEntries(WORKOUT_LETTERS.map((k) => [k, `Treino ${k}`])) };
 
 const Treino: React.FC = () => {
   const profile = useActiveProfile();
+  const router = useIonRouter();
   const custom = profile.treinos as Record<string, Exercise[]> | undefined;
+  // perfil novo (nunca gerou treino) → tela guiada em vez de um plano genérico
+  const hasPlan = !!(custom && custom.A);
   const plan =
     custom && custom.A
       ? { focus: profile.focus || 'Geral', labels: (profile.labels as Record<string, string>) || DEFAULT_LABELS, treinos: custom }
@@ -71,6 +75,26 @@ const Treino: React.FC = () => {
   return (
     <AppPage title="Treino" brand accessory={<><Social /><LevelBadge /></>}>
       <TreinoBanner />
+
+      {!hasPlan ? (
+        <div className="treino-onboard">
+          <div className="treino-onboard-emoji">🏋️</div>
+          <h2 className="treino-onboard-h">Monte seu primeiro treino</h2>
+          <p className="treino-onboard-p">
+            Você ainda não tem uma ficha. No <b>Perfil → Montar treino</b> você escolhe
+            <b> equipamento</b>, <b>foco</b> e quantos <b>dias</b> por semana — e o app gera seu
+            A–E automático, já com os acessórios da sua <b>meta de shape</b>.
+          </p>
+          <motion.button whileTap={{ scale: 0.97 }} className="treino-onboard-btn" onClick={() => router.push('/perfil', 'forward')}>
+            ⚙️ Montar treino agora
+          </motion.button>
+          <p className="treino-onboard-sub">
+            🍽️ Na aba <b>Dieta</b>: preencha <b>sexo, idade e altura</b> no Perfil pra ver suas metas
+            (calorias, proteína, IMC). Depois é só registrar o que comeu e a água do dia.
+          </p>
+        </div>
+      ) : (
+      <>
       <IonSegment
         className="treino-seg"
         value={safeSeg}
@@ -108,6 +132,8 @@ const Treino: React.FC = () => {
       )}
 
       <p className="treino-gen-hint">⚙️ Pra montar treino por equipamento, vá no <b>Perfil › Montar treino</b>.</p>
+      </>
+      )}
 
       <DemoSheet ex={demo} onClose={() => setDemo(null)} />
       <IonToast

@@ -27,8 +27,12 @@
 .tune-label { font-size: 13.5px; min-width: 0; }
 .tune-levels { display: flex; gap: 4px; flex: 0 0 auto; }
 .tune-lv {
-  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px; cursor: pointer;
-  border: 1px solid var(--app-line); background: transparent; color: var(--app-muted);
+  font-size: 11px; font-weight: 700; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  /* affordance: borda visível + fundo sutil pra deixar claro que é botão clicável */
+  border: 1px solid color-mix(in srgb, var(--app-line) 100%, transparent);
+  background: color-mix(in srgb, var(--ion-text-color) 7%, transparent);
+  color: var(--ion-text-color);
 }
-.tune-lv.on { border-color: var(--brand-lime); background: color-mix(in srgb, var(--brand-lime) 16%, transparent); color: var(--brand-lime); }
+.tune-lv:active { background: color-mix(in srgb, var(--brand-lime) 14%, transparent); }
+.tune-lv.on { border-color: var(--brand-lime); background: var(--brand-lime); color: #0b0c0f; }
 .tune-reset { margin-top: 12px; font-size: 12.5px; color: var(--app-muted); background: transparent; border: 0; cursor: pointer; text-decoration: underline; }
