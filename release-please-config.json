@@ -6,7 +6,11 @@
       "package-name": "home-gym-tracker",
       "include-component-in-tag": false,
       "changelog-path": "app/src/CHANGELOG.md",
-      "extra-files": ["index.html", "app/src/lib/version.ts"]
+      "extra-files": [
+        "index.html",
+        "app/src/lib/version.ts",
+        { "type": "json", "path": "app/package.json", "jsonpath": "$.version" }
+      ]
     }
   }
 }
