@@ -33,20 +33,8 @@
   border-radius: 999px;
   transition: width 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.treino-done {
-  width: 100%;
-  margin: 16px 0 8px;
-  padding: 16px;
-  border: none;
-  border-radius: 16px;
-  background: var(--brand-lime);
-  color: #0b0c0f;
-  font-family: var(--font-display);
-  font-size: 17px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
+/* visual = .ds-btn--primary; aqui so o espacamento */
+.treino-done { margin: 16px 0 8px; }
 .treino-gen-hint {
   text-align: center;
   font-size: 12.5px;
@@ -70,13 +58,7 @@
   font-size: 21px; margin: 12px 0 8px; letter-spacing: 0.3px;
 }
 .treino-onboard-p { font-size: 14px; line-height: 1.5; color: var(--ion-text-color); opacity: 0.9; margin: 0 auto; max-width: 320px; }
-.treino-onboard-btn {
-  width: 100%; max-width: 320px; margin: 18px auto 6px;
-  padding: 15px 16px; border: none; border-radius: 16px;
-  background: var(--brand-lime); color: #0b0c0f;
-  font-family: var(--font-display); font-size: 16px; letter-spacing: 0.4px;
-  text-transform: uppercase; cursor: pointer;
-}
+.treino-onboard-btn { max-width: 320px; margin: 18px auto 6px; }
 .treino-onboard-sub {
   font-size: 12.5px; line-height: 1.5; color: var(--app-muted);
   margin: 12px auto 0; max-width: 320px;

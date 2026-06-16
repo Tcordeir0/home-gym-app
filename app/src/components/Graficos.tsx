@@ -109,7 +109,7 @@ const Graficos: React.FC = () => {
               {MED_FIELDS.map((f) => (
                 <button
                   key={f.key}
-                  className={'gr-chip' + (medField === f.key ? ' on' : '')}
+                  className={'ds-chip' + (medField === f.key ? ' on' : '')}
                   onClick={() => setMedField(f.key)}
                 >
                   {f.label}
@@ -132,8 +132,8 @@ const Graficos: React.FC = () => {
               ))}
             </IonSelect>
             <div className="gr-chips">
-              <button className={'gr-chip' + (loadMetric === 'e1rm' ? ' on' : '')} onClick={() => setLoadMetric('e1rm')}>1RM estimado</button>
-              <button className={'gr-chip' + (loadMetric === 'max' ? ' on' : '')} onClick={() => setLoadMetric('max')}>Carga máx</button>
+              <button className={'ds-chip' + (loadMetric === 'e1rm' ? ' on' : '')} onClick={() => setLoadMetric('e1rm')}>1RM estimado</button>
+              <button className={'ds-chip' + (loadMetric === 'max' ? ' on' : '')} onClick={() => setLoadMetric('max')}>Carga máx</button>
             </div>
             <LineChart series={loadSeries} unit="kg" />
             {loadMetric === 'e1rm' && <p className="gr-note">1RM estimado pela fórmula de Epley (kg × reps). Subir essa linha = progresso real, mesmo trocando o nº de repetições.</p>}

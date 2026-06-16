@@ -34,9 +34,9 @@ const DietChart: React.FC<{ cutoff?: string }> = ({ cutoff }) => {
   return (
     <>
       <div className="gr-chips">
-        <button className={'gr-chip' + (field === 'kcal' ? ' on' : '')} onClick={() => setField('kcal')}>Calorias</button>
-        <button className={'gr-chip' + (field === 'protein' ? ' on' : '')} onClick={() => setField('protein')}>Proteína</button>
-        <button className={'gr-chip' + (field === 'water' ? ' on' : '')} onClick={() => setField('water')}>💧 Água</button>
+        <button className={'ds-chip' + (field === 'kcal' ? ' on' : '')} onClick={() => setField('kcal')}>Calorias</button>
+        <button className={'ds-chip' + (field === 'protein' ? ' on' : '')} onClick={() => setField('protein')}>Proteína</button>
+        <button className={'ds-chip' + (field === 'water' ? ' on' : '')} onClick={() => setField('water')}>💧 Água</button>
       </div>
       {/* período próprio (só fora do Graficos) */}
       {cutoff === undefined && (

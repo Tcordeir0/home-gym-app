@@ -85,7 +85,7 @@ const Treino: React.FC = () => {
             <b> equipamento</b>, <b>foco</b> e quantos <b>dias</b> por semana — e o app gera seu
             A–E automático, já com os acessórios da sua <b>meta de shape</b>.
           </p>
-          <motion.button whileTap={{ scale: 0.97 }} className="treino-onboard-btn" onClick={() => router.push('/perfil', 'forward')}>
+          <motion.button whileTap={{ scale: 0.97 }} className="ds-btn ds-btn--primary treino-onboard-btn" onClick={() => router.push('/perfil', 'forward')}>
             ⚙️ Montar treino agora
           </motion.button>
           <p className="treino-onboard-sub">
@@ -126,7 +126,7 @@ const Treino: React.FC = () => {
       {safeSeg !== 'warm' && <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />}
 
       {safeSeg !== 'warm' && (
-        <motion.button whileTap={{ scale: 0.97 }} className="treino-done" onClick={onComplete}>
+        <motion.button whileTap={{ scale: 0.97 }} className="ds-btn ds-btn--primary treino-done" onClick={onComplete}>
           Concluir Treino {safeSeg}
         </motion.button>
       )}
