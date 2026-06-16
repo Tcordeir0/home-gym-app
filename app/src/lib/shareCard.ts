@@ -22,7 +22,6 @@ export interface ShareData {
   hat?: string; // id do cosmético (ícone pixel)
   seriesWk?: number; // séries feitas na semana
   waterAvg?: number; // média de água por dia na semana (ml)
-  topMuscle?: string; // músculo mais treinado na semana
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -572,17 +571,35 @@ export async function buildProgressCard(d: ShareData): Promise<string> {
     tx += tw + gap;
   });
 
-  // ---- linha extra da SEMANA: séries + hidratação + músculo top ----
+  // ---- linha extra da SEMANA: séries + hidratação (pills alinhados como os tiles) ----
   const extras: string[] = [];
   if (d.seriesWk) extras.push(`🏋️ ${d.seriesWk} séries`);
   if (d.waterAvg) extras.push(`💧 ${(d.waterAvg / 1000).toFixed(1)} L/dia`);
-  if (d.topMuscle) extras.push(`💪 ${d.topMuscle}`);
   if (extras.length) {
     ctx.textAlign = 'center';
     ctx.fillStyle = MUTED; ctx.font = '30px Anton, sans-serif';
-    ctx.fillText('NA SEMANA', cx, ty + th + 60);
-    ctx.fillStyle = INK; ctx.font = '32px Anton, sans-serif';
-    ctx.fillText(extras.join('    '), cx, ty + th + 104);
+    ctx.fillText('NA SEMANA', cx, ty + th + 56);
+    // chips com a MESMA linguagem dos tiles (tint do accent + borda), centrados em grupo
+    const chipH = 72, padX = 32, gapC = 24;
+    ctx.font = '34px Anton, sans-serif';
+    const chips = extras.map((label) => ({ label, w: ctx.measureText(label).width + padX * 2 }));
+    const totalW = chips.reduce((a, c) => a + c.w, 0) + gapC * (chips.length - 1);
+    let chx = cx - totalW / 2;
+    const chy = ty + th + 80;
+    chips.forEach((c) => {
+      if (drewImage) {
+        ctx.fillStyle = light ? 'rgba(255,255,255,0.84)' : 'rgba(12,13,16,0.74)';
+        roundRect(ctx, chx, chy, c.w, chipH, chipH / 2); ctx.fill();
+      }
+      ctx.fillStyle = `rgba(${tar},${tag},${tab},${light ? 0.13 : 0.18})`;
+      roundRect(ctx, chx, chy, c.w, chipH, chipH / 2); ctx.fill();
+      ctx.strokeStyle = `rgba(${tar},${tag},${tab},0.55)`; ctx.lineWidth = 3;
+      roundRect(ctx, chx, chy, c.w, chipH, chipH / 2); ctx.stroke();
+      ctx.fillStyle = INK; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+      ctx.fillText(c.label, chx + c.w / 2, chy + chipH / 2 + 2);
+      ctx.textBaseline = 'alphabetic';
+      chx += c.w + gapC;
+    });
   }
 
   // ---- rodapé: só a versão (HOME GYM já está no topo) ----

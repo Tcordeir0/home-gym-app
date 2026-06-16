@@ -83,7 +83,7 @@ export interface SetEntry {
 
 export interface HistoryEntry {
   date: string; // AAAA-MM-DD
-  w: 'A' | 'B' | 'C' | 'cardio';
+  w: 'A' | 'B' | 'C' | 'D' | 'E' | 'cardio'; // treinos vão até E (5 dias)
   t?: string; // tipo de cardio
   emoji?: string;
   mins?: number; // duração do cardio (minutos), quando cronometrado

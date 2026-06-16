@@ -9,6 +9,7 @@ import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
 import { frameUnlocked, FRAMES } from '../data/frames';
 import { ACHIEVEMENTS } from '../data/achievements';
+import { shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { statsFor, e1RM, totalPoints } from '../lib/stats';
 import { CREATINAS_PER_POINT, type ShopKind } from '../data/shop';
 import { PLANS } from '../data/plans';
@@ -66,13 +67,17 @@ function defaultCardios(): Cardio[] {
 function defaultBody(): Body {
   return { height: null, age: null, sex: 'm', neck: null, hip: null, activity: 1.55, goal: 'lose' };
 }
+/** Cosméticos padrão (fonte única) — aro elétrico padrão, resto vazio. */
+function defaultCosmetics(): Profile['cosmetics'] {
+  return { themes: [], hats: [], frames: [], theme: null, hat: null, frame: 'electric' };
+}
 function newProfile(id: string, name: string, color: string): Profile {
   return {
     id, name, color,
     equipment: ['bodyweight', 'dumbbell'],
     cardios: defaultCardios(),
     focus: 'Geral',
-    cosmetics: { themes: [], hats: [], frames: [], theme: null, hat: null, frame: 'electric' },
+    cosmetics: defaultCosmetics(),
     spinsUsed: 0, lifeSpinsUsed: 0, freezes: 0,
     quests: { week: '', claimed: {} },
     schedule: { days: [], time: '18:00', ntfy: '' },
@@ -119,7 +124,7 @@ function migrate(raw: Partial<AppState>): AppState {
     if (!u.color) u.color = COLORS[i % COLORS.length];
     if (!Array.isArray(u.equipment)) u.equipment = ['bodyweight', 'dumbbell'];
     if (!Array.isArray(u.cardios) || !u.cardios.length) u.cardios = defaultCardios();
-    if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+    if (!u.cosmetics) u.cosmetics = defaultCosmetics();
     if (!Array.isArray(u.cosmetics.frames)) u.cosmetics.frames = [];
     if (u.cosmetics.frame === undefined) u.cosmetics.frame = 'electric'; // aro elétrico padrão
     if (typeof u.spinsUsed !== 'number') u.spinsUsed = 0;
@@ -180,7 +185,6 @@ export interface Store extends AppState {
   creatinasBalance: () => number;
   buyCosmetic: (kind: ShopKind, id: string, cost: number) => 'ok' | 'owned' | 'poor';
   completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
-  lastBestSet: (nome: string) => { kg: number; reps: number } | null;
   prevSets: (nome: string) => { kg: number; reps: number }[];
   exPR: (nome: string) => { kg: number; reps: number; e1rm: number } | null;
   prefillSets: (treino: string, exIdx: number, series: number, sets: { kg: number; reps: number }[]) => void;
@@ -191,11 +195,8 @@ export interface Store extends AppState {
   setMeasureField: (field: 'arm' | 'chest' | 'waist', value: number) => void;
   setProgressPhoto: (dataUrl: string) => void;
   removeProgressPhoto: (date: string) => void;
-  progressPhotos: () => { date: string; photo: string }[];
   measureSeries: (field: 'weight' | 'arm' | 'chest' | 'waist') => { x: string; y: number }[];
   updateActiveBody: (patch: Partial<Body>) => void;
-  weightSeries: () => { x: string; y: number }[];
-  addWaterToday: (ml: number) => void;
   addWaterOn: (date: string, ml: number) => void;
   addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGrams: (idx: number, g: number) => void;
@@ -206,9 +207,8 @@ export interface Store extends AppState {
   removeFoodOn: (date: string, idx: number) => void;
   moveFoodOn: (fromDate: string, idx: number, toDate: string) => void;
   copyDietFromPrev: (toDate: string) => boolean;
-  dietKcalSeries: () => { x: string; y: number }[];
   removeHistoryEntry: (idx: number) => void;
-  addBackdated: (w: 'A' | 'B' | 'C' | 'cardio', date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
+  addBackdated: (w: HistoryEntry['w'], date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
   claimQuest: (id: string, reward: number) => void;
   spinsAvailable: () => number;
   spinRoulette: () => { prize: Prize; index: number } | null;
@@ -261,7 +261,7 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
-        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!u.cosmetics) u.cosmetics = defaultCosmetics();
         if (!themeUnlocked(t, u.cosmetics.themes || [], u.name)) return; // só aplica se desbloqueado
         u.cosmetics.theme = t;
       })),
@@ -270,7 +270,7 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
-        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!u.cosmetics) u.cosmetics = defaultCosmetics();
         if (!decoUnlocked(id, u.cosmetics.hats || [], u.name)) return;
         u.cosmetics.hat = id === 'none' ? null : id;
       })),
@@ -279,7 +279,7 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
-        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!u.cosmetics) u.cosmetics = defaultCosmetics();
         if (!frameUnlocked(id, u.cosmetics.frames || [], u.name)) return;
         u.cosmetics.frame = id === 'none' ? null : id;
       })),
@@ -288,7 +288,7 @@ export const useStore = create<Store>((set, get) => {
         if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
-        if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+        if (!u.cosmetics) u.cosmetics = defaultCosmetics();
         u.cosmetics.photoOff = !on;
       })),
     addProfile: () => {
@@ -444,21 +444,6 @@ export const useStore = create<Store>((set, get) => {
       return 'ok';
     },
 
-    lastBestSet: (nome) => {
-      const s = get();
-      const uid = s.active;
-      const hist = (s.history[uid] || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
-      for (const e of hist) {
-        const ex = e.exercises?.find((x) => x.nome === nome);
-        if (ex && ex.sets.length) {
-          let best = ex.sets[0];
-          ex.sets.forEach((st) => { if ((st.kg || 0) > (best.kg || 0)) best = st; });
-          if (best.kg != null || best.reps != null) return { kg: best.kg || 0, reps: best.reps || 0 };
-        }
-      }
-      return null;
-    },
-
     // séries da ÚLTIMA vez que treinou esse exercício (na ordem) — pra pré-preencher
     prevSets: (nome) => {
       const s = get();
@@ -565,15 +550,6 @@ export const useStore = create<Store>((set, get) => {
         if (e) delete e.photo;
       })),
 
-    progressPhotos: () => {
-      const s = get();
-      return (s.measures[s.active] || [])
-        .filter((m) => typeof m.photo === 'string' && m.photo)
-        .slice()
-        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
-        .map((m) => ({ date: m.date, photo: m.photo as string }));
-    },
-
     measureSeries: (field) => {
       const s = get();
       return (s.measures[s.active] || [])
@@ -587,19 +563,17 @@ export const useStore = create<Store>((set, get) => {
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const u = s.users.find((x) => x.id === s.active);
-        if (u) u.body = { ...u.body, ...patch };
+        if (!u) return;
+        const sexChanged = patch.sex && patch.sex !== u.body.sex;
+        u.body = { ...u.body, ...patch };
+        // ao trocar o sexo: se a meta de shape atual é do outro gênero, volta pro default
+        // do novo gênero (senão a grade não destaca nada e o gerador usa pesos errados).
+        if (sexChanged) {
+          const g = shapeGoalById(u.shapeGoal?.preset)?.gender;
+          if (g && g !== 'any' && g !== patch.sex) u.shapeGoal = { preset: defaultShape(patch.sex!) };
+        }
       })),
 
-    weightSeries: () => {
-      const s = get();
-      return (s.measures[s.active] || [])
-        .filter((m) => typeof m.weight === 'number')
-        .slice()
-        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
-        .map((m) => ({ x: m.date, y: m.weight as number }));
-    },
-
-    addWaterToday: (ml) => get().addWaterOn(todayISO(), ml),
     addWaterOn: (date, ml) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
@@ -690,19 +664,6 @@ export const useStore = create<Store>((set, get) => {
       return ok;
     },
 
-    // kcal por dia (pro gráfico de histórico da dieta)
-    dietKcalSeries: () => {
-      const s = get();
-      const dd = s.daily[s.active] || {};
-      return Object.keys(dd)
-        .filter((date) => (dd[date].food || []).length > 0)
-        .sort()
-        .map((date) => {
-          const kcal = (dd[date].food || []).reduce((a, it) => a + (it.k * it.g) / 100, 0);
-          return { x: date, y: Math.round(kcal) };
-        });
-    },
-
     addBackdated: (w, date, cardio) => {
       const s0 = get();
       if (!ownsActive(s0)) return 'dup';
@@ -762,7 +723,7 @@ export const useStore = create<Store>((set, get) => {
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
 
         if (prize.kind === 'theme' || prize.kind === 'deco' || prize.kind === 'frame') {
-          if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], theme: null, hat: null };
+          if (!u.cosmetics) u.cosmetics = defaultCosmetics();
           if (prize.kind === 'frame') {
             const owned = u.cosmetics.frames || [];
             const locked = FRAMES.filter((fr) => !fr.free && !fr.account && !owned.includes(fr.id) && !REWARD_FRAMES.has(fr.id));
@@ -802,6 +763,7 @@ export const useStore = create<Store>((set, get) => {
     claimAchievementRewards: () => {
       let granted = 0;
       set(produce((s: Store) => {
+        if (!ownsActive(s)) return; // não concede recompensa num perfil que não é deste aparelho
         const u = s.users.find((x) => x.id === s.active);
         if (!u) return;
         if (!u.cosmetics) u.cosmetics = { themes: [], hats: [], frames: [], theme: null, hat: null, frame: null };

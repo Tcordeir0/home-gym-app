@@ -18,15 +18,37 @@
 .diet-adv {
   margin-top: 12px;
 }
+/* expander claramente clicável: cara de botão + seta que gira ao abrir */
 .diet-adv summary {
   cursor: pointer;
-  color: var(--app-muted);
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ion-text-color);
+  font-size: 13.5px;
   font-weight: 700;
   list-style: none;
+  padding: 10px 13px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 30%, var(--app-line));
+  background: color-mix(in srgb, var(--brand-lime) 8%, transparent);
+}
+.diet-adv summary:active {
+  background: color-mix(in srgb, var(--brand-lime) 16%, transparent);
 }
 .diet-adv summary::-webkit-details-marker {
   display: none;
+}
+.diet-adv summary::after {
+  content: '⌄';
+  color: var(--brand-lime);
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+.diet-adv[open] summary::after {
+  transform: rotate(180deg);
 }
 .diet-note {
   margin: 6px 0 0;

@@ -523,16 +523,21 @@ ion-tab-bar::before {
   background: radial-gradient(130% 90% at 50% -25%, rgba(255, 255, 255, 0.18), transparent 60%);
   pointer-events: none;
 }
-/* pill deslizante atrás do ícone ativo */
+/* pill deslizante atrás do ícone+rótulo ativo — encorpa pra CONTER o conteúdo
+   (rótulos longos como "Progresso" transbordavam a retícula antiga, inset 8px 10px). */
 ion-tab-button { position: relative; }
 ion-tab-button.tab-selected::before {
   content: '';
   position: absolute;
-  inset: 8px 10px;
-  border-radius: 16px;
+  inset: 5px 3px;
+  border-radius: 15px;
   background: color-mix(in srgb, var(--brand-lime) 18%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-lime) 28%, transparent);
 }
+/* rótulo do tab nunca quebra/transborda — cabe dentro da retícula */
+ion-tab-button ion-label { white-space: nowrap; font-size: 11px; }
+/* modo leitura (perfil alheio): só o Progresso, sem barra de abas */
+ion-tab-bar.tabbar-hidden { display: none; }
 /* tema Branco: highlight escuro (o branco no branco some) */
 html[data-theme='light'] ion-tab-bar { box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08), 0 10px 26px -10px rgba(0,0,0,0.28); }
 html[data-theme='light'] ion-tab-bar::before { background: radial-gradient(130% 90% at 50% -25%, rgba(255,255,255,0.6), transparent 60%); }

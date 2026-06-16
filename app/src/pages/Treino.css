@@ -54,6 +54,34 @@
   margin: 12px 8px 4px;
   opacity: 0.8;
 }
+
+/* onboarding do perfil novo (sem treino montado) */
+.treino-onboard {
+  text-align: center;
+  padding: 22px 18px 14px;
+  margin: 8px 4px;
+  border: 1px solid var(--app-line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--brand-lime) 5%, transparent);
+}
+.treino-onboard-emoji { font-size: 44px; line-height: 1; }
+.treino-onboard-h {
+  font-family: var(--font-display);
+  font-size: 21px; margin: 12px 0 8px; letter-spacing: 0.3px;
+}
+.treino-onboard-p { font-size: 14px; line-height: 1.5; color: var(--ion-text-color); opacity: 0.9; margin: 0 auto; max-width: 320px; }
+.treino-onboard-btn {
+  width: 100%; max-width: 320px; margin: 18px auto 6px;
+  padding: 15px 16px; border: none; border-radius: 16px;
+  background: var(--brand-lime); color: #0b0c0f;
+  font-family: var(--font-display); font-size: 16px; letter-spacing: 0.4px;
+  text-transform: uppercase; cursor: pointer;
+}
+.treino-onboard-sub {
+  font-size: 12.5px; line-height: 1.5; color: var(--app-muted);
+  margin: 12px auto 0; max-width: 320px;
+  padding-top: 12px; border-top: 1px solid var(--app-line);
+}
 .treino-gen {
   width: 100%;
   margin: 8px 0 4px;

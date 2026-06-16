@@ -58,7 +58,7 @@ export const PLANS: PlanMap = {
     "treinos": {
       "A": [
         {
-          "nome": "Supino no chão (floor press) com halteres",
+          "nome": "Supino no chão com halteres",
           "musculo": "Peito",
           "series": 4,
           "reps": "10",
@@ -86,14 +86,14 @@ export const PLANS: PlanMap = {
           "dica": "Pés apoiados no sofá ou na cama. Quanto mais alto, mais foco na parte de cima do peito e ombro."
         },
         {
-          "nome": "Desenvolvimento militar com halteres",
+          "nome": "Desenvolvimento com halteres",
           "musculo": "Ombro",
           "series": 3,
           "reps": "10",
           "dica": "Em pé, abdômen firme, não arqueie as costas. Suba até quase encostar os halteres no topo."
         },
         {
-          "nome": "Tríceps testa com halteres (no chão)",
+          "nome": "Tríceps testa com halteres",
           "musculo": "Tríceps",
           "series": 3,
           "reps": "12",
@@ -109,7 +109,7 @@ export const PLANS: PlanMap = {
       ],
       "B": [
         {
-          "nome": "Terra romeno (RDL) com halteres",
+          "nome": "Stiff com halteres",
           "musculo": "Posterior / Glúteo",
           "series": 4,
           "reps": "12",
@@ -130,7 +130,7 @@ export const PLANS: PlanMap = {
           "dica": "Apoie mão e joelho numa cadeira firme. Puxe o halter junto ao quadril, sem girar o tronco."
         },
         {
-          "nome": "Agachamento Goblet",
+          "nome": "Agachamento goblet",
           "musculo": "Quadríceps / Glúteo",
           "series": 4,
           "reps": "12",
@@ -160,14 +160,14 @@ export const PLANS: PlanMap = {
       ],
       "C": [
         {
-          "nome": "Agachamento Goblet",
+          "nome": "Agachamento goblet",
           "musculo": "Quadríceps / Glúteo",
           "series": 4,
           "reps": "12",
           "dica": "Halter colado ao peito, peito erguido. Desça até as coxas ficarem paralelas ao chão."
         },
         {
-          "nome": "Afundo búlgaro com halteres",
+          "nome": "Búlgaro com halteres",
           "musculo": "Quadríceps / Glúteo",
           "series": 3,
           "reps": "10/perna",
@@ -188,7 +188,7 @@ export const PLANS: PlanMap = {
           "dica": "Pés afastados e pontas pra fora, segurando um halter entre as pernas."
         },
         {
-          "nome": "Elevação de panturrilha com halteres",
+          "nome": "Panturrilha em pé com halteres",
           "musculo": "Panturrilha",
           "series": 4,
           "reps": "20",
@@ -236,7 +236,7 @@ export const PLANS: PlanMap = {
           "dica": "Pés afastados e pontas pra fora, segurando um halter entre as pernas. Desça mantendo os joelhos abertos."
         },
         {
-          "nome": "Afundo búlgaro com halteres",
+          "nome": "Búlgaro com halteres",
           "musculo": "Glúteo / Quadríceps",
           "series": 3,
           "reps": "10/perna",
@@ -280,21 +280,21 @@ export const PLANS: PlanMap = {
           "dica": "Pode apoiar os joelhos no início. Desça controlando até o peito perto do chão."
         },
         {
-          "nome": "Remada com halter (apoio na cadeira)",
+          "nome": "Remada unilateral (apoio na cadeira)",
           "musculo": "Costas",
           "series": 3,
           "reps": "12",
           "dica": "Apoie mão e joelho numa cadeira. Puxe o halter junto ao quadril apertando as costas."
         },
         {
-          "nome": "Desenvolvimento de ombros com halteres",
+          "nome": "Desenvolvimento com halteres",
           "musculo": "Ombro",
           "series": 3,
           "reps": "12",
           "dica": "Suba os halteres acima da cabeça sem arquear as costas."
         },
         {
-          "nome": "Rosca bíceps com halteres",
+          "nome": "Rosca direta com halteres",
           "musculo": "Bíceps",
           "series": 3,
           "reps": "12",
@@ -352,7 +352,7 @@ export const PLANS: PlanMap = {
           "dica": "Deitada de lado, abra a perna de cima controlando. Pode apoiar um halter na coxa."
         },
         {
-          "nome": "Elevação de panturrilha",
+          "nome": "Panturrilha em pé",
           "musculo": "Panturrilha",
           "series": 4,
           "reps": "20",

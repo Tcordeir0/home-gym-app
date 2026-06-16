@@ -14,15 +14,16 @@ const RULES: { re: RegExp; label: string; bases: string[] }[] = [
   { re: /supino inclinad|pe(i)?to superior|pés elevados|pes elevados|incline (press|bench)/, label: 'superior', bases: ['chest-upper'] },
   { re: /flexão inclinada|inclinada \(mãos|mãos elevadas|maos elevadas|supino declinad|peito inferior|paralelas \(peito|mergulho nas paralelas \(peito/, label: 'inferior', bases: ['chest-lower'] },
   { re: /pullover|around the world|around-the-world/, label: 'serrátil + peito', bases: ['serratus-anterior', 'chest-lower'] },
-  { re: /crucifixo|fly|voador/, label: 'abertura', bases: ['chest-upper', 'chest-lower'] },
+  // "crucifixo invertido/inverso" é POSTERIOR de ombro (rear delt), não peito — não capturar aqui
+  { re: /crucifixo(?! invert| invers)|fly|voador/, label: 'abertura', bases: ['chest-upper', 'chest-lower'] },
   { re: /flexão diamante|diamante|flexão fechada|fechada \(tríceps/, label: 'tríceps + peito interno', bases: ['triceps-lateral', 'chest-lower'] },
   // ---- Tríceps ----
   { re: /testa|francês|frances|overhead|extensão de tríceps|tríceps na polia alta/, label: 'cabeça longa', bases: ['triceps-long'] },
-  { re: /coice|kickback|mergulho|paralel|corda|tríceps na polia|fechada/, label: 'cabeça lateral', bases: ['triceps-lateral'] },
+  { re: /tríceps coice|mergulho|paralel|corda|tríceps na polia|fechada/, label: 'cabeça lateral', bases: ['triceps-lateral'] },
   // ---- Ombro ----
   { re: /elevação lateral|lateral raise/, label: 'deltoide lateral', bases: ['shoulder-side'] },
   { re: /elevação frontal|frontal raise|front raise/, label: 'deltoide frontal', bases: ['shoulder-front'] },
-  { re: /crucifixo invers|rear delt|reverso|posterior|face pull|cubano/, label: 'deltoide posterior', bases: ['deltoid-rear'] },
+  { re: /crucifixo invers|crucifixo invert|rear delt|reverso|face pull|cubano/, label: 'deltoide posterior', bases: ['deltoid-rear'] },
   { re: /desenvolvimento|arnold|militar|overhead press|pike/, label: 'deltoide (geral)', bases: ['shoulder-front', 'shoulder-side'] },
   { re: /remada alta|upright/, label: 'lateral + trapézio', bases: ['shoulder-side', 'traps-upper'] },
   // ---- Costas / trapézio / lombar ----
@@ -40,7 +41,8 @@ const RULES: { re: RegExp; label: string; bases: string[] }[] = [
   { re: /panturrilha sentad|sóleo|soleo/, label: 'sóleo', bases: ['calves-soleus'] },
   { re: /panturrilha/, label: 'gastrocnêmio', bases: ['calves-gastroc-lateral', 'calves-gastroc-medial'] },
   { re: /stiff|terra romeno|rdl|flexora|leg curl|mesa flexora/, label: 'posterior de coxa', bases: ['hamstrings-lateral', 'hamstrings-medial'] },
-  { re: /sumô|sumo|adução|adutor/, label: 'adutores', bases: ['adductors'] },
+  // adutores não têm região própria no boneco (vulovix) → mapeia pra coxa/glúteo (sumô) em vez de virar um "gap" impossível
+  { re: /sumô|sumo|adução|adutor/, label: 'adutores / interno de coxa', bases: ['quads', 'gluteus-maximus'] },
   { re: /afundo|búlgaro|bulgaro|passada|lunge|avanço/, label: 'quadríceps + glúteo', bases: ['quads', 'gluteus-maximus'] },
   { re: /agachamento|leg press|hack|cadeira extensora|wall sit|parede/, label: 'quadríceps', bases: ['quads'] },
   { re: /hip thrust|ponte|elevação pélvica|coice de glúteo|kickback de glúteo/, label: 'glúteo máximo', bases: ['gluteus-maximus'] },

@@ -6,7 +6,7 @@ import Hidratacao from '../components/Hidratacao';
 import Diary from '../components/Diary';
 import DicasDia from '../components/DicasDia';
 import { useStore, useActiveProfile } from '../store/store';
-import { targetsFor } from '../lib/diet';
+import { targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
 import './Dieta.css';
 
 const Dieta: React.FC = () => {
@@ -14,12 +14,17 @@ const Dieta: React.FC = () => {
   const body = profile.body;
   const myMeasures = useStore((s) => s.measures[s.active]) || [];
 
-  const weight = (() => {
+  const latest = (f: 'weight' | 'waist') => {
     let v: number | null = null, d = '';
-    myMeasures.forEach((m) => { const x = m.weight; if (typeof x === 'number' && m.date >= d) { v = x; d = m.date; } });
+    myMeasures.forEach((mm) => { const x = mm[f]; if (typeof x === 'number' && mm.date >= d) { v = x; d = mm.date; } });
     return v;
-  })();
+  };
+  const weight = latest('weight');
+  const waist = latest('waist');
   const t = targetsFor(body, weight);
+  const imc = weight && body.height ? bmi(weight, body.height) : null;
+  const imcCls = imc ? bmiClass(imc) : null;
+  const bf = body.height ? bodyFatNavy(body.sex, body.height, waist, body.neck, body.hip) : null;
 
   return (
     <AppPage title="Dieta">
@@ -43,6 +48,16 @@ const Dieta: React.FC = () => {
               <IonButton className="meta-cfg" fill="clear" size="small" routerLink="/perfil">
                 <IonIcon slot="start" icon={personCircleOutline} /> Abrir <IonIcon slot="end" icon={arrowForward} />
               </IonButton>
+            </div>
+          )}
+          {t && (
+            <div className="dstats">
+              {imc && imcCls
+                ? <div className="dstat"><div className="dstat-v" style={{ color: imcCls.c }}>{imc.toFixed(1)}</div><div className="dstat-l">IMC · {imcCls.l}</div></div>
+                : <div className="dstat"><div className="dstat-v">—</div><div className="dstat-l">IMC</div></div>}
+              {bf != null
+                ? <div className="dstat"><div className="dstat-v">{bf.toFixed(1)}%</div><div className="dstat-l">gordura corporal</div></div>
+                : <div className="dstat hint">Pescoço{body.sex === 'f' ? ' e quadril' : ''} + cintura nas Medidas (Progresso)</div>}
             </div>
           )}
           <p className="diet-base">⚙️ A <b>Calculadora</b> (sexo/idade/altura/objetivo) e a <b>anatomia</b> agora ficam no <b>Perfil</b>.</p>
