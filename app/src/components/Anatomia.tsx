@@ -387,7 +387,7 @@ const Anatomia: React.FC = () => {
               {FINE_VULOVIX[sel].map((b) => (
                 <button
                   key={b}
-                  className={'anat-sub' + (selBase === b ? ' on' : '')}
+                  className={'ds-chip' + (selBase === b ? ' on' : '')}
                   onClick={() => pickBase(b)}
                 >
                   {BASE_LABEL[b] || b}
@@ -425,7 +425,7 @@ const Anatomia: React.FC = () => {
               <p className="anat-gap-h">O que mais te afasta do shape (toque pra ver exercícios):</p>
               <div className="anat-subs">
                 {gaps.map((g) => (
-                  <button key={g.base} className="anat-sub gap" onClick={() => pickBase(g.base)}>
+                  <button key={g.base} className="ds-chip anat-gap" onClick={() => pickBase(g.base)}>
                     {BASE_LABEL[g.base] || g.base}
                   </button>
                 ))}
