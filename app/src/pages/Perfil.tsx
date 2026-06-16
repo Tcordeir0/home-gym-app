@@ -403,7 +403,7 @@ const Perfil: React.FC = () => {
         <h3 className="perfil-subhead">Equipamento {location === 'casa' ? 'em casa' : 'na academia'}</h3>
         <div className="equip-grid">
           {EQUIPMENT_OPTIONS.map((o) => (
-            <motion.button key={o.key} whileTap={{ scale: 0.95 }} className={'equip-chip' + (equip.includes(o.key) ? ' on' : '')} onClick={() => toggleEquip(o.key)}>
+            <motion.button key={o.key} whileTap={{ scale: 0.95 }} className={'ds-chip' + (equip.includes(o.key) ? ' on' : '')} onClick={() => toggleEquip(o.key)}>
               {o.label}
             </motion.button>
           ))}
@@ -412,16 +412,16 @@ const Perfil: React.FC = () => {
         <h3 className="perfil-subhead">Tipos de cardio</h3>
         <div className="equip-grid">
           {cardioList.map((c) => (
-            <motion.button key={c.label} whileTap={{ scale: 0.95 }} className={'equip-chip cardio-chip' + (hasCardio(c.label) ? ' on' : '')} onClick={() => toggleCardio(c)}>
+            <motion.button key={c.label} whileTap={{ scale: 0.95 }} className={'ds-chip' + (hasCardio(c.label) ? ' on' : '')} onClick={() => toggleCardio(c)}>
               <span className="chip-emoji">{c.emoji || '🔥'}</span> {c.label}
             </motion.button>
           ))}
-          <button className="equip-chip add-chip" onClick={() => setAddCardio(true)}>
+          <button className="ds-chip" onClick={() => setAddCardio(true)}>
             <IonIcon icon={addOutline} /> Adicionar
           </button>
         </div>
 
-        <button className="perfil-gen-btn" onClick={() => setGenOpen(true)}>
+        <button className="ds-btn ds-btn--primary" onClick={() => setGenOpen(true)}>
           ⚙️ Gerar treino com esse equipamento
         </button>
       </Collapsible>

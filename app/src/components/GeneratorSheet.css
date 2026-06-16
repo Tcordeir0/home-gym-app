@@ -89,20 +89,8 @@
   border-color: var(--brand-lime);
   color: #0b0c0f;
 }
-.gen-go {
-  width: 100%;
-  margin-top: 22px;
-  padding: 16px;
-  border: none;
-  border-radius: 16px;
-  background: var(--brand-lime);
-  color: #0b0c0f;
-  font-family: var(--font-display);
-  font-size: 17px;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
+/* visual vem do design-system (.ds-btn--primary); aqui so a margem do sheet */
+.gen-go { margin-top: 22px; }
 
 /* toggle de aquecimento na folha de gerar treino */
 .gen-warm {

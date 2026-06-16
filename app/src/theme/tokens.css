@@ -1,0 +1,105 @@
+/* ============================================================================
+   Home Gym — DESIGN TOKENS + utilitários (base do design-system)
+   Objetivo: parar o drift por tela. Espaçamento, raio, elevação e "clicável"
+   viram fonte ÚNICA; componentes recorrentes (chip/botão/card) ganham 1 classe
+   canônica. Importado DEPOIS de variables.css (que já tem cor/superfície).
+   Migração: trocar o CSS ad-hoc de cada tela por .ds-* (ver doc no PR).
+   ============================================================================ */
+
+:root {
+  /* ----- Espaçamento (escala base 4px) ----- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 22px;
+  --sp-6: 32px;
+
+  /* ----- Raio ----- */
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* ----- Elevação ----- */
+  --elev-1: 0 6px 16px -8px rgba(0, 0, 0, 0.45);
+  --elev-2: 0 12px 30px -8px rgba(0, 0, 0, 0.55);
+
+  /* ----- Interação (affordance única) ----- */
+  --tint-weak: color-mix(in srgb, var(--brand-lime) 8%, transparent);
+  --tint-on: color-mix(in srgb, var(--brand-lime) 16%, transparent);
+  --tint-press: color-mix(in srgb, var(--brand-lime) 22%, transparent);
+  --ring: inset 0 0 0 1px color-mix(in srgb, var(--brand-lime) 30%, transparent);
+  --press: scale(0.97);
+  --dur: 0.18s;
+}
+
+/* ===== CHIP / toggle (substitui gr-chip, shape-chip, tune-lv, equip-chip, gen-chip…) =====
+   Sempre tem cara de clicável: borda + leve fundo. Ativo = marca cheia. */
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--app-line);
+  background: color-mix(in srgb, var(--ion-text-color) 6%, transparent);
+  color: var(--ion-text-color);
+  font: 700 13px/1 var(--ion-font-family);
+  cursor: pointer;
+  transition: transform var(--dur) ease, background var(--dur) ease, border-color var(--dur) ease;
+}
+.ds-chip:active { transform: var(--press); background: var(--tint-press); }
+/* selecionado = tint suave + marca (padrão do app). Variante --strong = preenchido. */
+.ds-chip.on,
+.ds-chip[aria-pressed='true'] { border-color: var(--brand-lime); background: var(--tint-on); color: var(--brand-lime); }
+.ds-chip--strong.on { background: var(--brand-lime); color: var(--ion-color-primary-contrast); }
+
+/* ===== BOTÃO de ação (substitui treino-done, gen-go, perfil-gen-btn, treino-onboard-btn…) ===== */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-4);
+  border: none;
+  border-radius: var(--r-lg);
+  font: 700 16px/1 var(--font-display);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform var(--dur) ease, filter var(--dur) ease;
+}
+.ds-btn:active { transform: var(--press); }
+.ds-btn--primary { background: var(--brand-lime); color: var(--ion-color-primary-contrast); }
+.ds-btn--ghost { background: transparent; color: var(--brand-lime); box-shadow: var(--ring); }
+
+/* ===== EXPANDER (substitui pers-toggle, diet-adv summary…) — sempre com seta ===== */
+.ds-expander {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--brand-lime) 28%, var(--app-line));
+  background: var(--tint-weak);
+  color: var(--ion-text-color);
+  font: 700 13.5px/1 var(--ion-font-family);
+  cursor: pointer;
+}
+.ds-expander::after { content: '⌄'; color: var(--brand-lime); transition: transform var(--dur) ease; }
+.ds-expander[aria-expanded='true']::after { transform: rotate(180deg); }
+
+/* ===== CARD (padroniza prog-card / diet-card / perfil-card) ===== */
+.ds-card {
+  border-radius: var(--r-xl);
+  border: 1px solid var(--app-line);
+  background: var(--ion-card-background);
+  padding: var(--sp-4);
+  box-shadow: var(--elev-1);
+}

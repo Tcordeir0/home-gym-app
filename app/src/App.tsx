@@ -46,6 +46,7 @@ import '@ionic/react/css/display.css';
 
 /* Tema próprio (dark premium iOS) — sempre escuro */
 import './theme/variables.css';
+import './theme/tokens.css';
 
 setupIonicReact({ mode: 'ios' });
 
