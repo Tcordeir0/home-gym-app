@@ -4,7 +4,7 @@ import { eyeOutline, chevronDown, trophyOutline, trendingUp, swapHorizontalOutli
 import { motion } from 'framer-motion';
 import type { Exercise } from '../data/types';
 import { useStore, rowsFor } from '../store/store';
-import { alternativesFor } from '../lib/generator';
+import { alternativesFor, isBodyweight } from '../lib/generator';
 import { emphasisOf } from '../lib/emphasis';
 import { e1RM } from '../lib/stats';
 import { fxTick } from '../lib/feedback';
@@ -27,6 +27,11 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const prefillSets = useStore((s) => s.prefillSets);
   const swapExercise = useStore((s) => s.swapExercise);
   const equip = useStore((s) => s.users.find((u) => u.id === s.active)?.equipment || []);
+  const latestMeasure = useStore((s) => s.latestMeasure);
+
+  // exercício corporal (sem carga): o app usa o PESO DO PERFIL no lugar de pedir kg na mão.
+  const bw = isBodyweight(ex.nome);
+  const bodyWeight = bw ? latestMeasure('weight') : null;
 
   const [openTip, setOpenTip] = useState(false);
   const [openSwap, setOpenSwap] = useState(false);
@@ -37,12 +42,15 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const pr = exPR(ex.nome);
   const emp = emphasisOf(ex.nome);
 
-  // pré-preenche os campos com a ÚLTIMA vez (só quando tudo vazio) — base pra progredir
+  // pré-preenche os campos (só quando tudo vazio): a ÚLTIMA vez quando há histórico;
+  // senão, em exercício corporal, já põe o peso do perfil como carga (base pra progredir).
   useEffect(() => {
     const allEmpty = rows.every((r) => !r.kg && !r.reps && !r.done);
-    if (allEmpty && prev.length) prefillSets(treino, exIdx, ex.series, prev);
+    if (!allEmpty) return;
+    if (prev.length) prefillSets(treino, exIdx, ex.series, prev);
+    else if (bw && bodyWeight) prefillSets(treino, exIdx, ex.series, Array.from({ length: ex.series }, () => ({ kg: bodyWeight, reps: 0 })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, treino, exIdx, prev.length]);
+  }, [active, treino, exIdx, prev.length, bw, bodyWeight]);
 
   // melhor 1RM estimado do que está na tela agora (digitado) → 1RM ao vivo + bater recorde
   const liveTop = rows.reduce((m, r) => {
@@ -56,7 +64,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
       <div className="ex-head">
         <div className="ex-info">
           <h3 className="ex-name">{ex.nome}</h3>
-          <span className="ex-muscle">{ex.musculo}{emp ? <span className="ex-emph"> · {emp.label}</span> : null}</span>
+          <span className="ex-muscle">{ex.musculo}{emp ? <span className="ex-emph"> · {emp.label}</span> : null}{bw ? <span className="ex-emph"> · peso do corpo</span> : null}</span>
         </div>
         <span className="ex-reps">
           {ex.series}<span className="x">×</span>{ex.reps}
@@ -101,7 +109,8 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
         </div>
       )}
 
-      {(pr || liveTop > 0) && (
+      {/* 1RM/recorde não faz sentido em exercício corporal (o "peso" é o corpo) — esconde */}
+      {!bw && (pr || liveTop > 0) && (
         <div className="ex-stats">
           {pr && (
             <span className="ex-stat">
@@ -127,7 +136,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
               <input
                 className="set-in"
                 inputMode="decimal"
-                placeholder={p?.kg ? String(p.kg) : 'kg'}
+                placeholder={p?.kg ? String(p.kg) : bodyWeight ? String(bodyWeight) : 'kg'}
                 value={s.kg}
                 onChange={(e) => setSetField(treino, exIdx, i, 'kg', e.target.value, ex.series)}
               />

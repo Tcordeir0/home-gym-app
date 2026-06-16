@@ -52,7 +52,8 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
   const equipNames = equip.map((k) => EQ_LABEL[k] || k).join(', ');
 
   const gen = () => {
-    const treinos = generateWorkout(equip, focus, 6, days, subFocus);
+    // perDay fica no default do gerador (fonte única); aqui passamos só foco/dias/meta
+    const treinos = generateWorkout(equip, focus, undefined, days, subFocus, { preset: presetId, overrides, biotype });
     const focusLabel = focus === 'full' ? 'Corpo todo' : GROUP_LABEL[focus] || focus;
     updateProfile(profile.id, {
       treinos,
