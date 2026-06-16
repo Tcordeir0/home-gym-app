@@ -59,6 +59,21 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   }, 0);
   const beatingPR = liveTop > 0 && (!pr || liveTop > pr.e1rm);
 
+  // Sugestão de progressão (overload): a partir da ÚLTIMA sessão (prev) + faixa de reps alvo.
+  // Se na última você bateu as reps prescritas em todas as séries → sobe a carga (+2,5 kg);
+  // senão, mantém a carga e mira fechar as reps. Em exercício corporal, progride em reps.
+  const fmtKg = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ','));
+  const topReps = Math.max(0, ...(String(ex.reps).match(/\d+/g) || []).map(Number));
+  const target = (() => {
+    if (!prev.length || !topReps || doneCount === rows.length) return null;
+    const hit = prev.every((p) => p.reps >= topReps); // bateu a prescrição na última vez
+    if (bw) return hit ? `Alvo: ${topReps + 1} reps — supere a última` : `Alvo: feche as ${topReps} reps`;
+    const best = prev.reduce((m, p) => (p.kg > m.kg ? p : m), prev[0]);
+    if (best.kg <= 0) return null;
+    if (hit) return `Alvo: ${fmtKg(Math.round((best.kg + 2.5) * 2) / 2)} kg × ${topReps} (+2,5 kg)`;
+    return `Alvo: ${fmtKg(best.kg)} kg × ${topReps} — feche as reps`;
+  })();
+
   return (
     <div className={'ex-card' + (doneCount === rows.length ? ' complete' : '')}>
       <div className="ex-head">
@@ -125,6 +140,10 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
             <span className="ex-pr-flag"><IonIcon icon={trendingUp} /> Batendo o recorde! ~{liveTop}kg</span>
           )}
         </div>
+      )}
+
+      {target && (
+        <div className="ex-target"><IonIcon icon={trendingUp} /> {target}</div>
       )}
 
       <div className="ex-sets">
