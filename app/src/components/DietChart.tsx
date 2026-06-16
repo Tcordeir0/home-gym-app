@@ -40,9 +40,9 @@ const DietChart: React.FC<{ cutoff?: string }> = ({ cutoff }) => {
       </div>
       {/* período próprio (só fora do Graficos) */}
       {cutoff === undefined && (
-        <div className="gr-range">
+        <div className="ds-seg gr-period">
           {([['semana', 'Semana'], ['mes', 'Mês'], ['ano', 'Ano'], ['tudo', 'Tudo']] as const).map(([k, label]) => (
-            <button key={k} className={'gr-range-btn' + (range === k ? ' on' : '')} onClick={() => setRange(k)}>{label}</button>
+            <button key={k} className={range === k ? 'on' : ''} onClick={() => setRange(k)}>{label}</button>
           ))}
         </div>
       )}

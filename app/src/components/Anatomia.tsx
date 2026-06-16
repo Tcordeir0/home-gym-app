@@ -337,7 +337,7 @@ const Anatomia: React.FC = () => {
 
   return (
     <div className="anat">
-      <div className="anat-seg">
+      <div className="ds-seg">
         <button className={view === 'front' ? 'on' : ''} onClick={() => setView('front')}>Frente</button>
         <button className={view === 'back' ? 'on' : ''} onClick={() => setView('back')}>Costas</button>
       </div>

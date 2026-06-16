@@ -95,9 +95,9 @@ const Graficos: React.FC = () => {
         </IonSegment>
 
         {/* período: semana / mês / ano / tudo — aplica a todos os gráficos */}
-        <div className="gr-range">
+        <div className="ds-seg gr-period">
           {([['semana', 'Semana'], ['mes', 'Mês'], ['ano', 'Ano'], ['tudo', 'Tudo']] as const).map(([k, label]) => (
-            <button key={k} className={'gr-range-btn' + (range === k ? ' on' : '')} onClick={() => setRange(k)}>{label}</button>
+            <button key={k} className={range === k ? 'on' : ''} onClick={() => setRange(k)}>{label}</button>
           ))}
         </div>
 
