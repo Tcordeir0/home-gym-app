@@ -251,6 +251,12 @@
   background: var(--app-surface-2); color: var(--ion-text-color);
   font-family: var(--ion-font-family); font-weight: 700; font-size: 14px; cursor: pointer;
 }
+.bc-scan {
+  flex: 0 0 auto; width: 46px; height: 42px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--app-line); border-radius: 12px;
+  background: var(--app-surface-2); color: var(--brand-lime); font-size: 22px; cursor: pointer;
+}
+.bc-scan:active { transform: scale(0.95); }
 
 /* Hidratação — config de garrafa */
 .hid-cfg { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }

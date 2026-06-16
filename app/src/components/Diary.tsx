@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { trashOutline, addOutline, calendarOutline, copyOutline } from 'ionicons/icons';
-import { cloudOutline, cameraOutline } from 'ionicons/icons';
+import { cloudOutline, cameraOutline, barcodeOutline } from 'ionicons/icons';
+
+// scanner pesado (@zxing) só carrega quando o usuário abre — fora do bundle inicial
+const BarcodeScanner = lazy(() => import('./BarcodeScanner'));
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor, isBeverage } from '../lib/diet';
@@ -50,6 +53,7 @@ const Diary: React.FC = () => {
   const [online, setOnline] = useState<OffHit[]>([]);
   const [onlineMsg, setOnlineMsg] = useState('');
   const [plateOpen, setPlateOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
 
   const doOnline = async () => {
     setOnline([]);
@@ -62,8 +66,8 @@ const Diary: React.FC = () => {
       setOnlineMsg('Sem conexão pra buscar online agora.');
     }
   };
-  const doBarcode = async () => {
-    const code = bc.replace(/\D/g, '');
+  const doBarcode = async (raw?: string) => {
+    const code = (raw ?? bc).replace(/\D/g, '');
     if (code.length < 6) return;
     setOnline([]);
     setOnlineMsg('Buscando código…');
@@ -235,7 +239,10 @@ const Diary: React.FC = () => {
             value={bc}
             onChange={(e) => setBc(e.target.value)}
           />
-          <button className="bc-go" onClick={doBarcode}>Buscar</button>
+          <button className="bc-scan" onClick={() => setScanOpen(true)} aria-label="Escanear código">
+            <IonIcon icon={barcodeOutline} />
+          </button>
+          <button className="bc-go" onClick={() => doBarcode()}>Buscar</button>
         </div>
 
         {onlineMsg && <p className="diary-empty">{onlineMsg}</p>}
@@ -252,6 +259,11 @@ const Diary: React.FC = () => {
         )}
 
         <PlateSheet open={plateOpen} date={date} onClose={() => setPlateOpen(false)} />
+        {scanOpen && (
+          <Suspense fallback={null}>
+            <BarcodeScanner open={scanOpen} onClose={() => setScanOpen(false)} onCode={(code) => { setBc(code); void doBarcode(code); }} />
+          </Suspense>
+        )}
       </IonCardContent>
     </IonCard>
   );
