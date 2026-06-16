@@ -9,18 +9,18 @@ import Graficos from '../components/Graficos';
 // lazy: as libs de anatomia (vulovix + react-muscle-highlighter) são pesadas — só carregam no Progresso
 const Anatomia = lazy(() => import('../components/Anatomia'));
 import FotoProgresso from '../components/FotoProgresso';
-import { useStore } from '../store/store';
+import { useStore, ownsActive } from '../store/store';
 import { statsFor, levelInfo, type StatsInput } from '../lib/stats';
 import { ACHIEVEMENTS, rewardLabel } from '../data/achievements';
 import { shareProgress } from '../lib/shareCard';
-import { POOL, GROUP_LABEL } from '../data/pool';
 import { familyLeague } from '../lib/league';
 import type { HistoryEntry } from '../store/types';
 import './Progresso.css';
 
 const DOW = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-const W_LABEL: Record<HistoryEntry['w'], string> = { A: 'Treino A', B: 'Treino B', C: 'Treino C', cardio: 'Cardio' };
+// rótulo derivado do tipo do treino — cobre A–E sem mapa hardcoded
+const wLabel = (w: HistoryEntry['w']): string => (w === 'cardio' ? 'Cardio' : `Treino ${w}`);
 
 function fmtDate(ds: string): string {
   const [y, m, d] = ds.split('-').map(Number);
@@ -43,6 +43,7 @@ const Progresso: React.FC = () => {
   const measures = useStore((s) => s.measures);
   const daily = useStore((s) => s.daily);
   const removeHistoryEntry = useStore((s) => s.removeHistoryEntry);
+  const owns = useStore(ownsActive); // dono deste perfil? (no modo leitura, tudo view-only)
 
   const [expanded, setExpanded] = useState<number | null>(null);
   const [delIdx, setDelIdx] = useState<number | null>(null);
@@ -116,10 +117,11 @@ const Progresso: React.FC = () => {
   // concede automaticamente os itens das conquistas já atingidas
   const claimAchievementRewards = useStore((s) => s.claimAchievementRewards);
   useEffect(() => {
+    if (!owns) return; // no modo leitura não concede recompensa no perfil alheio
     const n = claimAchievementRewards();
     if (n > 0) setToast(`🎁 ${n} recompensa${n > 1 ? 's' : ''} de conquista desbloqueada${n > 1 ? 's' : ''}! Veja no Perfil.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stats.treinos, stats.streak, stats.pts, stats.dietDays]);
+  }, [stats.treinos, stats.streak, stats.pts, stats.dietDays, owns]);
 
   const onShare = async () => {
     try {
@@ -132,10 +134,6 @@ const Progresso: React.FC = () => {
       const seriesWk = wkHist.reduce((a, e) => a + (e.exercises?.reduce((b, x) => b + x.sets.length, 0) || 0), 0);
       const wkDays = Object.entries(daily[active] || {}).filter(([dt]) => dt >= wkStart);
       const waterAvg = wkDays.length ? Math.round(wkDays.reduce((a, [, v]) => a + (v.waterMl || 0), 0) / wkDays.length) : 0;
-      const grp = new Map<string, string>(); POOL.forEach((p) => grp.set(p.n, p.g));
-      const cnt: Record<string, number> = {};
-      wkHist.forEach((e) => e.exercises?.forEach((x) => { const g = grp.get(x.nome); if (g) cnt[g] = (cnt[g] || 0) + x.sets.length; }));
-      const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
       const res = await shareProgress({
         name, level: lvl.level, pts: stats.pts, pct: lvl.pct,
         streak: stats.streak, treinos: stats.treinos, dias: stats.activeDays,
@@ -146,7 +144,6 @@ const Progresso: React.FC = () => {
         hat: aProfile?.cosmetics?.hat || undefined,
         seriesWk: seriesWk || undefined,
         waterAvg: waterAvg || undefined,
-        topMuscle: top ? GROUP_LABEL[top[0]] : undefined,
       });
       setToast(res === 'shared' ? 'Compartilhado! 💪' : 'Card salvo (galeria/Downloads) 📲');
     } catch {
@@ -165,7 +162,7 @@ const Progresso: React.FC = () => {
             {e.w === 'cardio' ? (e.emoji || '🔥') : e.w}
           </span>
           <span className="sess-main">
-            <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : W_LABEL[e.w]}</span>
+            <span className="sess-title">{e.w === 'cardio' ? (e.t || 'Cardio') : wLabel(e.w)}</span>
             <span className="sess-sub">
               {fmtDate(e.date)}
               {e.w !== 'cardio' && setCount > 0 && ` · ${setCount} série${setCount > 1 ? 's' : ''}`}
@@ -183,10 +180,10 @@ const Progresso: React.FC = () => {
                 <span className="sess-ex-s">{x.sets.length ? x.sets.map((st) => `${st.kg ?? '–'}kg×${st.reps ?? '–'}`).join('  ') : '—'}</span>
               </div>
             ))}
-            <button className="sess-del" onClick={() => setDelIdx(idx)}><IonIcon icon={trashOutline} /> Apagar sessão</button>
+            {owns && <button className="sess-del" onClick={() => setDelIdx(idx)}><IonIcon icon={trashOutline} /> Apagar sessão</button>}
           </div>
         )}
-        {e.w === 'cardio' && (
+        {e.w === 'cardio' && owns && (
           <button className="sess-del cardio-del" onClick={() => setDelIdx(idx)} aria-label="Apagar"><IonIcon icon={trashOutline} /></button>
         )}
       </div>
@@ -198,9 +195,11 @@ const Progresso: React.FC = () => {
       {/* Nível + pontos */}
       <IonCard className="prog-card lvl-card">
         <IonCardContent>
-          <button className="lvl-share" onClick={onShare} aria-label="Compartilhar progresso">
-            <IonIcon icon={shareOutline} />
-          </button>
+          {owns && (
+            <button className="lvl-share" onClick={onShare} aria-label="Compartilhar progresso">
+              <IonIcon icon={shareOutline} />
+            </button>
+          )}
           <div className="lvl-wrap">
             <div className="lvl-ring">
               <svg viewBox="0 0 110 110" width="110" height="110">
@@ -281,7 +280,7 @@ const Progresso: React.FC = () => {
                 <p className="cal-detail-empty">Nada registrado nesse dia.</p>
               ) : (
                 <ul className="cal-detail-list">
-                  {dayInfo.treinos.map((e, i) => <li key={'t' + i}>💪 {W_LABEL[e.w]}{e.exercises ? ` · ${e.exercises.reduce((a, x) => a + x.sets.length, 0)} séries` : ''}</li>)}
+                  {dayInfo.treinos.map((e, i) => <li key={'t' + i}>💪 {wLabel(e.w)}{e.exercises ? ` · ${e.exercises.reduce((a, x) => a + x.sets.length, 0)} séries` : ''}</li>)}
                   {dayInfo.cardios.map((e, i) => <li key={'c' + i}>{e.emoji || '🏃'} {e.t || 'Cardio'}{e.mins ? ` · ${e.mins} min` : ''}</li>)}
                   {dayInfo.foodN > 0 && <li>🍽️ {dayInfo.foodN} {dayInfo.foodN === 1 ? 'item' : 'itens'} · {dayInfo.kcal} kcal</li>}
                   {dayInfo.water > 0 && <li>💧 {(dayInfo.water / 1000).toFixed(1)} L de água</li>}
