@@ -33,7 +33,7 @@ const Hidratacao: React.FC = () => {
 
   const bottle = profile.bottleMl || 500;
   const weight = latestMeasure('weight');
-  const goal = waterGoal(weight);
+  const goal = waterGoal(weight, profile.body?.activity);
   const ml = daily?.[active]?.[date]?.waterMl || 0;
   const pct = Math.min(100, Math.round((ml / goal) * 100));
   const over = ml > goal;

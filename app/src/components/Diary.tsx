@@ -84,9 +84,12 @@ const Diary: React.FC = () => {
   const t = targetsFor(profile.body, weight);
   const food = daily?.[active]?.[date]?.food || [];
 
-  let kcal = 0, prot = 0;
-  food.forEach((it) => { kcal += (it.k * it.g) / 100; prot += (it.p * it.g) / 100; });
-  kcal = Math.round(kcal); prot = Math.round(prot);
+  let kcal = 0, prot = 0, carb = 0, fatg = 0;
+  food.forEach((it) => {
+    kcal += (it.k * it.g) / 100; prot += (it.p * it.g) / 100;
+    carb += ((it.c || 0) * it.g) / 100; fatg += ((it.f || 0) * it.g) / 100;
+  });
+  kcal = Math.round(kcal); prot = Math.round(prot); carb = Math.round(carb); fatg = Math.round(fatg);
   const pct = t ? Math.min(100, Math.round((kcal / t.target) * 100)) : 0;
   const over = !!t && kcal > t.target;
 
@@ -115,13 +118,20 @@ const Diary: React.FC = () => {
               <span className="diary-kcal" style={{ color: over ? '#ff6b6b' : 'var(--brand-lime)' }}>
                 {kcal}<small> / {t.target} kcal</small>
               </span>
-              <span className="diary-prot">prot {prot}/{t.protein}g</span>
             </div>
             <div className="hid-bar">
               <span className="diary-fill" style={{ width: pct + '%', background: over ? '#ff6b6b' : undefined }} />
             </div>
             <div className="diary-rem" style={{ color: over ? '#ff6b6b' : undefined }}>
               {over ? `Passou ${kcal - t.target} kcal da meta` : `Faltam ${t.target - kcal} kcal pra meta`}
+            </div>
+            <div className="diary-macros">
+              {([['Proteína', prot, t.protein], ['Carbo', carb, t.carbs], ['Gordura', fatg, t.fat]] as const).map(([l, v, tgt]) => (
+                <div className="dmacro" key={l}>
+                  <div className="dmacro-top"><span>{l}</span><span><b>{v}</b>/{tgt}g</span></div>
+                  <div className="dmacro-track"><span style={{ width: Math.min(100, tgt ? Math.round((v / tgt) * 100) : 0) + '%' }} /></div>
+                </div>
+              ))}
             </div>
           </>
         ) : (

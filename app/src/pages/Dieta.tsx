@@ -37,7 +37,8 @@ const Dieta: React.FC = () => {
               <div className="meta-wrap">
                 <div className="meta-label">Meta diária</div>
                 <div className="meta-kcal">{t.target}<span className="meta-unit"> kcal</span></div>
-                <div className="meta-sub">manutenção {t.tdee} · proteína {t.protein}g/dia</div>
+                <div className="meta-sub">manutenção {t.tdee} kcal</div>
+                <div className="meta-macros">Proteína <b>{t.protein}g</b> · Carbo <b>{t.carbs}g</b> · Gordura <b>{t.fat}g</b></div>
               </div>
               <IonButton className="meta-cfg" fill="clear" size="small" routerLink="/perfil">
                 <IonIcon slot="start" icon={personCircleOutline} /> Ajustar <IonIcon slot="end" icon={arrowForward} />
