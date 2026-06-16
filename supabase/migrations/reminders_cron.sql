@@ -29,6 +29,12 @@ exception when others then
   return; -- nunca quebra o cron por causa de uma falha pontual
 end; $$;
 
+-- Remove o cron antigo duplicado, se existir (evitaria disparo 2×).
+select cron.unschedule('home-gym-reminders') where exists (select 1 from cron.job where jobname = 'home-gym-reminders');
+
 -- Agenda a cada 15 min (precisa casar com CRON_WINDOW_MIN=15 na Edge Function).
 select cron.unschedule('hg-reminders') where exists (select 1 from cron.job where jobname = 'hg-reminders');
 select cron.schedule('hg-reminders', '*/15 * * * *', $$ select public.fire_reminders(); $$);
+
+-- Segurança: só o cron (postgres) deve chamar fire_reminders — não anon/authenticated via REST.
+revoke execute on function public.fire_reminders() from anon, authenticated, public;
