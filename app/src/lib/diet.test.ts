@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bmi, bmiClass, bodyFatNavy } from './diet';
+import { bmi, bmiClass, bodyFatNavy, isBeverage } from './diet';
 
 // Funções que passei a exibir na aba DIETA (IMC + gordura). Garante que computam valores sãos.
 describe('bmi + bmiClass', () => {
@@ -11,6 +11,22 @@ describe('bmi + bmiClass', () => {
     expect(bmiClass(22).l).toBe('saudável');
     expect(bmiClass(27).l).toBe('sobrepeso');
     expect(bmiClass(32).l).toBe('obesidade');
+  });
+});
+
+describe('isBeverage', () => {
+  it('detecta bebidas pelo nome (mostra ml/L, não colheres)', () => {
+    ['Coca-Cola', 'Suco de laranja natural', 'Cerveja', 'Café sem açúcar', 'Leite integral', 'Água'].forEach((n) =>
+      expect(isBeverage(n)).toBe(true)
+    );
+  });
+  it('detecta pela tag "bebida"', () => {
+    expect(isBeverage('Refrigerante X', 'br pt bebida')).toBe(true);
+  });
+  it('sólido continua sólido (conta em g/colheres)', () => {
+    ['Feijão frade cozido', 'Arroz branco', 'Peito de frango', 'Ovo cozido'].forEach((n) =>
+      expect(isBeverage(n)).toBe(false)
+    );
   });
 });
 

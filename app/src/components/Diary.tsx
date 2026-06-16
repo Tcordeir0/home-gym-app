@@ -4,7 +4,7 @@ import { trashOutline, addOutline, calendarOutline, copyOutline } from 'ionicons
 import { cloudOutline, cameraOutline } from 'ionicons/icons';
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
-import { targetsFor } from '../lib/diet';
+import { targetsFor, isBeverage } from '../lib/diet';
 import { FOODS } from '../data/foods';
 import { offSearch, offBarcode, type OffHit } from '../lib/off';
 
@@ -13,13 +13,6 @@ const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(
 // Aproximação: 1 colher de sopa cheia ≈ 15g (referência de cozinha).
 const GRAMS_PER_SPOON = 15;
 const spoons = (g: number) => Math.max(1, Math.round(g / GRAMS_PER_SPOON));
-
-// Bebida → conta em ml (não g). Densidade ≈ 1, então kcal/100g ≈ kcal/100ml.
-const isBeverage = (name: string, tags?: string) => {
-  if (tags && normTxt(tags).includes('bebida')) return true;
-  const n = normTxt(name);
-  return /(agua|suco|refri|coca|\bcola\b|cerveja|cafe|\bcha\b|leite|vitamina|smoothie|guarana|limonada|gatorade|energetico|isotonico|whisky|vinho|cha gelado|achocolatado)/.test(n);
-};
 
 const Diary: React.FC = () => {
   const profile = useActiveProfile();

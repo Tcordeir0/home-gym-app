@@ -5,10 +5,11 @@ import { useStore } from '../store/store';
 import { FOODS, type Food } from '../data/foods';
 import { resizePhoto } from '../lib/image';
 import { recognizePlate, ptLabel, food101Local } from '../lib/foodAI';
+import { isBeverage } from '../lib/diet';
 
 const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-interface PlateItem { n: string; k: number; p: number; g: number }
+interface PlateItem { n: string; k: number; p: number; g: number; liq?: boolean }
 interface Chip { term: string; score: number; local: Food | null }
 
 const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }> = ({ open, date, onClose }) => {
@@ -38,7 +39,7 @@ const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }>
       if (cands.length) {
         const top = cands[0];
         if (top.score >= 0.3 && top.local) {
-          setPlate((p) => [...p, { n: top.local!.n, k: top.local!.kcal, p: top.local!.p, g: top.local!.porcao || 100 }]);
+          setPlate((p) => [...p, { n: top.local!.n, k: top.local!.kcal, p: top.local!.p, g: top.local!.porcao || 100, liq: isBeverage(top.local!.n, top.local!.tags) }]);
         }
         setChips(cands.slice(0, 5));
         setMsg('');
@@ -49,7 +50,7 @@ const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }>
     e.target.value = '';
   };
 
-  const addLocal = (f: Food) => { setPlate((p) => [...p, { n: f.n, k: f.kcal, p: f.p, g: f.porcao || 100 }]); setQ(''); };
+  const addLocal = (f: Food) => { setPlate((p) => [...p, { n: f.n, k: f.kcal, p: f.p, g: f.porcao || 100, liq: isBeverage(f.n, f.tags) }]); setQ(''); };
   const addChip = (c: Chip) => { if (c.local) addLocal(c.local); else setQ(c.term); };
   const updGrams = (i: number, g: number) => setPlate((p) => p.map((it, j) => (j === i ? { ...it, g } : it)));
   const removeItem = (i: number) => setPlate((p) => p.filter((_, j) => j !== i));

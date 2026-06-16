@@ -41,6 +41,19 @@ export function bmi(weight: number, heightCm: number): number {
   return weight / Math.pow(heightCm / 100, 2);
 }
 
+const normBev = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/**
+ * Decide se um alimento é líquido (conta em ml/L, não em g/colheres).
+ * Fonte única de verdade — usada ao adicionar no diário (Diary, PlateSheet).
+ * Detecta pela tag "bebida" ou por nomes comuns de bebida.
+ */
+export function isBeverage(name: string, tags?: string): boolean {
+  if (tags && normBev(tags).includes('bebida')) return true;
+  const n = normBev(name);
+  return /(agua|suco|refri|coca|\bcola\b|cerveja|cafe|\bcha\b|leite|vitamina|smoothie|guarana|limonada|gatorade|energetico|isotonico|whisky|vinho|cha gelado|achocolatado)/.test(n);
+}
+
 /** Meta diária de água (ml) por peso (~35ml/kg), piso de 2L. Fonte única de verdade. */
 export function waterGoal(weight: number | null | undefined): number {
   return weight ? Math.max(2000, Math.round((weight * 35) / 50) * 50) : 2000;
