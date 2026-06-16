@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.16.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.15.0...v0.16.0) (2026-06-16)
+
+
+### Features
+
+* **anatomia:** voltar + demo + sub-músculos visíveis + cor do perfil visto ([1edda91](https://github.com/Tcordeir0/home-gym-app/commit/1edda9113da4af5be167a463cfe18658e806dad6))
+* **design-system:** migra Gráficos/DietChart (chips) e Treino (botões) ([b18a7b1](https://github.com/Tcordeir0/home-gym-app/commit/b18a7b1d4dcdbb8bf3fdacd575be1df197518285))
+* **design-system:** tokens + componentes .ds-* e início da migração ([cd7a1b7](https://github.com/Tcordeir0/home-gym-app/commit/cd7a1b7a6612e1b5445d7cffdfcf9288addbcf7f))
+* **dieta:** copiar alimento pra outro dia (não move) + evolução na aba ([76dee18](https://github.com/Tcordeir0/home-gym-app/commit/76dee18af483fffa3e41c1d45cbf8190976b5351))
+* **gerador:** foco maximiza um músculo e divide o resto + auto-peso corporal ([720e1ee](https://github.com/Tcordeir0/home-gym-app/commit/720e1eeec110ce52818ac0901d89bd3ee3808f4f))
+* **graficos:** período semana/mês/ano/tudo + gráfico de dieta reutilizável ([fd1d596](https://github.com/Tcordeir0/home-gym-app/commit/fd1d596acac77248420696abc469d36ca31cdb4c))
+* **modo-leitura:** perfil alheio só mostra Progresso e fica não-interativo ([35efa85](https://github.com/Tcordeir0/home-gym-app/commit/35efa85099c3404e8f7e09cfca1312134ec67d3a))
+* **push:** inscrição Web Push real pro lembrete em background ([c311a90](https://github.com/Tcordeir0/home-gym-app/commit/c311a906137ad581e143b92d84277db6a6d8109a))
+* **treino/dieta:** metas na Dieta, onboarding de perfil novo e backdating A-E ([43ce69b](https://github.com/Tcordeir0/home-gym-app/commit/43ce69b5d9419f825586bb63ccafb412003c62f8))
+* **ux:** volta ao topo e fecha seções ao trocar de aba ([d236418](https://github.com/Tcordeir0/home-gym-app/commit/d23641827e35aeb14a7067ca7abef87db594da8c))
+
+
+### Bug Fixes
+
+* **card:** chips da semana alinhados e sem músculo top ([f2bbba2](https://github.com/Tcordeir0/home-gym-app/commit/f2bbba279964285b79767f66bcef128167698283))
+* **dados:** nomes do plano batem com o POOL + ênfase corrigida ([89d7099](https://github.com/Tcordeir0/home-gym-app/commit/89d7099a9279d9b51d34ebed0636f4865a260464))
+* **stats:** contar treinos A-E ([b56b871](https://github.com/Tcordeir0/home-gym-app/commit/b56b8714f1cd7e894260135efdf324e55af1848d))
+
 ## [0.15.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.14.0...v0.15.0) (2026-06-14)
 
 
