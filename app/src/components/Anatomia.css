@@ -129,3 +129,29 @@
   border: 1px solid color-mix(in srgb, var(--brand-lime) 30%, transparent);
 }
 .anat-back:active { background: color-mix(in srgb, var(--brand-lime) 24%, transparent); }
+
+/* ===== Compartilhar músculos treinados (card de Anatomia) ===== */
+.anat-share {
+  margin-top: 18px; padding: 14px;
+  border-radius: 16px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-line);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.anat-share-h { font-weight: 700; font-size: 0.95rem; }
+.anat-share-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.anat-share-pick select {
+  flex: 1; min-width: 88px; padding: 9px 10px;
+  border-radius: 11px; font: inherit; color: var(--ion-text-color);
+  background: color-mix(in srgb, var(--app-line) 18%, transparent);
+  border: 1px solid var(--app-line);
+}
+.anat-share-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 13px; border: none; font-weight: 700; font-size: 0.95rem;
+  background: var(--brand-lime); color: #0b0c0f;
+}
+.anat-share-btn:disabled { opacity: 0.5; }
+.anat-share-btn:active:not(:disabled) { filter: brightness(0.94); }
+/* bonecos só pra rasterizar o card — fora da tela, mas renderizados */
+.anat-hidden { position: absolute; left: -99999px; top: 0; width: 360px; opacity: 0; pointer-events: none; }
