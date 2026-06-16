@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
-import { IonActionSheet } from '@ionic/react';
+import { IonActionSheet, IonIcon, useIonViewWillLeave } from '@ionic/react';
+import { eyeOutline, arrowBackOutline } from 'ionicons/icons';
+import DemoSheet from './DemoSheet';
+import type { Exercise } from '../data/types';
 import Body, { type Slug, type ExtendedBodyPart } from 'react-muscle-highlighter';
 import type { BodyState } from 'body-muscles';
 import MaleBody from './MaleBody';
@@ -71,7 +74,7 @@ const BASE_LABEL: Record<string, string> = {
   'biceps': 'Bíceps', 'triceps-long': 'Tríceps · cabeça longa', 'triceps-lateral': 'Tríceps · cabeça lateral',
   'forearm-flexors': 'Antebraço · flexores', 'forearm-extensors': 'Antebraço · extensores',
   'abs-upper': 'Abdômen superior', 'abs-lower': 'Abdômen inferior', 'obliques': 'Oblíquos', 'serratus-anterior': 'Serrátil',
-  'quads': 'Quadríceps', 'adductors': 'Adutores',
+  'quads': 'Quadríceps',
   'hamstrings-lateral': 'Posterior · lateral', 'hamstrings-medial': 'Posterior · medial',
   'calves-gastroc-lateral': 'Panturrilha · gastroc. lateral', 'calves-gastroc-medial': 'Panturrilha · gastroc. medial', 'calves-soleus': 'Panturrilha · sóleo',
   'gluteus-maximus': 'Glúteo máximo', 'gluteus-medius': 'Glúteo médio',
@@ -184,6 +187,15 @@ const Anatomia: React.FC = () => {
   const [sel, setSel] = useState<Fine | null>(null);
   const [selBase, setSelBase] = useState<string | null>(null); // sub-região escolhida (ex.: 'chest-upper')
   const [addingEx, setAddingEx] = useState<string | null>(null); // exercício a mandar pro treino
+  const [demoEx, setDemoEx] = useState<Exercise | null>(null); // exercício a demonstrar (DemoSheet)
+
+  // abre a demo de um exercício pelo nome (monta o Exercise a partir do POOL)
+  const openDemo = (n: string) => {
+    const p = POOL.find((x) => x.n === n);
+    if (p) setDemoEx({ nome: p.n, musculo: GROUP_LABEL[p.g] || '', series: p.s || 3, reps: p.r, dica: p.d });
+  };
+  // ao SAIR da página, volta a Anatomia ao estado padrão (sem músculo/parte selecionados)
+  useIonViewWillLeave(() => { setSel(null); setSelBase(null); setView('front'); });
 
   const addToWorkout = useStore((s) => s.addExerciseToWorkout);
   // treinos disponíveis (A–E presentes) pra mandar o exercício
@@ -199,10 +211,12 @@ const Anatomia: React.FC = () => {
     setAddingEx(null);
   };
 
-  // cores do tema (lidas em runtime; re-lê quando muda o tema)
+  // accent = cor do perfil VISUALIZADO (não o --brand-lime global, que no modo leitura
+  // pode estar 1 render atrás do tema do outro perfil). base lida do tema aplicado.
+  const profileColor = profile?.color || '#c6ff3a';
   const { bodyColor, shades, maleColors } = useMemo(() => {
     const root = typeof document !== 'undefined' ? getComputedStyle(document.documentElement) : null;
-    const accent = (root?.getPropertyValue('--brand-lime').trim()) || '#c6ff3a';
+    const accent = /^#[0-9a-f]{3,6}$/i.test(profileColor) ? profileColor : '#c6ff3a';
     const base = (root?.getPropertyValue('--app-line').trim()) || '#2a2f3a';
     const body = /^#?[0-9a-f]{3,6}$/i.test(base) ? base : '#2a2f3a';
     const b = body.startsWith('#') ? body : '#2a2f3a';
@@ -218,7 +232,7 @@ const Anatomia: React.FC = () => {
       shades: [...[0.3, 0.48, 0.66, 0.83, 1].map((t) => mix(b, ac, t)), mix(ac, '#ffffff', 0.6)],
       maleColors: mc,
     };
-  }, [theme]);
+  }, [theme, profileColor]);
 
   // séries por músculo (30 dias p/ o mapa + 7 dias p/ o alvo semanal)
   const { counts, weekly, total, intensity, baseCounts } = useMemo(() => {
@@ -305,8 +319,13 @@ const Anatomia: React.FC = () => {
       .slice(0, 3);
   }, [baseCounts, profile?.shapeGoal, profile?.body?.biotype, profile?.body?.sex]);
 
-  // seleção: por GRUPO (legenda/feminino) zera a sub-região; clique no boneco masculino vai direto na sub-região
-  const pickFine = (f: Fine | null) => { setSelBase(null); setSel((cur) => (f === cur ? null : f)); };
+  // seleção: por GRUPO (legenda/feminino). Se o músculo tem UMA só sub-região (serrátil,
+  // bíceps, oblíquos, quadríceps), já seleciona ela — senão os exercícios nunca apareciam.
+  const pickFine = (f: Fine | null) => {
+    const next = f === sel ? null : f;
+    setSel(next);
+    setSelBase(next && FINE_VULOVIX[next].length === 1 ? FINE_VULOVIX[next][0] : null);
+  };
   const pickBase = (base: string) => {
     const f = VULOVIX_BASE_FINE[base];
     if (!f) return;
@@ -346,6 +365,10 @@ const Anatomia: React.FC = () => {
 
       {sel ? (
         <div className="anat-panel">
+          {/* voltar: do detalhe de exercícios → músculo (se tem várias partes); senão → visão da meta */}
+          <button className="anat-back" onClick={() => { if (selBase && FINE_VULOVIX[sel].length > 1) setSelBase(null); else { setSel(null); setSelBase(null); } }}>
+            <IonIcon icon={arrowBackOutline} /> Voltar
+          </button>
           <div className="anat-panel-top">
             <b>{FINE_LABEL[sel]}</b>
             <span>{counts[sel]} séries · {total ? Math.round((counts[sel] / total) * 100) : 0}%</span>
@@ -380,7 +403,10 @@ const Anatomia: React.FC = () => {
               {exercisesForBase(selBase).length ? (
                 <div className="anat-exos-list">
                   {exercisesForBase(selBase).map((n) => (
-                    <button key={n} className="anat-exo" onClick={() => setAddingEx(n)}>{n} <span className="anat-exo-add">＋</span></button>
+                    <div key={n} className="anat-exo-row">
+                      <button className="anat-exo-demo" aria-label={'Ver demonstração de ' + n} onClick={() => openDemo(n)}><IonIcon icon={eyeOutline} /></button>
+                      <button className="anat-exo" onClick={() => setAddingEx(n)}>{n} <span className="anat-exo-add">＋</span></button>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -437,6 +463,9 @@ const Anatomia: React.FC = () => {
         ]}
         onDidDismiss={() => setAddingEx(null)}
       />
+
+      {/* demonstração do exercício (mesmo sheet do Treino) */}
+      <DemoSheet ex={demoEx} onClose={() => setDemoEx(null)} />
     </div>
   );
 };
