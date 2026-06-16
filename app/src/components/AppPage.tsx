@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonIcon } from '@ionic/react';
+import { useRef, useState } from 'react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonIcon, useIonViewWillEnter } from '@ionic/react';
 import type { ReactNode } from 'react';
 import type { ScrollDetail } from '@ionic/core';
 import { eyeOutline } from 'ionicons/icons';
@@ -25,6 +25,10 @@ const AppPage: React.FC<Props> = ({ title, brand, accessory, children }) => {
     const s = e.detail.scrollTop > 44;
     setScrolled((prev) => (prev === s ? prev : s));
   };
+  // ao ENTRAR na página, volta pro topo (não fica "lá embaixo" de onde a deixou).
+  // Só rolagem — dados/forms/toggles vivem no store e não são tocados.
+  const contentRef = useRef<HTMLIonContentElement>(null);
+  useIonViewWillEnter(() => { contentRef.current?.scrollToTop(0); setScrolled(false); });
 
   // Modo leitura: vendo o perfil de outro (não reivindicado por este aparelho).
   const owns = useStore(ownsActive);
@@ -39,7 +43,7 @@ const AppPage: React.FC<Props> = ({ title, brand, accessory, children }) => {
           <IonTitle>{brand ? 'Home Gym' : title}</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen scrollEvents onIonScroll={onScroll}>
+      <IonContent ref={contentRef} fullscreen scrollEvents onIonScroll={onScroll}>
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">
