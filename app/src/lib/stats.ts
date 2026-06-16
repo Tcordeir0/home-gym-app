@@ -44,7 +44,7 @@ export interface Stats {
 
 export function statsFor(state: StatsInput, uid: string): Stats {
   const list = state.history[uid] || [];
-  const treinos = list.filter((e) => e.w === 'A' || e.w === 'B' || e.w === 'C').length;
+  const treinos = list.filter((e) => e.w !== 'cardio').length; // conta A–E (qualquer treino), igual ao quests.ts
   const cardios = list.filter((e) => e.w === 'cardio').length;
   const days: Record<string, boolean> = {};
   list.forEach((e) => { days[e.date] = true; });
