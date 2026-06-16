@@ -477,40 +477,8 @@
   gap: 8px;
   margin-top: 12px;
 }
-.equip-chip {
-  flex: 0 0 auto;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--app-line);
-  background: var(--app-surface-2);
-  color: var(--app-muted);
-  font-family: var(--ion-font-family);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
-}
-.equip-chip.on {
-  border-color: var(--brand-lime);
-  background: rgba(198, 255, 58, 0.12);
-  color: var(--brand-lime);
-}
-.cardio-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+/* (chips de equipamento/cardio/adicionar migrados pro design-system .ds-chip) */
 .chip-emoji {
-  font-size: 15px;
-}
-.add-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border-style: dashed;
-  color: var(--app-muted);
-}
-.add-chip ion-icon {
   font-size: 15px;
 }
 .agenda-days {
@@ -753,11 +721,7 @@
 .perfil-about { margin: 14px 0 0; font-size: 12px; color: var(--app-muted); text-align: center; opacity: 0.7; }
 .perfil-subhead { font-size: 12px; font-weight: 800; color: var(--app-muted); margin: 18px 0 9px; text-transform: uppercase; letter-spacing: 0.5px; }
 .perfil-subhead:first-child { margin-top: 4px; }
-.perfil-gen-btn {
-  width: 100%; margin-top: 18px; border: 1px solid color-mix(in srgb, var(--brand-lime) 40%, transparent);
-  background: color-mix(in srgb, var(--brand-lime) 14%, transparent); color: var(--brand-lime);
-  font-family: var(--ion-font-family); font-weight: 800; font-size: 14px; border-radius: 13px; padding: 14px; cursor: pointer;
-}
+/* botão "Gerar treino" migrado pro design-system (.ds-btn--primary) */
 
 /* ===== Zona de perigo ===== */
 .danger-card { border: 1px solid rgba(255, 91, 91, 0.3); }

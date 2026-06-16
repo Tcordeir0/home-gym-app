@@ -93,7 +93,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
           <h3 className="gen-h">Nº de treinos por semana</h3>
           <div className="gen-chips">
             {[{ d: 3, l: 'A–C · 3 dias' }, { d: 4, l: 'A–D · 4 dias' }, { d: 5, l: 'A–E · 5 dias' }].map((o) => (
-              <button key={o.d} className={'gen-chip' + (days === o.d ? ' on' : '')} onClick={() => setDays(o.d)}>
+              <button key={o.d} className={'ds-chip' + (days === o.d ? ' on' : '')} onClick={() => setDays(o.d)}>
                 {o.l}
               </button>
             ))}
@@ -104,7 +104,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
             {FOCUS_OPTIONS.map((o) => (
               <button
                 key={o.key}
-                className={'gen-chip' + (focus === o.key ? ' on' : '')}
+                className={'ds-chip' + (focus === o.key ? ' on' : '')}
                 onClick={() => pickFocus(o.key)}
               >
                 {o.label}
@@ -116,9 +116,9 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
             <>
               <h3 className="gen-h">Sub-foco · {GROUP_LABEL[focus] || focus}</h3>
               <div className="gen-chips">
-                <button className={'gen-chip' + (subFocus === null ? ' on' : '')} onClick={() => setSubFocus(null)}>Equilibrado</button>
+                <button className={'ds-chip' + (subFocus === null ? ' on' : '')} onClick={() => setSubFocus(null)}>Equilibrado</button>
                 {subOptions.map((o) => (
-                  <button key={o.base} className={'gen-chip' + (subFocus === o.base ? ' on' : '')} onClick={() => setSubFocus(o.base)}>
+                  <button key={o.base} className={'ds-chip' + (subFocus === o.base ? ' on' : '')} onClick={() => setSubFocus(o.base)}>
                     {o.label}{suggestedBase === o.base ? ' 💡' : ''}
                   </button>
                 ))}
@@ -132,7 +132,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
             <span className="gen-warm-state">{warm ? 'Sim' : 'Não'}</span>
           </button>
 
-          <motion.button whileTap={{ scale: 0.97 }} className="gen-go" onClick={gen}>
+          <motion.button whileTap={{ scale: 0.97 }} className="ds-btn ds-btn--primary gen-go" onClick={gen}>
             Gerar treino
           </motion.button>
         </div>
