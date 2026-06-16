@@ -8,6 +8,7 @@ import AppPage from '../components/AppPage';
 import { useStore, useActiveProfile, COLORS } from '../store/store';
 import { fxTick, fxBuzzTest } from '../lib/feedback';
 import { requestNotifications, vibrationSupported } from '../lib/permissions';
+import { enablePush, disablePush, syncPushSchedule } from '../lib/push';
 import { pushNow } from '../lib/sync';
 import Collapsible from '../components/Collapsible';
 import Calculadora from '../components/Calculadora';
@@ -105,10 +106,14 @@ const Perfil: React.FC = () => {
   };
   // Notificações: pede permissão ao ATIVAR; só liga se concedida.
   const onNotifToggle = async (on: boolean) => {
-    if (!on) { setNotifyOn(false); return; }
+    if (!on) { setNotifyOn(false); void disablePush(); return; }
     const ok = await requestNotifications();
-    if (ok) { setNotifyOn(true); setToast('Notificações ativadas 🔔'); }
-    else { setNotifyOn(false); setToast('Permissão de notificação negada. Ative nas configurações do sistema.'); }
+    if (ok) {
+      setNotifyOn(true);
+      // inscreve este aparelho no push REAL (lembrete com app fechado) + lembrete local
+      const pushed = await enablePush();
+      setToast(pushed ? 'Notificações ativadas 🔔' : 'Notificações ativadas 🔔 (push em background só com o app instalado na tela inicial)');
+    } else { setNotifyOn(false); setToast('Permissão de notificação negada. Ative nas configurações do sistema.'); }
   };
   const [accountEmail, setAccountEmail] = useState('');
   useEffect(() => { supabase.auth.getUser().then(({ data }) => setAccountEmail(data.user?.email || '')); }, []);
@@ -154,6 +159,7 @@ const Perfil: React.FC = () => {
       ? schedule.days.filter((d) => d !== i)
       : [...schedule.days, i].sort((a, b) => a - b);
     updateProfile(profile.id, { schedule: { ...schedule, days } });
+    if (notifyOn) void syncPushSchedule(); // atualiza a agenda do push em background
   };
 
   return (
@@ -431,7 +437,7 @@ const Perfil: React.FC = () => {
         </div>
         <div className="agenda-time">
           <span>Horário do lembrete</span>
-          <input type="time" className="agenda-input" value={schedule.time || '18:00'} onChange={(e) => updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } })} />
+          <input type="time" className="agenda-input" value={schedule.time || '18:00'} onChange={(e) => { updateProfile(profile.id, { schedule: { ...schedule, time: e.target.value } }); if (notifyOn) void syncPushSchedule(); }} />
         </div>
       </Collapsible>
 
