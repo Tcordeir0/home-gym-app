@@ -4,6 +4,7 @@ import AppPage from '../components/AppPage';
 import Balanca from '../components/Balanca';
 import Hidratacao from '../components/Hidratacao';
 import Diary from '../components/Diary';
+import DietChart from '../components/DietChart';
 import DicasDia from '../components/DicasDia';
 import { useStore, useActiveProfile } from '../store/store';
 import { targetsFor, bmi, bmiClass, bodyFatNavy } from '../lib/diet';
@@ -66,6 +67,15 @@ const Dieta: React.FC = () => {
 
       <DicasDia />
       <Diary />
+
+      {/* evolução da dieta (calorias/proteína/água) — histórico não zera, fica tudo aqui */}
+      <IonCard className="diet-results">
+        <IonCardContent>
+          <h2 className="card-title">📈 Evolução da dieta</h2>
+          <DietChart />
+        </IonCardContent>
+      </IonCard>
+
       <Balanca />
       <Hidratacao />
     </AppPage>

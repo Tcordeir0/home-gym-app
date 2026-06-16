@@ -29,7 +29,7 @@ const Diary: React.FC = () => {
   const addFoodOn = useStore((s) => s.addFoodOn);
   const setGramsOn = useStore((s) => s.setFoodGramsOn);
   const removeFoodOn = useStore((s) => s.removeFoodOn);
-  const moveFoodOn = useStore((s) => s.moveFoodOn);
+  const copyFoodOn = useStore((s) => s.copyFoodOn);
   const copyDietFromPrev = useStore((s) => s.copyDietFromPrev);
   const [moveIdx, setMoveIdx] = useState<number | null>(null);
   const [copyMsg, setCopyMsg] = useState('');
@@ -161,7 +161,7 @@ const Diary: React.FC = () => {
                     <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
                   </div>
                   <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
-                  <button className={'food-move' + (moveIdx === i ? ' on' : '')} onClick={() => setMoveIdx(moveIdx === i ? null : i)} aria-label="Mover para outro dia">
+                  <button className={'food-move' + (moveIdx === i ? ' on' : '')} onClick={() => setMoveIdx(moveIdx === i ? null : i)} aria-label="Copiar para outro dia">
                     <IonIcon icon={calendarOutline} />
                   </button>
                   <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
@@ -170,15 +170,15 @@ const Diary: React.FC = () => {
                 </div>
                 {moveIdx === i && (
                   <div className="food-movebar">
-                    <span>Mover <b>{it.n}</b> para:</span>
+                    <span>Copiar <b>{it.n}</b> para (mantém aqui):</span>
                     <input
                       type="date"
                       max={today}
                       onChange={(e) => {
                         const d = e.target.value;
-                        if (d && d !== date) { moveFoodOn(date, i, d); setMoveIdx(null); }
+                        if (d && d !== date) { copyFoodOn(date, i, d); setMoveIdx(null); }
                       }}
-                      aria-label="Novo dia"
+                      aria-label="Dia de destino"
                     />
                   </div>
                 )}

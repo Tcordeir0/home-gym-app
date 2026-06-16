@@ -29,6 +29,7 @@ type Setlog = Record<string, Record<string, Record<number, SetRow[]>>>;
 const PTS_SET = 5;
 const PTS_TREINO = 50;
 const PTS_CARDIO = 30;
+const POINTS_PER_SPIN = 100; // pontos necessários por giro da roleta (fonte única)
 
 /** Linhas de série de um exercício (do setlog), preenchidas até `series`. */
 export function rowsFor(
@@ -205,7 +206,7 @@ export interface Store extends AppState {
   addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
   removeFoodOn: (date: string, idx: number) => void;
-  moveFoodOn: (fromDate: string, idx: number, toDate: string) => void;
+  copyFoodOn: (fromDate: string, idx: number, toDate: string) => void;
   copyDietFromPrev: (toDate: string) => boolean;
   removeHistoryEntry: (idx: number) => void;
   addBackdated: (w: HistoryEntry['w'], date: string, cardio?: { label: string; emoji?: string }) => 'ok' | 'dup';
@@ -631,14 +632,15 @@ export const useStore = create<Store>((set, get) => {
         if (f) f.splice(idx, 1);
       })),
     // move um alimento de um dia pra outro (corrige registros que foram pro dia errado)
-    moveFoodOn: (fromDate, idx, toDate) =>
+    // COPIA o alimento pra outro dia (mantém no dia original → não some do histórico)
+    copyFoodOn: (fromDate, idx, toDate) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         if (fromDate === toDate) return;
         const uid = s.active;
         const from = s.daily[uid]?.[fromDate]?.food;
         if (!from || !from[idx]) return;
-        const [item] = from.splice(idx, 1);
+        const item = { ...from[idx] };
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[toDate] = dd[toDate] || {};
         dd[toDate].food = dd[toDate].food || [];
@@ -705,7 +707,7 @@ export const useStore = create<Store>((set, get) => {
       const byDay = s.scores[uid]?.byDay || {};
       const pts = Object.keys(byDay).reduce((a, k) => a + byDay[k], 0);
       const u = s.users.find((x) => x.id === uid);
-      return Math.max(0, Math.floor(pts / 100) - (u?.spinsUsed || 0));
+      return Math.max(0, Math.floor(pts / POINTS_PER_SPIN) - (u?.spinsUsed || 0));
     },
 
     spinRoulette: () => {
