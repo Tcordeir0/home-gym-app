@@ -23,6 +23,14 @@
   background: rgba(198, 255, 58, 0.12);
   color: var(--brand-lime);
 }
+/* seletor de período (semana/mês/ano/tudo) */
+.gr-range { display: flex; gap: 6px; margin: 10px 0 4px; }
+.gr-range-btn {
+  flex: 1; padding: 6px 4px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--app-line); background: transparent;
+  color: var(--app-muted); font-family: inherit; font-weight: 700; font-size: 12.5px;
+}
+.gr-range-btn.on { border-color: var(--brand-lime); background: rgba(198, 255, 58, 0.12); color: var(--brand-lime); }
 .gr-select {
   margin: 12px 0 4px;
   --background: var(--app-surface-2);

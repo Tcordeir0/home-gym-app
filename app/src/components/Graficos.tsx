@@ -3,6 +3,7 @@ import {
   IonCard, IonCardContent, IonSegment, IonSegmentButton, IonLabel, IonSelect, IonSelectOption,
 } from '@ionic/react';
 import LineChart from './LineChart';
+import DietChart from './DietChart';
 import { useStore } from '../store/store';
 import { e1RM } from '../lib/stats';
 import './Graficos.css';
@@ -19,35 +20,31 @@ type MedKey = (typeof MED_FIELDS)[number]['key'];
 const Graficos: React.FC = () => {
   const measures = useStore((s) => s.measures[s.active]) || [];
   const history = useStore((s) => s.history[s.active]) || [];
-  const daily = useStore((s) => s.daily[s.active]) || {};
 
   const [tab, setTab] = useState<'medidas' | 'carga' | 'dieta'>('medidas');
   const [medField, setMedField] = useState<MedKey>('weight');
-  const [dietField, setDietField] = useState<'kcal' | 'protein' | 'water'>('kcal');
   const [exName, setExName] = useState('');
   const [loadMetric, setLoadMetric] = useState<'e1rm' | 'max'>('e1rm');
+  const [range, setRange] = useState<'semana' | 'mes' | 'ano' | 'tudo'>('mes');
 
-  // dieta: kcal/proteína/água por dia
-  const dietSeries = useMemo(() => {
-    return Object.keys(daily)
-      .filter((d) => (daily[d].food || []).length > 0 || (dietField === 'water' && (daily[d].waterMl || 0) > 0))
-      .sort()
-      .map((d) => {
-        if (dietField === 'water') return { x: d, y: Math.round((daily[d].waterMl || 0) / 100) / 10 };
-        const food = daily[d].food || [];
-        const val = food.reduce((a, it) => a + ((dietField === 'kcal' ? it.k : it.p) * it.g) / 100, 0);
-        return { x: d, y: Math.round(val) };
-      });
-  }, [daily, dietField]);
+  // recorte do período (semana/mês/ano/tudo) — filtra todas as séries por data
+  const cutoff = useMemo(() => {
+    if (range === 'tudo') return '';
+    const days = range === 'semana' ? 7 : range === 'mes' ? 31 : 365;
+    const d = new Date(); d.setDate(d.getDate() - days + 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }, [range]);
+  const inRange = (ds: string) => !cutoff || ds >= cutoff;
 
   const medSeries = useMemo(
     () =>
       measures
-        .filter((m) => typeof m[medField] === 'number')
+        .filter((m) => typeof m[medField] === 'number' && inRange(m.date))
         .slice()
         .sort((a, b) => (a.date < b.date ? -1 : 1))
         .map((m) => ({ x: m.date, y: m[medField] as number })),
-    [measures, medField],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [measures, medField, cutoff],
   );
   const medUnit = MED_FIELDS.find((f) => f.key === medField)?.unit || '';
 
@@ -70,6 +67,7 @@ const Graficos: React.FC = () => {
       .slice()
       .sort((a, b) => (a.date < b.date ? -1 : 1))
       .forEach((e) => {
+        if (!inRange(e.date)) return;
         const ex = (e.exercises || []).find((x) => x.nome === curEx);
         if (!ex) return;
         // 1RM estimado: melhor (kg × reps) do dia; máx: maior kg do dia
@@ -79,7 +77,8 @@ const Graficos: React.FC = () => {
         if (vals.length) out.push({ x: e.date, y: Math.max(...vals) });
       });
     return out;
-  }, [history, curEx, loadMetric]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, curEx, loadMetric, cutoff]);
 
   return (
     <IonCard className="prog-card">
@@ -95,19 +94,15 @@ const Graficos: React.FC = () => {
           <IonSegmentButton value="dieta"><IonLabel>Dieta</IonLabel></IonSegmentButton>
         </IonSegment>
 
+        {/* período: semana / mês / ano / tudo — aplica a todos os gráficos */}
+        <div className="gr-range">
+          {([['semana', 'Semana'], ['mes', 'Mês'], ['ano', 'Ano'], ['tudo', 'Tudo']] as const).map(([k, label]) => (
+            <button key={k} className={'gr-range-btn' + (range === k ? ' on' : '')} onClick={() => setRange(k)}>{label}</button>
+          ))}
+        </div>
+
         {tab === 'dieta' ? (
-          dietSeries.length >= 2 ? (
-            <>
-              <div className="gr-chips">
-                <button className={'gr-chip' + (dietField === 'kcal' ? ' on' : '')} onClick={() => setDietField('kcal')}>Calorias</button>
-                <button className={'gr-chip' + (dietField === 'protein' ? ' on' : '')} onClick={() => setDietField('protein')}>Proteína</button>
-                <button className={'gr-chip' + (dietField === 'water' ? ' on' : '')} onClick={() => setDietField('water')}>💧 Água</button>
-              </div>
-              <LineChart series={dietSeries} unit={dietField === 'kcal' ? 'kcal' : dietField === 'water' ? 'L' : 'g'} />
-            </>
-          ) : (
-            <p className="gr-empty">Registre a dieta em <b>2+ dias</b> pra ver a evolução de calorias/proteína aqui.</p>
-          )
+          <DietChart cutoff={cutoff} />
         ) : tab === 'medidas' ? (
           <>
             <div className="gr-chips">
