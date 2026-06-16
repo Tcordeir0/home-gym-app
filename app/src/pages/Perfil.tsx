@@ -441,6 +441,22 @@ const Perfil: React.FC = () => {
         </div>
       </Collapsible>
 
+      {/* Rotação guiada de treino (A→E) */}
+      <IonCard className="perfil-card">
+        <IonCardContent>
+          <h2 className="card-title">🔄 Rotação guiada (A→E)</h2>
+          <p className="card-sub">Faz um treino por vez na ordem. Ao concluir, ele trava e o próximo libera; no fim da rodada, recomeça do A.</p>
+          <div className="ajuste-row">
+            <span>Ativar rotação guiada</span>
+            <IonToggle
+              checked={!!profile.guidedRotation}
+              onIonChange={(e) => updateProfile(profile.id, { guidedRotation: e.detail.checked, ...(e.detail.checked && !profile.rotationCur ? { rotationCur: 'A' } : {}) })}
+              aria-label="Rotação guiada"
+            />
+          </div>
+        </IonCardContent>
+      </IonCard>
+
       {/* Backup & dados (movido de Ferramentas, expansível) */}
       <Collapsible title="💾 Backup & dados">
         <Ferramentas onToast={setToast} bare />

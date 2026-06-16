@@ -218,3 +218,7 @@
 .set-row.done .set-in {
   border-color: rgba(198, 255, 58, 0.3);
 }
+
+/* Rotação guiada: treino concluído na rodada → visual de só-leitura */
+.ex-card.locked { opacity: 0.62; }
+.ex-card.locked .set-in { color: var(--app-muted); }
