@@ -229,3 +229,7 @@
   border: 1px solid color-mix(in srgb, var(--brand-lime) 26%, transparent);
 }
 .ex-target ion-icon { font-size: 1rem; flex-shrink: 0; }
+
+/* Rotação guiada: treino concluído na rodada → visual de só-leitura */
+.ex-card.locked { opacity: 0.62; }
+.ex-card.locked .set-in { color: var(--app-muted); }
