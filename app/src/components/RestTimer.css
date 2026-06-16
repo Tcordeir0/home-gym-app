@@ -1,0 +1,42 @@
+/* Barra flutuante do timer de descanso (acima da tab bar) */
+.rest-timer {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  width: min(440px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+  padding: 8px 10px;
+  border-radius: var(--r-pill, 999px);
+  background: var(--app-surface-2, #1b1f27);
+  border: 1px solid var(--app-line, rgba(255, 255, 255, 0.1));
+  box-shadow: var(--elev-2, 0 12px 30px -8px rgba(0, 0, 0, 0.55));
+  z-index: 50;
+  overflow: hidden;
+}
+.rest-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: color-mix(in srgb, var(--brand-lime) 16%, transparent);
+  z-index: 0;
+  transition: width 1s linear;
+}
+.rest-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  z-index: 1;
+}
+.rest-label { font-size: 0.7rem; color: var(--app-muted, #9098a4); }
+.rest-time { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rest-timer .ds-btn.rest-act {
+  width: auto;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  z-index: 1;
+}

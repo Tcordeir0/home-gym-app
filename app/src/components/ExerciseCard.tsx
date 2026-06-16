@@ -27,6 +27,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
   const prefillSets = useStore((s) => s.prefillSets);
   const swapExercise = useStore((s) => s.swapExercise);
   const equip = useStore((s) => s.users.find((u) => u.id === s.active)?.equipment || []);
+  const restOn = useStore((s) => s.users.find((u) => u.id === s.active)?.restTimer?.on);
   const latestMeasure = useStore((s) => s.latestMeasure);
 
   // exercício corporal (sem carga): o app usa o PESO DO PERFIL no lugar de pedir kg na mão.
@@ -58,6 +59,21 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
     return v > m ? v : m;
   }, 0);
   const beatingPR = liveTop > 0 && (!pr || liveTop > pr.e1rm);
+
+  // Sugestão de progressão (overload): a partir da ÚLTIMA sessão (prev) + faixa de reps alvo.
+  // Se na última você bateu as reps prescritas em todas as séries → sobe a carga (+2,5 kg);
+  // senão, mantém a carga e mira fechar as reps. Em exercício corporal, progride em reps.
+  const fmtKg = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ','));
+  const topReps = Math.max(0, ...(String(ex.reps).match(/\d+/g) || []).map(Number));
+  const target = (() => {
+    if (!prev.length || !topReps || doneCount === rows.length) return null;
+    const hit = prev.every((p) => p.reps >= topReps); // bateu a prescrição na última vez
+    if (bw) return hit ? `Alvo: ${topReps + 1} reps — supere a última` : `Alvo: feche as ${topReps} reps`;
+    const best = prev.reduce((m, p) => (p.kg > m.kg ? p : m), prev[0]);
+    if (best.kg <= 0) return null;
+    if (hit) return `Alvo: ${fmtKg(Math.round((best.kg + 2.5) * 2) / 2)} kg × ${topReps} (+2,5 kg)`;
+    return `Alvo: ${fmtKg(best.kg)} kg × ${topReps} — feche as reps`;
+  })();
 
   return (
     <div className={'ex-card' + (doneCount === rows.length ? ' complete' : '')}>
@@ -127,6 +143,10 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
         </div>
       )}
 
+      {target && (
+        <div className="ex-target"><IonIcon icon={trendingUp} /> {target}</div>
+      )}
+
       <div className="ex-sets">
         {rows.map((s, i) => {
           const p = prev[i];
@@ -152,7 +172,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo }) => {
                 whileTap={{ scale: 0.88 }}
                 className="set-done"
                 aria-label="Marcar série"
-                onClick={() => { if (!s.done) fxTick(); toggleSetDone(treino, exIdx, i, ex.series); }}
+                onClick={() => { if (!s.done) { fxTick(); if (restOn) window.dispatchEvent(new CustomEvent('hg:set-done')); } toggleSetDone(treino, exIdx, i, ex.series); }}
               >
                 ✓
               </motion.button>

@@ -72,6 +72,7 @@ export interface Profile {
   photo?: string;
   bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
   volume?: number; // volume dos sons (0–1) deste perfil
+  restTimer?: { on: boolean; sec: number }; // timer de descanso entre séries (opcional)
   location?: 'casa' | 'academia'; // local de treino — alimenta o gerador
   claimedDevice?: string | null; // id do aparelho que "reivindicou" este perfil (anti-trapaça)
 }

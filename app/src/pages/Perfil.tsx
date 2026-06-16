@@ -441,6 +441,35 @@ const Perfil: React.FC = () => {
         </div>
       </Collapsible>
 
+      {/* Timer de descanso (opcional) — usado no Treino ao marcar série */}
+      <IonCard className="perfil-card">
+        <IonCardContent>
+          <h2 className="card-title">⏱️ Timer de descanso</h2>
+          <p className="card-sub">Conta o descanso sozinho quando você marca uma série no treino.</p>
+          <div className="ajuste-row">
+            <span>Ativar</span>
+            <IonToggle
+              checked={!!profile.restTimer?.on}
+              onIonChange={(e) => updateProfile(profile.id, { restTimer: { sec: profile.restTimer?.sec || 90, on: e.detail.checked } })}
+              aria-label="Timer de descanso"
+            />
+          </div>
+          {profile.restTimer?.on && (
+            <div className="rest-secs">
+              {[45, 60, 90, 120, 150, 180].map((sec) => (
+                <button
+                  key={sec}
+                  className={'ds-chip' + ((profile.restTimer?.sec || 90) === sec ? ' on' : '')}
+                  onClick={() => updateProfile(profile.id, { restTimer: { on: true, sec } })}
+                >
+                  {sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`}
+                </button>
+              ))}
+            </div>
+          )}
+        </IonCardContent>
+      </IonCard>
+
       {/* Backup & dados (movido de Ferramentas, expansível) */}
       <Collapsible title="💾 Backup & dados">
         <Ferramentas onToast={setToast} bare />
