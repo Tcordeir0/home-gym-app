@@ -3,6 +3,7 @@ import { POOL, GROUP_LABEL, EQUIPMENT_OPTIONS, GEN_ROTATION, type PoolItem } fro
 import { emphasisOf } from './emphasis';
 import { weightFor, SUBFOCUS_BY_GROUP, type Biotype } from '../data/shapeGoals';
 import type { Exercise } from '../data/types';
+import { weeklyTarget, spacedDays, spacedPairs, focusFrequency } from './volume';
 
 /** Meta de shape do perfil — enviesa cada grupo pra sub-região que a meta prioriza. */
 export interface ShapeBias { preset?: string; overrides?: Record<string, number>; biotype?: Biotype; }
@@ -60,7 +61,7 @@ export function alternativesFor(exNome: string, equip: string[]): Alt[] {
 
 const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;
 
-export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3, subFocus?: string | null, shape?: ShapeBias): Record<string, Exercise[]> {
+export function generateWorkout(equip: string[], focusKey: string, perDay = 6, days = 3, subFocus?: string | null, shape?: ShapeBias, scientific = false): Record<string, Exercise[]> {
   const pool = eligiblePool(equip);
   const byGroup: Record<string, PoolItem[]> = {};
   GEN_ROTATION.forEach((g) => { byGroup[g] = pool.filter((e) => e.g === g); });
@@ -145,13 +146,37 @@ export function generateWorkout(equip: string[], focusKey: string, perDay = 6, d
   const toEx = (e: PoolItem | { n: string; g: string; s: number; r: string; d: string }): Exercise =>
     ({ nome: e.n, musculo: GROUP_LABEL[e.g] || '', series: e.s || 3, reps: e.r, dica: e.d });
 
+  // ---- MODO CIENTÍFICO: distribui por VOLUME-alvo (séries/semana) + RECUPERAÇÃO (≥48h) ----
+  // Foco entra em dias ESPAÇADOS (2× em 3–4 dias, 3× em 5) com mais volume; cada outro grupo 2×.
+  const sciDayGroups: string[][] = [];
+  if (scientific) {
+    const foc = !!focusKey && focusKey !== 'full' && GEN_ROTATION.includes(focusKey);
+    const dg: string[][] = Array.from({ length: n }, () => []);
+    const pairs = spacedPairs(n);
+    let pi = 0;
+    GEN_ROTATION.forEach((g) => {
+      const isF = foc && g === focusKey;
+      const dayset: number[] = n <= 2 ? Array.from({ length: n }, (_, i) => i)
+        : isF ? spacedDays(n, focusFrequency(n))
+        : pairs[pi++ % pairs.length];
+      const exTotal = Math.max(dayset.length, Math.round(weeklyTarget(g, isF) / 3)); // ~3 séries/exercício
+      for (let i = 0; i < exTotal; i++) dg[dayset[i % dayset.length]].push(g);
+    });
+    const cap = perDay + (foc ? 2 : 0); // dia de foco fica um pouco maior
+    dg.forEach((arr) => {
+      arr.sort((a, b) => (a === focusKey ? -1 : 0) - (b === focusKey ? -1 : 0) || GEN_ROTATION.indexOf(a) - GEN_ROTATION.indexOf(b));
+      sciDayGroups.push(arr.slice(0, cap));
+    });
+  }
+
   const treinos: Record<string, Exercise[]> = {};
   WORKOUT_LETTERS.slice(0, n).forEach((k, wi) => {
-    const exs = slots(wi).map((g) =>
+    const groupsForDay = scientific && sciDayGroups[wi]?.length ? sciDayGroups[wi] : slots(wi);
+    const exs = groupsForDay.map((g) =>
       // cada grupo rotaciona suas sub-regiões (cobre bi/tri, abdômen/oblíquos… na semana)
       toEx(pick(g) || { n: 'Exercício', g, s: 3, r: '12', d: '' }));
-    // acessório do GAP da meta (rotaciona entre as prioridades) — garante o ponto fraco
-    if (gapTargets.length) {
+    // acessório do GAP da meta — só no modo PADRÃO (no científico o volume já modela a distribuição)
+    if (!scientific && gapTargets.length) {
       const gt = gapTargets[wi % gapTargets.length];
       const e = pick(gt.group, gt.base);
       if (e) exs.push(toEx(e));

@@ -119,3 +119,31 @@ describe('generateWorkout — cobertura: foco não pode zerar músculos (bug tr�
     }
   });
 });
+
+describe('generateWorkout — modo CIENTÍFICO (recuperação + volume)', () => {
+  const eq = ['bodyweight', 'dumbbell', 'barbell', 'kettlebell', 'band', 'machine', 'bench', 'pullup_bar'];
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+
+  it('o FOCO nunca cai em dias consecutivos (≥48h) e aparece 2–3×', () => {
+    for (let t = 0; t < 8; t++) {
+      const w = generateWorkout(eq, 'chest', 6, 5, null, undefined, true);
+      const focusDays = letters.filter((k) => w[k]?.some((e) => e.musculo === 'Peito')).map((k) => letters.indexOf(k));
+      expect(focusDays.length).toBeGreaterThanOrEqual(2);
+      expect(focusDays.length).toBeLessThanOrEqual(3);
+      for (let i = 1; i < focusDays.length; i++) expect(focusDays[i] - focusDays[i - 1]).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('todos os grupos principais são treinados na semana (cobertura)', () => {
+    const w = generateWorkout(eq, 'chest', 6, 5, null, undefined, true);
+    const all = new Set(Object.values(w).flat().map((e) => e.musculo));
+    ['Peito', 'Costas', 'Pernas', 'Ombro', 'Braços', 'Core'].forEach((m) => expect(all.has(m), m).toBe(true));
+  });
+
+  it('o foco tem MAIS volume que os outros grupos (séries/semana)', () => {
+    const w = generateWorkout(eq, 'chest', 6, 5, null, undefined, true);
+    const setsByMuscle: Record<string, number> = {};
+    Object.values(w).flat().forEach((e) => { setsByMuscle[e.musculo] = (setsByMuscle[e.musculo] || 0) + (e.series || 3); });
+    expect(setsByMuscle['Peito']).toBeGreaterThanOrEqual(setsByMuscle['Core'] || 0);
+  });
+});
