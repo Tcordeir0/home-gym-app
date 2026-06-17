@@ -235,7 +235,7 @@ const Diary: React.FC = () => {
           <input
             className="bal-in bc-in"
             inputMode="numeric"
-            placeholder="Código de barras (nº do embalado)"
+            placeholder="Código de barras"
             value={bc}
             onChange={(e) => setBc(e.target.value)}
           />

@@ -59,7 +59,7 @@ const BarcodeScanner: React.FC<{ open: boolean; onClose: () => void; onCode: (co
           <button className="bsc-close" onClick={() => { stop(); onClose(); }} aria-label="Fechar"><IonIcon icon={closeOutline} /></button>
         </div>
         <div className="bsc-video-wrap">
-          <video ref={videoRef} className="bsc-video" muted playsInline />
+          <video ref={videoRef} className="bsc-video" autoPlay muted playsInline />
           <div className="bsc-frame" />
         </div>
         {msg && <p className="bsc-msg">{msg}</p>}

@@ -17,8 +17,11 @@ describe('isBodyweight', () => {
     expect(isBodyweight('Rosca direta com halteres')).toBe(false);
     expect(isBodyweight('Crucifixo com elástico')).toBe(false); // elástico = resistência
   });
-  it('exercício inexistente não quebra', () => {
-    expect(isBodyweight('Exercício que não existe')).toBe(false);
+  it('fora do POOL (ex.: biblioteca) infere pelo nome: sem palavra de carga = corporal', () => {
+    expect(isBodyweight('Crunches')).toBe(true);            // sem carga → puxa peso do corpo
+    expect(isBodyweight('Leg Pull-In')).toBe(true);
+    expect(isBodyweight('Dumbbell Bench Press')).toBe(false); // "dumbbell" = carga
+    expect(isBodyweight('Barbell Squat')).toBe(false);        // "barbell" = carga
   });
 });
 
