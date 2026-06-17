@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.17.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.16.0...v0.17.0) (2026-06-17)
+
+
+### Features
+
+* **anatomia:** compartilhar musculos treinados (frente+verso, % por musculo, periodo) ([f792392](https://github.com/Tcordeir0/home-gym-app/commit/f792392314197ec577428d49708a670383725fd2))
+* biblioteca de exercícios (Free Exercise DB, 873) + adicionar ao treino ([4457f06](https://github.com/Tcordeir0/home-gym-app/commit/4457f060b07c9b98ec45dd6dd67a50873be25f3a))
+* **dieta:** integra Tabela TACO (+578 alimentos BR, total 660) ([59c0fcb](https://github.com/Tcordeir0/home-gym-app/commit/59c0fcb8368cd4ea2ab6825b75ed8a5b1271c84f))
+* **dieta:** lembretes de agua e refeicao via push ([56831d6](https://github.com/Tcordeir0/home-gym-app/commit/56831d6feaae393ad754e45f6da7082fb2e8116b))
+* **dieta:** macros derivados do objetivo + agua por atividade ([c3a9e3a](https://github.com/Tcordeir0/home-gym-app/commit/c3a9e3aef9c886e1ab8c11b8d27244376da1ba3c))
+* **dieta:** scanner de codigo de barras (camera + foto da galeria) ([e81956a](https://github.com/Tcordeir0/home-gym-app/commit/e81956a92f4dec7a096364a5b1e36d03f6023c05))
+* lembretes de água e refeição (push) ([01cfc5d](https://github.com/Tcordeir0/home-gym-app/commit/01cfc5dd6aef0a4a12367a6a3aba2ec13518913b))
+* lote de melhorias — dieta, treino e share da Anatomia (7 features) ([4257243](https://github.com/Tcordeir0/home-gym-app/commit/42572435b48d3bfc0ce7add8c2a0cc2be45bc1fb))
+* **treino:** biblioteca de exercicios (Free Exercise DB) + adicionar ao treino ([df548c2](https://github.com/Tcordeir0/home-gym-app/commit/df548c2f6b2d2ecda046f54fc9076305c42b8bef))
+* **treino:** rotacao guiada A-&gt;E (opcional, trava treino concluido) ([c89af6a](https://github.com/Tcordeir0/home-gym-app/commit/c89af6a982301087db32e6a37548c09cb5927421))
+* **treino:** sugestao de carga (overload) por exercicio ([6986f5b](https://github.com/Tcordeir0/home-gym-app/commit/6986f5ba8c7f9202044de83c49086e5dcc15fbfd))
+* **treino:** timer de descanso opcional (configurado no Perfil) ([e3188bc](https://github.com/Tcordeir0/home-gym-app/commit/e3188bc02448ba343e2e6397eeeaa8e7c486a401))
+
+
+### Bug Fixes
+
+* **biblioteca:** key estavel (e.n) no grid + onError nas imagens da CDN ([e38abb1](https://github.com/Tcordeir0/home-gym-app/commit/e38abb101d057c85f71046c8058113b47df05ab3))
+* **dieta:** bebida mostra ml/L em vez de g/colheres ao adicionar pela busca ([904c64d](https://github.com/Tcordeir0/home-gym-app/commit/904c64d10966c2829a676cf8dabc4b4c236c914e))
+* **push:** inTick compara minutos totais (mod 1440) — robusto a :45+ e virada de hora ([0ad795d](https://github.com/Tcordeir0/home-gym-app/commit/0ad795d922562338fa0c85709eefb855c83cbfd9))
+* **review:** timer usa total estavel (corrige +15s e cfg removido) + janela 30d revalida por dia ([30c7a35](https://github.com/Tcordeir0/home-gym-app/commit/30c7a35dd95961f22fb838c8fe6a6435da91f10b))
+* **share:** pills da semana (series/agua) nao vazam mais o texto ([3ee8bb4](https://github.com/Tcordeir0/home-gym-app/commit/3ee8bb4e9ef2b5e52529f80c97cf280392137d46))
+
 ## [0.16.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.15.0...v0.16.0) (2026-06-16)
 
 
