@@ -21,7 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px 12px;
+  /* safe-area do topo: sem isso o título encostava no relógio/notch do iOS */
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px 12px;
   border-bottom: 1px solid var(--app-line);
 }
 .clh-title {
@@ -45,7 +46,7 @@
 .clh-body {
   overflow-y: auto;
   height: 100%;
-  padding: 14px 16px 36px;
+  padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 36px);
   display: flex;
   flex-direction: column;
   gap: 24px;

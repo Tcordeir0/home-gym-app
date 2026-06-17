@@ -1,4 +1,6 @@
-.lib-wrap { padding: 16px; }
+/* respeita a safe-area do iOS (notch/status bar no topo, home indicator embaixo) —
+   sem isso o título/seta de voltar encostavam no relógio/5G */
+.lib-wrap { padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
 .lib-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .lib-title { font-size: 1.15rem; font-weight: 800; }
 .lib-close { background: none; border: none; color: var(--app-muted, #9098a4); font-size: 1.5rem; line-height: 1; }
