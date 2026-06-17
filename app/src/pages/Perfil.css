@@ -843,3 +843,6 @@
 .perfil-note b {
   color: var(--ion-text-color);
 }
+
+/* durações do timer de descanso (chips do design-system) */
+.rest-secs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }

@@ -60,6 +60,8 @@ export interface Profile {
   treinos?: Record<string, unknown>;
   workoutDays?: number; // nº de treinos (3=A-C, 4=A-D, 5=A-E)
   warmupOn?: boolean; // mostra o segmento de aquecimento (padrão: true)
+  guidedRotation?: boolean; // modo rotação guiada A→E (trava o treino concluído na rodada)
+  rotationCur?: string; // letra do treino ATUAL na rotação guiada (ex.: 'C')
   shapeGoal?: ShapeGoalSel; // meta estética que guia o sub-foco
   cosmetics: Cosmetics;
   spinsUsed: number;
@@ -72,6 +74,7 @@ export interface Profile {
   photo?: string;
   bottleMl?: number; // tamanho da garrafa de água deste perfil (ml)
   volume?: number; // volume dos sons (0–1) deste perfil
+  restTimer?: { on: boolean; sec: number }; // timer de descanso entre séries (opcional)
   location?: 'casa' | 'academia'; // local de treino — alimenta o gerador
   claimedDevice?: string | null; // id do aparelho que "reivindicou" este perfil (anti-trapaça)
 }
@@ -105,6 +108,8 @@ export interface FoodItem {
   n: string; // nome
   k: number; // kcal/100g (≈ /100ml em bebidas)
   p: number; // proteína/100g
+  c?: number; // carboidrato/100g (pra macros consumidos)
+  f?: number; // gordura/100g
   g: number; // quantidade (g, ou ml se liq)
   liq?: boolean; // bebida → exibe em ml (não g)
 }

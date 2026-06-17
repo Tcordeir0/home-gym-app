@@ -1,0 +1,28 @@
+.bsc {
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bsc-top { display: flex; align-items: center; justify-content: space-between; }
+.bsc-h { font-size: 1.1rem; font-weight: 800; }
+.bsc-close { background: none; border: none; color: var(--app-muted, #9098a4); font-size: 1.5rem; line-height: 1; }
+.bsc-video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+}
+.bsc-video { width: 100%; height: 100%; object-fit: cover; }
+.bsc-frame {
+  position: absolute;
+  inset: 30% 12%;
+  border: 3px solid var(--brand-lime, #c6ff3a);
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+}
+.bsc-msg { text-align: center; color: var(--app-muted, #9098a4); font-size: 0.9rem; margin: 0; }
+.bsc-gallery { width: 100%; }
+.bsc-note { text-align: center; color: var(--app-muted, #9098a4); font-size: 0.78rem; margin: 0; }

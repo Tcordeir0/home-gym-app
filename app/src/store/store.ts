@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { produce } from 'immer';
-import type { AppState, Profile, Body, Cardio, HistoryEntry } from './types';
+import type { AppState, Profile, Body, Cardio, HistoryEntry, FoodItem } from './types';
 import type { Exercise } from '../data/types';
 import { weekDates } from '../lib/league';
 import { deviceId } from '../lib/device';
@@ -13,6 +13,18 @@ import { shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { statsFor, e1RM, totalPoints } from '../lib/stats';
 import { CREATINAS_PER_POINT, type ShopKind } from '../data/shop';
 import { PLANS } from '../data/plans';
+import { FOODS } from '../data/foods';
+
+// Backfill de carbo/gordura (c/f por 100g) pelo NOME do alimento na base FOODS — assim
+// QUALQUER caminho de adição (busca, prato, foto) ganha macros sem alterar cada um.
+const _macroIdx = new Map<string, { c?: number; f?: number }>();
+const _normFood = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function withMacros(item: { n: string; k: number; p: number; g: number; liq?: boolean; c?: number; f?: number }): FoodItem {
+  if (item.c != null && item.f != null) return item;
+  if (!_macroIdx.size) for (const fd of FOODS) _macroIdx.set(_normFood(fd.n), { c: fd.c, f: fd.f });
+  const m = _macroIdx.get(_normFood(item.n));
+  return m ? { ...item, c: item.c ?? m.c, f: item.f ?? m.f } : item;
+}
 
 // itens que são RECOMPENSA de conquista — saem da roleta (exclusivos da conquista)
 const REWARD_THEMES = new Set(ACHIEVEMENTS.filter((a) => a.reward?.kind === 'theme').map((a) => a.reward!.id));
@@ -592,7 +604,7 @@ export const useStore = create<Store>((set, get) => {
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[t] = dd[t] || {};
         dd[t].food = dd[t].food || [];
-        dd[t].food!.push(item);
+        dd[t].food!.push(withMacros(item));
       })),
 
     setFoodGrams: (idx, g) =>
@@ -617,7 +629,7 @@ export const useStore = create<Store>((set, get) => {
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[date] = dd[date] || {};
         dd[date].food = dd[date].food || [];
-        dd[date].food!.push(item);
+        dd[date].food!.push(withMacros(item));
       })),
     setFoodGramsOn: (date, idx, g) =>
       set(produce((s: Store) => {

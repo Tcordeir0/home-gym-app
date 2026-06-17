@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { trashOutline, addOutline, calendarOutline, copyOutline } from 'ionicons/icons';
-import { cloudOutline, cameraOutline } from 'ionicons/icons';
+import { cloudOutline, cameraOutline, barcodeOutline } from 'ionicons/icons';
+
+// scanner pesado (@zxing) só carrega quando o usuário abre — fora do bundle inicial
+const BarcodeScanner = lazy(() => import('./BarcodeScanner'));
 import PlateSheet from './PlateSheet';
 import { useStore, useActiveProfile, todayISO } from '../store/store';
-import { targetsFor } from '../lib/diet';
+import { targetsFor, isBeverage } from '../lib/diet';
 import { FOODS } from '../data/foods';
 import { offSearch, offBarcode, type OffHit } from '../lib/off';
 
@@ -13,13 +16,6 @@ const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(
 // Aproximação: 1 colher de sopa cheia ≈ 15g (referência de cozinha).
 const GRAMS_PER_SPOON = 15;
 const spoons = (g: number) => Math.max(1, Math.round(g / GRAMS_PER_SPOON));
-
-// Bebida → conta em ml (não g). Densidade ≈ 1, então kcal/100g ≈ kcal/100ml.
-const isBeverage = (name: string, tags?: string) => {
-  if (tags && normTxt(tags).includes('bebida')) return true;
-  const n = normTxt(name);
-  return /(agua|suco|refri|coca|\bcola\b|cerveja|cafe|\bcha\b|leite|vitamina|smoothie|guarana|limonada|gatorade|energetico|isotonico|whisky|vinho|cha gelado|achocolatado)/.test(n);
-};
 
 const Diary: React.FC = () => {
   const profile = useActiveProfile();
@@ -57,6 +53,7 @@ const Diary: React.FC = () => {
   const [online, setOnline] = useState<OffHit[]>([]);
   const [onlineMsg, setOnlineMsg] = useState('');
   const [plateOpen, setPlateOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
 
   const doOnline = async () => {
     setOnline([]);
@@ -69,8 +66,8 @@ const Diary: React.FC = () => {
       setOnlineMsg('Sem conexão pra buscar online agora.');
     }
   };
-  const doBarcode = async () => {
-    const code = bc.replace(/\D/g, '');
+  const doBarcode = async (raw?: string) => {
+    const code = (raw ?? bc).replace(/\D/g, '');
     if (code.length < 6) return;
     setOnline([]);
     setOnlineMsg('Buscando código…');
@@ -91,9 +88,12 @@ const Diary: React.FC = () => {
   const t = targetsFor(profile.body, weight);
   const food = daily?.[active]?.[date]?.food || [];
 
-  let kcal = 0, prot = 0;
-  food.forEach((it) => { kcal += (it.k * it.g) / 100; prot += (it.p * it.g) / 100; });
-  kcal = Math.round(kcal); prot = Math.round(prot);
+  let kcal = 0, prot = 0, carb = 0, fatg = 0;
+  food.forEach((it) => {
+    kcal += (it.k * it.g) / 100; prot += (it.p * it.g) / 100;
+    carb += ((it.c || 0) * it.g) / 100; fatg += ((it.f || 0) * it.g) / 100;
+  });
+  kcal = Math.round(kcal); prot = Math.round(prot); carb = Math.round(carb); fatg = Math.round(fatg);
   const pct = t ? Math.min(100, Math.round((kcal / t.target) * 100)) : 0;
   const over = !!t && kcal > t.target;
 
@@ -122,13 +122,20 @@ const Diary: React.FC = () => {
               <span className="diary-kcal" style={{ color: over ? '#ff6b6b' : 'var(--brand-lime)' }}>
                 {kcal}<small> / {t.target} kcal</small>
               </span>
-              <span className="diary-prot">prot {prot}/{t.protein}g</span>
             </div>
             <div className="hid-bar">
               <span className="diary-fill" style={{ width: pct + '%', background: over ? '#ff6b6b' : undefined }} />
             </div>
             <div className="diary-rem" style={{ color: over ? '#ff6b6b' : undefined }}>
               {over ? `Passou ${kcal - t.target} kcal da meta` : `Faltam ${t.target - kcal} kcal pra meta`}
+            </div>
+            <div className="diary-macros">
+              {([['Proteína', prot, t.protein], ['Carbo', carb, t.carbs], ['Gordura', fatg, t.fat]] as const).map(([l, v, tgt]) => (
+                <div className="dmacro" key={l}>
+                  <div className="dmacro-top"><span>{l}</span><span><b>{v}</b>/{tgt}g</span></div>
+                  <div className="dmacro-track"><span style={{ width: Math.min(100, tgt ? Math.round((v / tgt) * 100) : 0) + '%' }} /></div>
+                </div>
+              ))}
             </div>
           </>
         ) : (
@@ -232,7 +239,10 @@ const Diary: React.FC = () => {
             value={bc}
             onChange={(e) => setBc(e.target.value)}
           />
-          <button className="bc-go" onClick={doBarcode}>Buscar</button>
+          <button className="bc-scan" onClick={() => setScanOpen(true)} aria-label="Escanear código">
+            <IonIcon icon={barcodeOutline} />
+          </button>
+          <button className="bc-go" onClick={() => doBarcode()}>Buscar</button>
         </div>
 
         {onlineMsg && <p className="diary-empty">{onlineMsg}</p>}
@@ -249,6 +259,11 @@ const Diary: React.FC = () => {
         )}
 
         <PlateSheet open={plateOpen} date={date} onClose={() => setPlateOpen(false)} />
+        {scanOpen && (
+          <Suspense fallback={null}>
+            <BarcodeScanner open={scanOpen} onClose={() => setScanOpen(false)} onCode={(code) => { setBc(code); void doBarcode(code); }} />
+          </Suspense>
+        )}
       </IonCardContent>
     </IonCard>
   );

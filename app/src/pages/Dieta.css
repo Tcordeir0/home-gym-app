@@ -251,6 +251,12 @@
   background: var(--app-surface-2); color: var(--ion-text-color);
   font-family: var(--ion-font-family); font-weight: 700; font-size: 14px; cursor: pointer;
 }
+.bc-scan {
+  flex: 0 0 auto; width: 46px; height: 42px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--app-line); border-radius: 12px;
+  background: var(--app-surface-2); color: var(--brand-lime); font-size: 22px; cursor: pointer;
+}
+.bc-scan:active { transform: scale(0.95); }
 
 /* Hidratação — config de garrafa */
 .hid-cfg { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
@@ -296,3 +302,13 @@
 .meta-row .meta-wrap { margin: 0; }
 .meta-sub { font-size: 12.5px; color: var(--app-muted); margin-top: 2px; }
 .meta-cfg { --color: var(--brand-lime); font-weight: 700; }
+
+/* Macros consumidos vs meta (derivada do objetivo) */
+.diary-macros { display: flex; gap: 10px; margin-top: 12px; }
+.dmacro { flex: 1; min-width: 0; }
+.dmacro-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--app-muted); margin-bottom: 4px; }
+.dmacro-top b { color: var(--ion-text-color); }
+.dmacro-track { height: 8px; background: var(--app-surface-2); border-radius: 999px; overflow: hidden; }
+.dmacro-track span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #9be000, var(--brand-lime)); transition: width .35s; }
+.meta-macros { margin-top: 4px; font-size: 12px; color: var(--app-muted); }
+.meta-macros b { color: var(--ion-text-color); }
