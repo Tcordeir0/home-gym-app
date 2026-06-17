@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.17.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.17.0...v0.17.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* rotação, busca, peso corporal e câmera do scanner (hotfix 0.17.1) ([d165206](https://github.com/Tcordeir0/home-gym-app/commit/d165206526c5d1011ab746e3e0f605c8dec5bbe5))
+* **treino+busca:** rotacao infere posicao pelo historico ao ligar + campo de codigo nao estoura ([394ee30](https://github.com/Tcordeir0/home-gym-app/commit/394ee30829d9f681ea11da85085434fb926696fe))
+* **treino+scanner:** exercicio corporal fora do POOL puxa peso do corpo + camera autoplay ([d55af0e](https://github.com/Tcordeir0/home-gym-app/commit/d55af0ec567d25c5e151660e8e966113b29a7831))
+
 ## [0.17.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.16.0...v0.17.0) (2026-06-17)
 
 
