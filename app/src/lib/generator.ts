@@ -13,11 +13,16 @@ const EQUIP_LABEL: Record<string, string> = Object.fromEntries(EQUIPMENT_OPTIONS
 // equipamentos que ADICIONAM carga (kg/resistência). O resto (peso do corpo, banco, barra
 // fixa) é "corporal" — nesses o app usa o peso do perfil em vez de pedir kg na mão.
 const LOAD_EQUIP = ['dumbbell', 'barbell', 'kettlebell', 'band', 'machine'];
+// Palavras de CARGA no nome — pra inferir exercícios FORA do POOL (ex.: da biblioteca, nome em
+// inglês). Conservador: "barra fixa"/"pull-up"/"crunches" NÃO batem → tratados como peso do corpo.
+const LOAD_WORD = /halter|anilha|kettlebell|m[áa]quina|polia|\bcabo\b|dumbbell|barbell|machine|cable|smith|crossover|com peso|com barra|com disco/i;
 
 /** Exercício é só de peso do corpo? (não dá pra adicionar carga pela lista de equipamento) */
 export function isBodyweight(nome: string): boolean {
   const e = POOL.find((p) => p.n === nome);
-  return !!e && !e.eq.some((k) => LOAD_EQUIP.includes(k));
+  if (e) return !e.eq.some((k) => LOAD_EQUIP.includes(k));
+  // fora do POOL (ex.: exercício da biblioteca) → infere pelo nome: sem palavra de carga = corporal
+  return !LOAD_WORD.test(nome || '');
 }
 
 /** Alternativa de exercício: além do Exercise, diz o equipamento e se o perfil já o tem. */
