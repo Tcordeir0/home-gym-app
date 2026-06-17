@@ -1,20 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import {
-  IonApp,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonSpinner,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-  setupIonicReact,
-} from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
+import { IonApp, IonSpinner, setupIonicReact } from '@ionic/react';
 import type { Session } from '@supabase/supabase-js';
-import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
-import { useStore, ownsActive } from './store/store';
+import { useStore } from './store/store';
 import { setFeedbackMode, setVolume, initAudio } from './lib/feedback';
 import { syncReminder, disarmReminder } from './lib/reminders';
 import { enablePush } from './lib/push';
@@ -23,11 +10,7 @@ import { syncOnLogin, startSync, stopSync } from './lib/sync';
 import { deviceId } from './lib/device';
 import Auth from './pages/Auth';
 import ProfileSelect from './pages/ProfileSelect';
-import Treino from './pages/Treino';
-import Dieta from './pages/Dieta';
-import Progresso from './pages/Progresso';
-import Premios from './pages/Premios';
-import Perfil from './pages/Perfil';
+import MainTabs from './components/MainTabs';
 import LevelUp from './components/LevelUp';
 import WhatsNew from './components/WhatsNew';
 import ThemeFX from './components/ThemeFX';
@@ -92,9 +75,7 @@ const App: React.FC = () => {
   const setActive = useStore((s) => s.setActive);
   const myDev = deviceId();
   const claimed = users.find((u) => u.claimedDevice === myDev);
-  // modo leitura: vendo o perfil de OUTRO (não reivindicado por este aparelho).
-  // Nele só aparece a aba Progresso e nada é interativo.
-  const owns = useStore(ownsActive);
+  // (o modo leitura — vendo o perfil de OUTRO — é resolvido dentro de MainTabs)
   // Abre no perfil reivindicado SÓ quando ele aparece/muda (login, claim, troca de
   // conta). Depois disso o usuário pode trocar pra VER outros perfis (modo leitura).
   useEffect(() => {
@@ -210,52 +191,7 @@ const App: React.FC = () => {
     <LevelUp />
     <WhatsNew />
     <ErrorBoundary>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          {/* no modo leitura (!owns) as abas restritas redirecionam pro Progresso */}
-          <Route exact path="/treino" render={() => (owns ? <Treino /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/dieta" render={() => (owns ? <Dieta /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/progresso" component={Progresso} />
-          <Route exact path="/premios" render={() => (owns ? <Premios /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/perfil" render={() => (owns ? <Perfil /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/">
-            <Redirect to={owns ? '/treino' : '/progresso'} />
-          </Route>
-        </IonRouterOutlet>
-        {/* no modo leitura só existe o Progresso → esconde a barra inteira (fica em tela cheia) */}
-        <IonTabBar slot="bottom" className={owns ? undefined : 'tabbar-hidden'}>
-          {owns && (
-          <IonTabButton tab="treino" href="/treino">
-            <IonIcon aria-hidden="true" icon={barbell} />
-            <IonLabel>Treino</IonLabel>
-          </IonTabButton>
-          )}
-          {owns && (
-          <IonTabButton tab="dieta" href="/dieta">
-            <IonIcon aria-hidden="true" icon={restaurant} />
-            <IonLabel>Dieta</IonLabel>
-          </IonTabButton>
-          )}
-          <IonTabButton tab="progresso" href="/progresso">
-            <IonIcon aria-hidden="true" icon={trendingUp} />
-            <IonLabel>Progresso</IonLabel>
-          </IonTabButton>
-          {owns && (
-          <IonTabButton tab="premios" href="/premios">
-            <IonIcon aria-hidden="true" icon={sparkles} />
-            <IonLabel>Prêmios</IonLabel>
-          </IonTabButton>
-          )}
-          {owns && (
-          <IonTabButton tab="perfil" href="/perfil">
-            <IonIcon aria-hidden="true" icon={person} />
-            <IonLabel>Perfil</IonLabel>
-          </IonTabButton>
-          )}
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
+      <MainTabs />
     </ErrorBoundary>
   </IonApp>
   );
