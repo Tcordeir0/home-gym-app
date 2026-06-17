@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { IonSegment, IonSegmentButton, IonLabel, IonToast, useIonRouter, useIonAlert } from '@ionic/react';
+import { useState, lazy, Suspense } from 'react';
+import { IonSegment, IonSegmentButton, IonLabel, IonToast, IonIcon, useIonRouter, useIonAlert } from '@ionic/react';
+import { libraryOutline } from 'ionicons/icons';
 import { motion } from 'framer-motion';
 import AppPage from '../components/AppPage';
 import ExerciseCard from '../components/ExerciseCard';
@@ -14,6 +15,9 @@ import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import type { Exercise } from '../data/types';
 import './Treino.css';
+
+// biblioteca de exercícios (873, com imagens) — lazy: chunk pesado fora do bundle inicial
+const ExerciseLibrary = lazy(() => import('../components/ExerciseLibrary'));
 
 type Seg = string; // 'A'..'E' | 'warm'
 const WORKOUT_LETTERS = ['A', 'B', 'C', 'D', 'E'];
@@ -34,6 +38,8 @@ const Treino: React.FC = () => {
   const setlog = useStore((s) => s.setlog);
   const completeWorkout = useStore((s) => s.completeWorkout);
   const updateProfile = useStore((s) => s.updateProfile);
+  const addExerciseToWorkout = useStore((s) => s.addExerciseToWorkout);
+  const [libOpen, setLibOpen] = useState(false);
   const [presentAlert] = useIonAlert();
   // rotação guiada: começa no treino ATUAL salvo
   const [seg, setSeg] = useState<Seg>(() => (profile.guidedRotation && typeof profile.rotationCur === 'string') ? profile.rotationCur : 'A');
@@ -165,6 +171,13 @@ const Treino: React.FC = () => {
         <ExerciseCard key={safeSeg + i} ex={ex} treino={safeSeg} exIdx={i} onDemo={setDemo} locked={locked} />
       ))}
 
+      {/* Adicionar exercício da biblioteca (Free Exercise DB) — manual, não mexe no gerador */}
+      {safeSeg !== 'warm' && !locked && (
+        <button className="ds-btn ds-btn--ghost treino-lib-btn" onClick={() => setLibOpen(true)}>
+          <IonIcon icon={libraryOutline} /> Adicionar da biblioteca
+        </button>
+      )}
+
       {/* Cardio integrado ao treino (faz parte do A–E; não aparece no aquecimento) */}
       {safeSeg !== 'warm' && <Cardio onDone={(l) => setToast(l + ' registrado! +30 pts 🎉')} />}
 
@@ -180,6 +193,15 @@ const Treino: React.FC = () => {
 
       <DemoSheet ex={demo} onClose={() => setDemo(null)} />
       <RestTimer />
+      {libOpen && (
+        <Suspense fallback={null}>
+          <ExerciseLibrary
+            open={libOpen}
+            onClose={() => setLibOpen(false)}
+            onAdd={(ex) => { addExerciseToWorkout(safeSeg, { nome: ex.n, musculo: ex.m, series: 3, reps: '8-12', dica: '' }); setToast(`"${ex.n}" adicionado ao Treino ${safeSeg} 💪`); }}
+          />
+        </Suspense>
+      )}
       <IonToast
         isOpen={!!toast}
         message={toast}
