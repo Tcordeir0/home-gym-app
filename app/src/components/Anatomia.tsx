@@ -8,6 +8,7 @@ import type { BodyState } from 'body-muscles';
 import MaleBody from './MaleBody';
 import { shareAnatomy } from '../lib/shareCard';
 import { emphasisOf } from '../lib/emphasis';
+import { MONTHS, MONTHS_ABBR, isoDay, weeksOfMonth } from '../lib/period';
 import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore, todayISO } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
@@ -202,23 +203,7 @@ function countRange(
   return { counts: c, baseCounts: bc, total: FINE.reduce((a, f) => a + c[f], 0) };
 }
 
-const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const MONTHS_ABBR = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-const isoDay = (d: Date) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-
-// Semanas do calendário (segunda→domingo) que tocam o mês, recortadas aos limites do mês.
-function weeksOfMonth(year: number, month: number): { from: string; to: string }[] {
-  const first = new Date(year, month, 1);
-  const last = new Date(year, month + 1, 0);
-  const start = new Date(first);
-  start.setDate(start.getDate() - ((start.getDay() + 6) % 7)); // recua até segunda-feira
-  const weeks: { from: string; to: string }[] = [];
-  for (const cur = new Date(start); cur <= last; cur.setDate(cur.getDate() + 7)) {
-    const we = new Date(cur); we.setDate(we.getDate() + 6);
-    weeks.push({ from: isoDay(cur < first ? first : cur), to: isoDay(we > last ? last : we) });
-  }
-  return weeks;
-}
+// MONTHS / MONTHS_ABBR / isoDay / weeksOfMonth → extraídos pra lib/period.ts (puros + testáveis)
 
 const Anatomia: React.FC = () => {
   const history = useStore((s) => s.history[s.active]) || [];
