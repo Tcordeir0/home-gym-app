@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.17.1...v0.18.0) (2026-06-17)
+
+
+### Features
+
+* **treino:** gerador cientifico — volume-alvo + recuperacao 48h ([#114](https://github.com/Tcordeir0/home-gym-app/issues/114)) ([5bae8f3](https://github.com/Tcordeir0/home-gym-app/commit/5bae8f3ecd9c084b6506efe9b305953f1367e5a5))
+
 ## [0.17.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.17.0...v0.17.1) (2026-06-17)
 
 
