@@ -9,7 +9,7 @@ import MaleBody from './MaleBody';
 import { shareAnatomy } from '../lib/shareCard';
 import { emphasisOf } from '../lib/emphasis';
 import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
-import { useStore } from '../store/store';
+import { useStore, todayISO } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
 import './Anatomia.css';
@@ -295,7 +295,8 @@ const Anatomia: React.FC = () => {
     const inten = {} as Record<Fine, number>;
     FINE.forEach((f) => (inten[f] = c30.counts[f] / max));
     return { counts: c30.counts, weekly: c7.counts, total: c30.total, intensity: inten, baseCounts: c30.baseCounts };
-  }, [history, byName]);
+    // todayISO() na dep: revalida a janela de 30/7 dias a cada novo dia (não congela no último treino)
+  }, [history, byName, todayISO()]);
 
   // dados pro modelo: 1 entrada por músculo treinado, intensity = nível 1..5 (índice de cor).
   // o músculo SELECIONADO recebe intensity 6 = "glow".

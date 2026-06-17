@@ -9,12 +9,14 @@ const RestTimer: React.FC = () => {
   const cfg = useStore((s) => s.users.find((u) => u.id === s.active)?.restTimer);
   const [left, setLeft] = useState(0);
   const tick = useRef<ReturnType<typeof setInterval> | null>(null);
+  const totalRef = useRef(0); // duração total do ciclo atual (estável p/ a barra; +15s soma aqui)
   const cfgRef = useRef(cfg);
   cfgRef.current = cfg;
 
   const stop = () => { if (tick.current) { clearInterval(tick.current); tick.current = null; } };
   const run = (sec: number) => {
     stop();
+    totalRef.current = sec;
     setLeft(sec);
     tick.current = setInterval(() => {
       setLeft((l) => {
@@ -32,8 +34,7 @@ const RestTimer: React.FC = () => {
 
   if (left <= 0) return null;
   const mm = Math.floor(left / 60), ss = left % 60;
-  const total = cfg?.sec || left;
-  const pct = Math.min(100, Math.round((left / total) * 100));
+  const pct = Math.min(100, Math.round((left / (totalRef.current || left)) * 100));
   return (
     <div className="rest-timer" role="timer">
       <div className="rest-bar" style={{ width: pct + '%' }} />
@@ -42,7 +43,7 @@ const RestTimer: React.FC = () => {
         <span className="rest-label">Descanso</span>
         <span className="rest-time">{mm}:{String(ss).padStart(2, '0')}</span>
       </div>
-      <button className="ds-btn ds-btn--ghost rest-act" onClick={() => setLeft((l) => l + 15)}>+15s</button>
+      <button className="ds-btn ds-btn--ghost rest-act" onClick={() => { setLeft((l) => l + 15); totalRef.current += 15; }}>+15s</button>
     </div>
   );
 };
