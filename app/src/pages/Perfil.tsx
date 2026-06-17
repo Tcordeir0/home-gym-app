@@ -47,6 +47,7 @@ const Perfil: React.FC = () => {
   const clearProfileData = useStore((s) => s.clearProfileData);
   const users = useStore((s) => s.users);
   const scores = useStore((s) => s.scores);
+  const history = useStore((s) => s.history[s.active]) || [];
   const feedback = useStore((s) => s.feedback);
   const setFeedback = useStore((s) => s.setFeedback);
   const notifyOn = useStore((s) => s.notifyOn);
@@ -482,7 +483,16 @@ const Perfil: React.FC = () => {
             <span>Ativar rotação guiada</span>
             <IonToggle
               checked={!!profile.guidedRotation}
-              onIonChange={(e) => updateProfile(profile.id, { guidedRotation: e.detail.checked, ...(e.detail.checked && !profile.rotationCur ? { rotationCur: 'A' } : {}) })}
+              onIonChange={(e) => {
+                if (!e.detail.checked) { updateProfile(profile.id, { guidedRotation: false }); return; }
+                // ao LIGAR, infere o treino atual pelo histórico (próximo após o último concluído)
+                // em vez de começar sempre no A — assim a trava "sabe" o que você já fez.
+                const segs = ['A', 'B', 'C', 'D', 'E'].filter((k) => ((profile.treinos as Record<string, unknown[]> | undefined)?.[k]?.length));
+                // último treino A–E concluído (por DATA) → o atual é o próximo no ciclo
+                const last = [...history].filter((h) => segs.includes(h.w as string)).sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+                const cur = segs.length ? (last ? segs[(segs.indexOf(last.w as string) + 1) % segs.length] : segs[0]) : 'A';
+                updateProfile(profile.id, { guidedRotation: true, rotationCur: cur });
+              }}
               aria-label="Rotação guiada"
             />
           </div>
