@@ -162,10 +162,10 @@ export function generateWorkout(equip: string[], focusKey: string, perDay = 6, d
       const exTotal = Math.max(dayset.length, Math.round(weeklyTarget(g, isF) / 3)); // ~3 séries/exercício
       for (let i = 0; i < exTotal; i++) dg[dayset[i % dayset.length]].push(g);
     });
-    const cap = perDay + (foc ? 2 : 0); // dia de foco fica um pouco maior
     dg.forEach((arr) => {
       arr.sort((a, b) => (a === focusKey ? -1 : 0) - (b === focusKey ? -1 : 0) || GEN_ROTATION.indexOf(a) - GEN_ROTATION.indexOf(b));
-      sciDayGroups.push(arr.slice(0, cap));
+      const dayCap = perDay + (foc && arr.includes(focusKey) ? 2 : 0); // só o DIA DE FOCO fica maior
+      sciDayGroups.push(arr.slice(0, dayCap));
     });
   }
 
