@@ -90,3 +90,5 @@
   flex: 0 0 auto; padding: 7px 14px; border-radius: 10px; border: none; cursor: pointer;
   background: color-mix(in srgb, var(--brand-lime) 16%, transparent); color: var(--brand-lime); font-weight: 700;
 }
+
+.treino-lib-btn { width: 100%; margin: 8px 0; }
