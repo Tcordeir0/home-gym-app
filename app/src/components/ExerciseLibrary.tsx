@@ -31,7 +31,7 @@ const ExerciseLibrary: React.FC<{ open: boolean; onClose: () => void; onAdd?: (e
               <h2 className="lib-d-name">{detail.n}</h2>
               <p className="lib-d-meta">{detail.m} · {detail.eq} · {detail.lv}</p>
               <div className="lib-imgs">
-                {detail.img.map((src, i) => <img key={i} src={src} alt={detail.n} loading="lazy" />)}
+                {detail.img.map((src, i) => <img key={src} src={src} alt={detail.n} loading="lazy" onError={(ev) => { ev.currentTarget.style.display = 'none'; }} />)}
               </div>
               {onAdd && (
                 <button className="ds-btn ds-btn--primary lib-add" onClick={() => { onAdd(detail); close(); }}>
@@ -66,9 +66,9 @@ const ExerciseLibrary: React.FC<{ open: boolean; onClose: () => void; onAdd?: (e
               ) : (
                 <>
                   <div className="lib-grid">
-                    {list.map((e, i) => (
-                      <button key={i} className="lib-card" onClick={() => setDetail(e)}>
-                        <img className="lib-card-img" src={e.img[0]} alt={e.n} loading="lazy" />
+                    {list.map((e) => (
+                      <button key={e.n} className="lib-card" onClick={() => setDetail(e)}>
+                        <img className="lib-card-img" src={e.img[0]} alt={e.n} loading="lazy" onError={(ev) => { ev.currentTarget.style.visibility = 'hidden'; }} />
                         <span className="lib-card-n">{e.n}</span>
                         <span className="lib-card-m">{e.m} · {e.eq}</span>
                       </button>
