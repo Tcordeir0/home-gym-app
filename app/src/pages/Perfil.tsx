@@ -32,6 +32,9 @@ import type { Cardio, Feedback } from '../store/types';
 import './Perfil.css';
 
 const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']; // domingo → sábado
+// horários padrão dos lembretes de dieta (alinhados ao tick do cron */15). Editáveis depois.
+const WATER_TIMES = ['10:00', '13:00', '16:00', '19:00'];
+const MEAL_TIMES = ['08:00', '12:30', '20:00'];
 
 const Perfil: React.FC = () => {
   const routeLoc = useLocation();
@@ -557,6 +560,26 @@ const Perfil: React.FC = () => {
               )}
               {reminder.on && (
                 <p className="perfil-hint-sm">Avisa no horário com o app aberto e quando você abrir o app sem ter treinado. No iPhone, lembretes em segundo plano dependem do sistema.</p>
+              )}
+              {/* lembretes de DIETA (push) — água e refeição */}
+              <div className="ajuste-row">
+                <span>💧 Lembrete de água</span>
+                <IonToggle
+                  checked={!!profile.waterTimes?.length}
+                  onIonChange={(e) => { updateProfile(profile.id, { waterTimes: e.detail.checked ? WATER_TIMES : [] }); void syncPushSchedule(); }}
+                  aria-label="Lembrete de água"
+                />
+              </div>
+              <div className="ajuste-row">
+                <span>🍽️ Lembrete de refeição</span>
+                <IonToggle
+                  checked={!!profile.mealTimes?.length}
+                  onIonChange={(e) => { updateProfile(profile.id, { mealTimes: e.detail.checked ? MEAL_TIMES : [] }); void syncPushSchedule(); }}
+                  aria-label="Lembrete de refeição"
+                />
+              </div>
+              {(!!profile.waterTimes?.length || !!profile.mealTimes?.length) && (
+                <p className="perfil-hint-sm">Água: {WATER_TIMES.join(' · ')}. Refeições: {MEAL_TIMES.join(' · ')}. (Em segundo plano só com o PWA instalado na tela inicial.)</p>
               )}
             </>
           )}

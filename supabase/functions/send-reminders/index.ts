@@ -40,22 +40,43 @@ Deno.serve(async (req: Request) => {
       checked++;
       const tz = typeof s.tz_offset === "number" ? s.tz_offset : 0;
       const { hh, mm, dow } = localNow(tz);
-      const [rh, rm] = String(s.reminder_time || "18:00").split(":").map((x: string) => parseInt(x, 10));
-      const days: number[] = Array.isArray(s.days) ? s.days : [];
-      const dayOk = days.length === 0 || days.includes(dow);     // sem dias = todo dia
-      const sameHour = hh === (rh || 0);
-      const inWindow = mm >= (rm || 0) && mm < (rm || 0) + CRON_WINDOW_MIN; // janela do tick do cron
-      if (!dayOk || !sameHour || !inWindow) continue;
 
-      try {
-        await webpush.sendNotification(
-          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-          JSON.stringify({ title: "Hora do treino 💪", body: "Seu treino de hoje ainda tá te esperando. Bora mover!", tag: "hg-reminder", url: "/" }),
-        );
-        sent++;
-      } catch (e: any) {
-        const code = (e && (e.statusCode || e.status)) || 0;
-        if (code === 404 || code === 410) await supabase.from("push_subs").delete().eq("id", s.id);
+      // casa um HH:MM com o "agora" local dentro da janela do tick do cron.
+      // Compara em MINUTOS TOTAIS (módulo 1440) — robusto a horários :45+ e à virada de hora/dia,
+      // ao contrário de comparar mm cru (mm < tm+15 estouraria passando do minuto 59).
+      const inTick = (t: string) => {
+        const [th, tm] = String(t || "").split(":").map((x: string) => parseInt(x, 10));
+        const diff = (hh * 60 + mm - ((th || 0) * 60 + (tm || 0)) + 1440) % 1440;
+        return diff < CRON_WINDOW_MIN;
+      };
+      const push = async (payload: Record<string, unknown>) => {
+        try {
+          await webpush.sendNotification(
+            { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+            JSON.stringify(payload),
+          );
+          sent++;
+        } catch (e: any) {
+          const code = (e && (e.statusCode || e.status)) || 0;
+          if (code === 404 || code === 410) await supabase.from("push_subs").delete().eq("id", s.id);
+        }
+      };
+
+      // 1) lembrete de TREINO (dias marcados + horário)
+      const days: number[] = Array.isArray(s.days) ? s.days : [];
+      const dayOk = days.length === 0 || days.includes(dow);
+      if (dayOk && inTick(s.reminder_time || "18:00")) {
+        await push({ title: "Hora do treino 💪", body: "Seu treino de hoje ainda tá te esperando. Bora mover!", tag: "hg-reminder", url: "/" });
+      }
+      // 2) lembrete de ÁGUA (todo dia, em cada horário configurado)
+      const waterTimes: string[] = Array.isArray(s.water_times) ? s.water_times : [];
+      if (waterTimes.some(inTick)) {
+        await push({ title: "Hidrate-se 💧", body: "Bora beber uma água e bater a meta do dia.", tag: "hg-water", url: "/" });
+      }
+      // 3) lembrete de REFEIÇÃO
+      const mealTimes: string[] = Array.isArray(s.meal_times) ? s.meal_times : [];
+      if (mealTimes.some(inTick)) {
+        await push({ title: "Hora de comer 🍽️", body: "Registre sua refeição e fique no alvo de calorias/macros.", tag: "hg-meal", url: "/" });
       }
     }
     return json({ ok: true, checked, sent });
