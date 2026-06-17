@@ -45,6 +45,7 @@ async function savePushSub(sub: PushSubscription): Promise<void> {
         user_id: uid, profile_id: u?.id, profile_name: u?.name,
         endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth,
         days: sched.days || [], reminder_time: sched.time || '18:00',
+        water_times: u?.waterTimes || [], meal_times: u?.mealTimes || [],
         tz_offset: new Date().getTimezoneOffset(), updated_at: new Date().toISOString(),
       },
       { onConflict: 'endpoint' },

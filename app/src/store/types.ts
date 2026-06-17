@@ -62,6 +62,8 @@ export interface Profile {
   warmupOn?: boolean; // mostra o segmento de aquecimento (padrão: true)
   guidedRotation?: boolean; // modo rotação guiada A→E (trava o treino concluído na rodada)
   rotationCur?: string; // letra do treino ATUAL na rotação guiada (ex.: 'C')
+  waterTimes?: string[]; // horários (HH:MM) do lembrete de água via push (vazio = off)
+  mealTimes?: string[]; // horários (HH:MM) do lembrete de refeição via push (vazio = off)
   shapeGoal?: ShapeGoalSel; // meta estética que guia o sub-foco
   cosmetics: Cosmetics;
   spinsUsed: number;
