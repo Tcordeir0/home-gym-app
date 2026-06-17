@@ -60,6 +60,7 @@ export interface Profile {
   treinos?: Record<string, unknown>;
   workoutDays?: number; // nº de treinos (3=A-C, 4=A-D, 5=A-E)
   warmupOn?: boolean; // mostra o segmento de aquecimento (padrão: true)
+  smartGenerator?: boolean; // gerador científico: volume-alvo + recuperação ≥48h (foco em dias espaçados)
   guidedRotation?: boolean; // modo rotação guiada A→E (trava o treino concluído na rodada)
   rotationCur?: string; // letra do treino ATUAL na rotação guiada (ex.: 'C')
   waterTimes?: string[]; // horários (HH:MM) do lembrete de água via push (vazio = off)

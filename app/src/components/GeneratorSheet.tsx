@@ -24,6 +24,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
   const [subFocus, setSubFocus] = useState<string | null>(null);
   const [days, setDays] = useState(3);
   const [warm, setWarm] = useState(true);
+  const [smart, setSmart] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -31,8 +32,9 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
       setSubFocus(null);
       setDays(profile.workoutDays || 3);
       setWarm(profile.warmupOn !== false);
+      setSmart(!!profile.smartGenerator);
     }
-  }, [open, profile.id, profile.workoutDays, profile.warmupOn]);
+  }, [open, profile.id, profile.workoutDays, profile.warmupOn, profile.smartGenerator]);
 
   // meta de shape do perfil → sugestão de sub-foco
   const presetId = profile.shapeGoal?.preset || defaultShape(profile.body?.sex || 'm');
@@ -53,7 +55,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
 
   const gen = () => {
     // perDay fica no default do gerador (fonte única); aqui passamos só foco/dias/meta
-    const treinos = generateWorkout(equip, focus, undefined, days, subFocus, { preset: presetId, overrides, biotype });
+    const treinos = generateWorkout(equip, focus, undefined, days, subFocus, { preset: presetId, overrides, biotype }, smart);
     const focusLabel = focus === 'full' ? 'Corpo todo' : GROUP_LABEL[focus] || focus;
     updateProfile(profile.id, {
       treinos,
@@ -61,6 +63,7 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
       focus: focusLabel,
       workoutDays: days,
       warmupOn: warm,
+      smartGenerator: smart,
     });
     onDone?.();
     onClose();
@@ -131,6 +134,14 @@ const GeneratorSheet: React.FC<Props> = ({ open, onClose, onDone }) => {
             <span>🔥 Incluir aquecimento</span>
             <span className="gen-warm-state">{warm ? 'Sim' : 'Não'}</span>
           </button>
+
+          <button className={'gen-warm' + (smart ? ' on' : '')} onClick={() => setSmart((s) => !s)}>
+            <span>🧠 Gerador inteligente (ciência)</span>
+            <span className="gen-warm-state">{smart ? 'Sim' : 'Não'}</span>
+          </button>
+          {smart && (
+            <p className="gen-smart-hint">Distribui por volume-alvo (séries/semana) e respeita ~48h: o foco entra em dias espaçados (5 dias = 3×), não todo dia.</p>
+          )}
 
           <motion.button whileTap={{ scale: 0.97 }} className="ds-btn ds-btn--primary gen-go" onClick={gen}>
             Gerar treino

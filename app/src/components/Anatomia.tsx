@@ -9,6 +9,7 @@ import MaleBody from './MaleBody';
 import { shareAnatomy } from '../lib/shareCard';
 import { emphasisOf } from '../lib/emphasis';
 import { MONTHS, MONTHS_ABBR, isoDay, weeksOfMonth } from '../lib/period';
+import { landmark, classifyVolume } from '../lib/volume';
 import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore, todayISO } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
@@ -30,6 +31,13 @@ const FINE_LABEL: Record<Fine, string> = {
   biceps: 'Bíceps', triceps: 'Tríceps', forearm: 'Antebraço',
   abs: 'Abdômen', obliques: 'Oblíquos', serratus: 'Serrátil',
   quads: 'Quadríceps', hamstring: 'Posterior', calves: 'Panturrilha', glutes: 'Glúteo',
+};
+
+// músculo fino → grupo do gerador (pra landmarks de volume MEV/MAV/MRV por grupo)
+const FINE_GROUP: Record<Fine, string> = {
+  chest: 'chest', serratus: 'core', trapezius: 'back', back: 'back', lombar: 'back',
+  shoulders: 'shoulders', biceps: 'arms', triceps: 'arms', forearm: 'arms',
+  abs: 'core', obliques: 'core', quads: 'legs', hamstring: 'legs', calves: 'legs', glutes: 'glutes',
 };
 
 // nosso músculo → slug do modelo (react-muscle-highlighter, modelo FEMININO).
@@ -463,12 +471,21 @@ const Anatomia: React.FC = () => {
             <b>{FINE_LABEL[sel]}</b>
             <span>{counts[sel]} séries · {total ? Math.round((counts[sel] / total) * 100) : 0}%</span>
           </div>
-          <p className="anat-week">
-            📅 Essa semana: <b>{weekly[sel]} séries</b> ·{' '}
-            <span className={weekly[sel] >= 10 && weekly[sel] <= 20 ? 'on-target' : weekly[sel] < 10 ? 'below' : 'above'}>
-              {weekly[sel] < 10 ? 'abaixo do alvo' : weekly[sel] <= 20 ? 'no alvo 👍' : 'acima do alvo'}
-            </span> (alvo 10–20)
-          </p>
+          {(() => {
+            const grp = FINE_GROUP[sel];
+            const lm = landmark(grp);
+            const grpWk = FINE.filter((f) => FINE_GROUP[f] === grp).reduce((a, f) => a + (weekly[f] || 0), 0);
+            const cls = classifyVolume(grp, grpWk);
+            return (
+              <p className="anat-week">
+                📅 Essa semana · <b>{GROUP_LABEL[grp] || grp}</b>: <b>{grpWk} séries</b> ·{' '}
+                <span className={cls === 'on' ? 'on-target' : cls === 'below' ? 'below' : 'above'}>
+                  {cls === 'below' ? 'abaixo do mínimo' : cls === 'above' ? 'acima do recuperável' : 'no alvo 👍'}
+                </span>{' '}
+                <small>(MAV {lm.mav[0]}–{lm.mav[1]} · teto MRV {lm.mrv})</small>
+              </p>
+            );
+          })()}
           <p>{TIPS[sel]}</p>
 
           {/* partes do músculo — escolher uma sub-região (ex.: peito superior) */}
