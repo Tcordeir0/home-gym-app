@@ -41,10 +41,13 @@ Deno.serve(async (req: Request) => {
       const tz = typeof s.tz_offset === "number" ? s.tz_offset : 0;
       const { hh, mm, dow } = localNow(tz);
 
-      // casa um HH:MM com o "agora" local dentro da janela do tick do cron
+      // casa um HH:MM com o "agora" local dentro da janela do tick do cron.
+      // Compara em MINUTOS TOTAIS (módulo 1440) — robusto a horários :45+ e à virada de hora/dia,
+      // ao contrário de comparar mm cru (mm < tm+15 estouraria passando do minuto 59).
       const inTick = (t: string) => {
         const [th, tm] = String(t || "").split(":").map((x: string) => parseInt(x, 10));
-        return hh === (th || 0) && mm >= (tm || 0) && mm < (tm || 0) + CRON_WINDOW_MIN;
+        const diff = (hh * 60 + mm - ((th || 0) * 60 + (tm || 0)) + 1440) % 1440;
+        return diff < CRON_WINDOW_MIN;
       };
       const push = async (payload: Record<string, unknown>) => {
         try {
