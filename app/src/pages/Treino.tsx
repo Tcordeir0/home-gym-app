@@ -108,7 +108,7 @@ const Treino: React.FC = () => {
       const next = workoutSegs[nextIdx];
       updateProfile(profile.id, { rotationCur: next });
       setSeg(next);
-      if (updated) setToast(`Treino ${safeSeg} atualizado ✓ — próximo: Treino ${next} 💪`);
+      if (updated) setToast(nextIdx === 0 ? `Treino ${safeSeg} atualizado ✓ — rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} atualizado ✓ — próximo: Treino ${next} 💪`);
       else setToast(nextIdx === 0 ? `Rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} ✓ — próximo: Treino ${next} 💪`);
     } else setToast(updated ? 'Treino atualizado — séries adicionadas 💪' : 'Treino concluído! Pontos creditados 🎉');
   };
