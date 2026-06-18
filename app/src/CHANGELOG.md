@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.1...v0.18.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **build:** reverte vendor split (white-screen TDZ no chunk ionic) ([#119](https://github.com/Tcordeir0/home-gym-app/issues/119)) ([5f8aca3](https://github.com/Tcordeir0/home-gym-app/commit/5f8aca3efb8111e1711f7e40cc012ad140489991))
+
 ## [0.18.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.0...v0.18.1) (2026-06-18)
 
 
