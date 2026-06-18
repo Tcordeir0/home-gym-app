@@ -11,6 +11,7 @@ import LevelBadge from '../components/LevelBadge';
 import Social from '../components/Social';
 import TreinoBanner from '../components/TreinoBanner';
 import Readiness from '../components/Readiness';
+import DeloadBanner from '../components/DeloadBanner';
 import { fxSuccess } from '../lib/feedback';
 import { useStore, useActiveProfile, rowsFor } from '../store/store';
 import { PLANS, AQUECIMENTO } from '../data/plans';
@@ -113,6 +114,7 @@ const Treino: React.FC = () => {
   return (
     <AppPage title="Treino" brand accessory={<><Social /><LevelBadge /></>}>
       <TreinoBanner />
+      <DeloadBanner />
       <Readiness />
 
       {!hasPlan ? (
