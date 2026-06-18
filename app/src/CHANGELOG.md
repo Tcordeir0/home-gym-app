@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.20.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.19.0...v0.20.0) (2026-06-18)
+
+
+### Features
+
+* dieta repetir dia anterior + fotos escolher par de comparação ([#123](https://github.com/Tcordeir0/home-gym-app/issues/123)) ([cf33a9e](https://github.com/Tcordeir0/home-gym-app/commit/cf33a9e7e13cb92a73b56799a74c8f8e37881a91))
+* **treino:** RIR por serie (reps em reserva, autorregulacao) ([#124](https://github.com/Tcordeir0/home-gym-app/issues/124)) ([6455740](https://github.com/Tcordeir0/home-gym-app/commit/6455740d74790674e53dcffcbb92fc71e86b9fec))
+
 ## [0.19.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.2...v0.19.0) (2026-06-18)
 
 
