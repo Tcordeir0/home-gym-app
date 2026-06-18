@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.0...v0.20.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **treino:** 4 bugs do device (loading, biblioteca, equipamento, re-concluir) ([#126](https://github.com/Tcordeir0/home-gym-app/issues/126)) ([c0e4c71](https://github.com/Tcordeir0/home-gym-app/commit/c0e4c71d909db0c390b394e9321e30e6378e0810))
+
 ## [0.20.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.19.0...v0.20.0) (2026-06-18)
 
 
