@@ -1,0 +1,21 @@
+.deload {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: rgba(231, 183, 58, 0.12);
+  border: 1px solid rgba(231, 183, 58, 0.34);
+}
+.deload-emoji {
+  font-size: 1.3rem;
+  line-height: 1.2;
+  flex: 0 0 auto;
+}
+.deload-txt {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--ion-text-color);
+}
+.deload-txt b { color: #e7b73a; }
