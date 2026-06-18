@@ -49,3 +49,12 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+/* fallback de carregamento da página em lazy (chunk baixando na 1ª visita) */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --background: transparent;
+}
+.page-loading ion-spinner { --color: var(--brand-lime); transform: scale(1.3); }
