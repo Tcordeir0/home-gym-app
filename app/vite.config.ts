@@ -10,6 +10,22 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        // separa as libs grandes em chunks próprios: entre releases o vendor não
+        // muda → o navegador reusa do cache (só o código do app é rebaixado).
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('@ionic') || id.includes('ionicons')) return 'ionic';
+          if (id.includes('framer-motion')) return 'motion';
+          if (id.includes('@supabase')) return 'supabase';
+          if (id.includes('/react') || id.includes('react-dom') || id.includes('react-router')) return 'react';
+          return 'vendor';
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
