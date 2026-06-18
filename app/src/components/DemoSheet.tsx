@@ -3,6 +3,7 @@ import { IonModal, IonContent, IonIcon } from '@ionic/react';
 import { logoYoutube, closeOutline } from 'ionicons/icons';
 import type { Exercise } from '../data/types';
 import { DEMOS } from '../data/demos';
+import { EXERCISE_LIB } from '../data/exerciseLib';
 import './DemoSheet.css';
 
 interface Props {
@@ -12,15 +13,19 @@ interface Props {
 
 const DemoSheet: React.FC<Props> = ({ ex, onClose }) => {
   const [frame, setFrame] = useState(0);
+  // 1º a demo OFFLINE curada (/demos); senão, as imagens da BIBLIOTECA (Free Exercise DB, CDN).
   const id = ex ? DEMOS[ex.nome] : null;
+  const libImgs = !id && ex ? EXERCISE_LIB.find((e) => e.n === ex.nome)?.img || [] : [];
+  const imgs: string[] = id ? [`/demos/${id}/0.jpg`, `/demos/${id}/1.jpg`] : libImgs;
 
-  // crossfade entre as 2 fotos da demonstração
+  // crossfade entre as 2 fotos (quando há 2)
   useEffect(() => {
-    if (!id) return;
+    if (imgs.length < 2) { setFrame(0); return; }
     setFrame(0);
     const t = setInterval(() => setFrame((f) => (f === 0 ? 1 : 0)), 950);
     return () => clearInterval(t);
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ex?.nome, imgs.length]);
 
   const yt = ex
     ? 'https://www.youtube.com/results?search_query=' +
@@ -45,13 +50,19 @@ const DemoSheet: React.FC<Props> = ({ ex, onClose }) => {
               </button>
             </div>
 
-            {id ? (
+            {imgs.length ? (
               <div className="demo-stage">
-                <img className={'demo-img' + (frame === 0 ? ' on' : '')} src={`/demos/${id}/0.jpg`} alt="" />
-                <img className={'demo-img' + (frame === 1 ? ' on' : '')} src={`/demos/${id}/1.jpg`} alt="" />
+                {imgs.length >= 2 ? (
+                  <>
+                    <img className={'demo-img' + (frame === 0 ? ' on' : '')} src={imgs[0]} alt="" />
+                    <img className={'demo-img' + (frame === 1 ? ' on' : '')} src={imgs[1]} alt="" />
+                  </>
+                ) : (
+                  <img className="demo-img on" src={imgs[0]} alt="" />
+                )}
               </div>
             ) : (
-              <div className="demo-empty">Sem foto offline pra este exercício — toque no YouTube abaixo pra ver a execução certa.</div>
+              <div className="demo-empty">Sem demonstração offline pra este exercício — toque no YouTube abaixo pra ver a execução certa.</div>
             )}
 
             <p className="demo-tip">{ex.dica}</p>
