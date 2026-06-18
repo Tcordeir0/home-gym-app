@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.18.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.0...v0.18.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* safe-area dos modais + sobreposicao de paginas (IonRouterOutlet) ([#116](https://github.com/Tcordeir0/home-gym-app/issues/116)) ([e860c4d](https://github.com/Tcordeir0/home-gym-app/commit/e860c4df1f8859e06d342d597c6b8b84343a4e65))
+
+
+### Performance Improvements
+
+* code-splitting + vendor cache · fix(sync): merge anti-perda entre aparelhos ([#118](https://github.com/Tcordeir0/home-gym-app/issues/118)) ([9820aba](https://github.com/Tcordeir0/home-gym-app/commit/9820abae955a2ef6c4b87fa436bee018e1880372))
+
 ## [0.18.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.17.1...v0.18.0) (2026-06-17)
 
 
