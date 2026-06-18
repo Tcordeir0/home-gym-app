@@ -5,6 +5,7 @@ import { supabase } from './supabase';
 import { useStore } from '../store/store';
 import { deviceId } from './device';
 import { syncSocialAccount, thumbFromDataUrl } from './social';
+import { mergeAppState, type MergeableState } from './syncMerge';
 
 // cache de miniaturas (id do perfil → {foto original, thumb}) pra não regerar a cada sync
 const thumbCache = new Map<string, { src: string; thumb?: string }>();
@@ -39,12 +40,36 @@ export async function pushNow(): Promise<void> {
   if (!uid) return;
   pushing = true;
   try {
-    const data = JSON.parse(useStore.getState().exportState());
+    let data = JSON.parse(useStore.getState().exportState());
+    // ANTI-PERDA: se OUTRO aparelho escreveu desde a nossa última base, não sobrescreve
+    // cego — mescla os dados aditivos do remoto dentro do nosso (local = autoridade de
+    // config). Sem isso, o último a subir apagava o treino/dieta/água do outro device.
+    let mergedRemote = false;
+    try {
+      // 1º só o timestamp (barato): só baixa o blob inteiro se OUTRO device escreveu.
+      const { data: head } = await supabase
+        .from('app_state_v2').select('updated_at').eq('user_id', uid).maybeSingle();
+      const remoteMod = head ? Date.parse(head.updated_at) : 0;
+      if (remoteMod > getMod()) {
+        const { data: rem } = await supabase
+          .from('app_state_v2').select('data').eq('user_id', uid).maybeSingle();
+        if (rem?.data) { data = mergeAppState(data, rem.data as MergeableState); mergedRemote = true; }
+      }
+    } catch { /* sem rede pro check de conflito: segue só com o local */ }
     const ts = Date.now();
     const { error } = await supabase
       .from('app_state_v2')
       .upsert({ user_id: uid, data, updated_at: new Date(ts).toISOString() });
-    if (!error) setMod(ts);
+    if (!error) {
+      setMod(ts);
+      // houve conflito mesclado → reflete na UI deste device (sem disparar novo push)
+      if (mergedRemote) {
+        adopting = true;
+        useStore.getState().importState(JSON.stringify(data));
+        adopting = false;
+        setMod(ts);
+      }
+    }
   } catch { /* offline: tenta de novo na próxima mudança */ }
   finally { pushing = false; }
 }
@@ -85,10 +110,18 @@ export async function syncOnLogin(): Promise<void> {
 
     if (hasRemote && (switched || fresh || remoteMod > getMod())) {
       // Remoto é a fonte da verdade (mais novo, ou é outra conta) → adota.
+      // MESMA conta: preserva o que ESTE device tem e o remoto não (entradas feitas
+      // offline desde a última sync) — senão o "remoto mais novo" apagava o local.
+      // Troca de conta (switched/fresh): NÃO mescla (são dados de gente diferente).
+      let payload: MergeableState = remote as MergeableState;
+      if (!switched && !fresh) {
+        try { payload = mergeAppState(remote as MergeableState, JSON.parse(useStore.getState().exportState())); }
+        catch { /* fica com o remoto puro */ }
+      }
       adopting = true;
-      const ok = useStore.getState().importState(JSON.stringify(remote));
+      const ok = useStore.getState().importState(JSON.stringify(payload));
       adopting = false;
-      if (ok) setMod(remoteMod);
+      if (ok) { setMod(remoteMod); if (!switched && !fresh) schedulePush(); }
       else await pushNow();
     } else if (hasRemote) {
       // Mesma conta, local mais novo → empurra.
