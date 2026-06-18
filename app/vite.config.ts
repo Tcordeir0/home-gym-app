@@ -10,22 +10,10 @@ export default defineConfig({
     react(),
     legacy()
   ],
-  build: {
-    rollupOptions: {
-      output: {
-        // separa as libs grandes em chunks próprios: entre releases o vendor não
-        // muda → o navegador reusa do cache (só o código do app é rebaixado).
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-          if (id.includes('@ionic') || id.includes('ionicons')) return 'ionic';
-          if (id.includes('framer-motion')) return 'motion';
-          if (id.includes('@supabase')) return 'supabase';
-          if (id.includes('/react') || id.includes('react-dom') || id.includes('react-router')) return 'react';
-          return 'vendor';
-        },
-      },
-    },
-  },
+  // NOTA: vendor split via manualChunks foi REVERTIDO — separar Ionic/React em chunks
+  // próprios quebrava a ordem de init (TDZ: "Cannot access 'j' before initialization"
+  // no chunk ionic) por dependência circular entre as libs. O code-splitting por PÁGINA
+  // (React.lazy em MainTabs) é seguro e continua valendo. Vendor fica junto no bundle.
   test: {
     globals: true,
     environment: 'jsdom',
