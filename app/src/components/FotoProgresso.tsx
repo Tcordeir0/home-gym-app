@@ -27,6 +27,9 @@ const FotoProgresso: React.FC = () => {
   const [view, setView] = useState<Shot | null>(null);
   const [delDate, setDelDate] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // qual par comparar (antes/depois) — default primeira × última, mas o usuário escolhe
+  const [beforeDate, setBeforeDate] = useState<string | null>(null);
+  const [afterDate, setAfterDate] = useState<string | null>(null);
 
   const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -43,6 +46,12 @@ const FotoProgresso: React.FC = () => {
 
   const first = photos[0];
   const last = photos[photos.length - 1];
+  // par escolhido (com fallback pro default primeira × última se a data não existir mais)
+  const has = (d: string | null) => !!d && photos.some((p) => p.date === d);
+  const bDate = has(beforeDate) ? beforeDate! : first?.date;
+  const aDate = has(afterDate) ? afterDate! : last?.date;
+  const beforeShot = photos.find((p) => p.date === bDate);
+  const afterShot = photos.find((p) => p.date === aDate);
 
   return (
     <IonCard className="prog-card">
@@ -50,17 +59,32 @@ const FotoProgresso: React.FC = () => {
         <h2 className="card-title">Foto de progresso</h2>
         <p className="card-sub">Uma foto por dia. Compare a evolução ao longo do tempo.</p>
 
-        {photos.length >= 2 && (
-          <div className="fp-compare">
-            <figure>
-              <img src={first.photo} alt="" onClick={() => setView(first)} />
-              <figcaption>Antes · {fmt(first.date)}</figcaption>
-            </figure>
-            <figure>
-              <img src={last.photo} alt="" onClick={() => setView(last)} />
-              <figcaption>Agora · {fmt(last.date)}</figcaption>
-            </figure>
-          </div>
+        {photos.length >= 2 && beforeShot && afterShot && (
+          <>
+            <div className="fp-compare">
+              <figure>
+                <img src={beforeShot.photo} alt="" onClick={() => setView(beforeShot)} />
+                <figcaption>Antes · {fmt(beforeShot.date)}</figcaption>
+              </figure>
+              <figure>
+                <img src={afterShot.photo} alt="" onClick={() => setView(afterShot)} />
+                <figcaption>Agora · {fmt(afterShot.date)}</figcaption>
+              </figure>
+            </div>
+            {/* escolher quais duas comparar (default: primeira × última) */}
+            <div className="fp-pick">
+              <label>Antes
+                <select value={bDate} onChange={(e) => setBeforeDate(e.target.value)} aria-label="Foto de antes">
+                  {photos.map((p) => <option key={p.date} value={p.date}>{fmt(p.date)}</option>)}
+                </select>
+              </label>
+              <label>Agora
+                <select value={aDate} onChange={(e) => setAfterDate(e.target.value)} aria-label="Foto de agora">
+                  {photos.map((p) => <option key={p.date} value={p.date}>{fmt(p.date)}</option>)}
+                </select>
+              </label>
+            </div>
+          </>
         )}
 
         {photos.length > 0 && (
