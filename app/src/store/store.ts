@@ -4,6 +4,7 @@ import type { AppState, Profile, Body, Cardio, HistoryEntry, FoodItem } from './
 import type { Exercise } from '../data/types';
 import { weekDates } from '../lib/league';
 import { deviceId } from '../lib/device';
+import { mergeExercises } from '../lib/workoutMerge';
 import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
@@ -199,7 +200,7 @@ export interface Store extends AppState {
   addExerciseToWorkout: (treino: string, ex: Exercise) => void;
   creatinasBalance: () => number;
   buyCosmetic: (kind: ShopKind, id: string, cost: number) => 'ok' | 'owned' | 'poor';
-  completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'dup' | 'empty';
+  completeWorkout: (treino: string, exs: { nome: string }[]) => 'ok' | 'updated' | 'empty';
   prevSets: (nome: string) => { kg: number; reps: number }[];
   exPR: (nome: string) => { kg: number; reps: number; e1rm: number } | null;
   prefillSets: (treino: string, exIdx: number, series: number, sets: { kg: number; reps: number }[]) => void;
@@ -444,27 +445,37 @@ export const useStore = create<Store>((set, get) => {
       if (!ownsActive(s0)) return 'empty';
       const uid = s0.active;
       const today = todayISO();
-      const hist = s0.history[uid] || [];
-      if (hist.some((e) => e.date === today && e.w === treino)) return 'dup';
       const sl = (s0.setlog as Setlog)[uid]?.[treino] || {};
       let doneSets = 0;
-      const exercises = exs.map((ex, i) => {
-        const rows = sl[i] || [];
-        const sets = rows
-          .filter((r) => r.done)
-          .map((r) => ({ kg: r.kg ? parseFloat(r.kg) : null, reps: r.reps ? parseInt(r.reps, 10) : null, ...(typeof r.rir === 'number' ? { rir: r.rir } : {}) }));
-        doneSets += sets.length;
-        return { nome: ex.nome, sets };
-      });
+      const exercises = exs
+        .map((ex, i) => {
+          const rows = sl[i] || [];
+          const sets = rows
+            .filter((r) => r.done)
+            .map((r) => ({ kg: r.kg ? parseFloat(r.kg) : null, reps: r.reps ? parseInt(r.reps, 10) : null, ...(typeof r.rir === 'number' ? { rir: r.rir } : {}) }));
+          doneSets += sets.length;
+          return { nome: ex.nome, sets };
+        })
+        .filter((e) => e.sets.length > 0); // só exercícios com série feita
       if (doneSets === 0) return 'empty';
+      let merged = false;
       set(produce((s: Store) => {
         const h = (s.history[uid] = s.history[uid] || []);
-        h.push({ date: today, w: treino as HistoryEntry['w'], exercises });
         const sc = (s.scores[uid] = s.scores[uid] || { byDay: {} });
-        sc.byDay[today] = (sc.byDay[today] || 0) + PTS_TREINO + PTS_SET * doneSets;
-        delete (s.setlog as Setlog)[uid][treino];
+        // já registrou esse treino hoje? Em vez de barrar, MESCLA (ex.: esqueceu 1 exercício).
+        const entry = h.find((e) => e.date === today && e.w === treino);
+        if (entry) {
+          merged = true;
+          entry.exercises = mergeExercises(entry.exercises || [], exercises);
+          sc.byDay[today] = (sc.byDay[today] || 0) + PTS_SET * doneSets; // sem 2º bônus de treino
+        } else {
+          h.push({ date: today, w: treino as HistoryEntry['w'], exercises });
+          sc.byDay[today] = (sc.byDay[today] || 0) + PTS_TREINO + PTS_SET * doneSets;
+        }
+        const slMap = s.setlog as Setlog;
+        if (slMap[uid]) delete slMap[uid][treino];
       }));
-      return 'ok';
+      return merged ? 'updated' : 'ok';
     },
 
     // séries da ÚLTIMA vez que treinou esse exercício (na ordem) — pra pré-preencher

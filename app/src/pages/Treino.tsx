@@ -96,19 +96,19 @@ const Treino: React.FC = () => {
 
   const onComplete = () => {
     const r = completeWorkout(safeSeg, exercises);
-    if (r === 'dup') setToast('Você já registrou este treino hoje 💪');
-    else if (r === 'empty') setToast('Marque ao menos uma série feita');
-    else {
-      fxSuccess();
-      if (guided) {
-        // avança a rotação; ao concluir o ÚLTIMO, reinicia a rodada (tudo destrava)
-        const nextIdx = curIdx >= workoutSegs.length - 1 ? 0 : curIdx + 1;
-        const next = workoutSegs[nextIdx];
-        updateProfile(profile.id, { rotationCur: next });
-        setSeg(next);
-        setToast(nextIdx === 0 ? `Rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} ✓ — próximo: Treino ${next} 💪`);
-      } else setToast('Treino concluído! Pontos creditados 🎉');
-    }
+    if (r === 'empty') { setToast('Marque ao menos uma série feita'); return; }
+    fxSuccess();
+    // 'updated' = mesclou num treino já registrado hoje (ex.: esqueceu um exercício) →
+    // credita as séries novas mas NÃO avança a rotação (já avançou na 1ª conclusão).
+    if (r === 'updated') { setToast('Treino atualizado — séries adicionadas 💪'); return; }
+    if (guided) {
+      // avança a rotação; ao concluir o ÚLTIMO, reinicia a rodada (tudo destrava)
+      const nextIdx = curIdx >= workoutSegs.length - 1 ? 0 : curIdx + 1;
+      const next = workoutSegs[nextIdx];
+      updateProfile(profile.id, { rotationCur: next });
+      setSeg(next);
+      setToast(nextIdx === 0 ? `Rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} ✓ — próximo: Treino ${next} 💪`);
+    } else setToast('Treino concluído! Pontos creditados 🎉');
   };
 
   return (
@@ -202,7 +202,7 @@ const Treino: React.FC = () => {
           <ExerciseLibrary
             open={libOpen}
             onClose={() => setLibOpen(false)}
-            onAdd={(ex) => { addExerciseToWorkout(safeSeg, { nome: ex.n, musculo: ex.m, series: 3, reps: '8-12', dica: '' }); setToast(`"${ex.n}" adicionado ao Treino ${safeSeg} 💪`); }}
+            onAdd={(ex) => { addExerciseToWorkout(safeSeg, { nome: ex.n, musculo: ex.m, series: 3, reps: '8-12', dica: '', eq: ex.eq }); setToast(`"${ex.n}" adicionado ao Treino ${safeSeg} 💪`); }}
           />
         </Suspense>
       )}

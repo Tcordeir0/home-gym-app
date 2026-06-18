@@ -18,8 +18,9 @@ const Perfil = lazy(() => import('../pages/Perfil'));
 // StackManager (a mesma engrenagem do bug de sobreposição) durante o carregamento.
 const PageLoading: React.FC = () => (
   <IonPage>
-    <IonContent className="page-loading">
-      <IonSpinner name="crescent" />
+    <IonContent>
+      {/* div com posição própria — centra de verdade (no IonContent o spinner ia pro canto) */}
+      <div className="page-loading"><IonSpinner name="crescent" /></div>
     </IonContent>
   </IonPage>
 );

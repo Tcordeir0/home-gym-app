@@ -33,7 +33,8 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo, locked }) =>
   const latestMeasure = useStore((s) => s.latestMeasure);
 
   // exercício corporal (sem carga): o app usa o PESO DO PERFIL no lugar de pedir kg na mão.
-  const bw = isBodyweight(ex.nome);
+  // Se veio da BIBLIOTECA (tem ex.eq), confia no equipamento do DB; senão infere pelo nome/POOL.
+  const bw = ex.eq ? /peso do corpo/i.test(ex.eq) : isBodyweight(ex.nome);
   const bodyWeight = bw ? latestMeasure('weight') : null;
 
   const [openTip, setOpenTip] = useState(false);
