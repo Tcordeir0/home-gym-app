@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.2...v0.19.0) (2026-06-18)
+
+
+### Features
+
+* loop científico (prontidão de recuperação + deload + tendência de volume) ([#121](https://github.com/Tcordeir0/home-gym-app/issues/121)) ([1d696f0](https://github.com/Tcordeir0/home-gym-app/commit/1d696f0c860736842a2067cf318b546804f1f88b))
+
 ## [0.18.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.18.1...v0.18.2) (2026-06-18)
 
 
