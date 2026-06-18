@@ -98,17 +98,19 @@ const Treino: React.FC = () => {
     const r = completeWorkout(safeSeg, exercises);
     if (r === 'empty') { setToast('Marque ao menos uma série feita'); return; }
     fxSuccess();
-    // 'updated' = mesclou num treino já registrado hoje (ex.: esqueceu um exercício) →
-    // credita as séries novas mas NÃO avança a rotação (já avançou na 1ª conclusão).
-    if (r === 'updated') { setToast('Treino atualizado — séries adicionadas 💪'); return; }
+    // r === 'updated' = mesclou num treino já registrado hoje (ex.: reabriu pra adicionar um
+    // exercício esquecido). No modo guiado, concluir o treino ATUAL avança a rotação do mesmo
+    // jeito — senão o próximo fica travado ("Conclua o Treino X primeiro") e parece que travou.
+    const updated = r === 'updated';
     if (guided) {
       // avança a rotação; ao concluir o ÚLTIMO, reinicia a rodada (tudo destrava)
       const nextIdx = curIdx >= workoutSegs.length - 1 ? 0 : curIdx + 1;
       const next = workoutSegs[nextIdx];
       updateProfile(profile.id, { rotationCur: next });
       setSeg(next);
-      setToast(nextIdx === 0 ? `Rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} ✓ — próximo: Treino ${next} 💪`);
-    } else setToast('Treino concluído! Pontos creditados 🎉');
+      if (updated) setToast(`Treino ${safeSeg} atualizado ✓ — próximo: Treino ${next} 💪`);
+      else setToast(nextIdx === 0 ? `Rodada completa! Recomeçando no Treino ${next} 🔄` : `Treino ${safeSeg} ✓ — próximo: Treino ${next} 💪`);
+    } else setToast(updated ? 'Treino atualizado — séries adicionadas 💪' : 'Treino concluído! Pontos creditados 🎉');
   };
 
   return (
