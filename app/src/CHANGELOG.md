@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.1...v0.20.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **treino:** rotação guiada destrava ao re-concluir treino reaberto ([#128](https://github.com/Tcordeir0/home-gym-app/issues/128)) ([0967b46](https://github.com/Tcordeir0/home-gym-app/commit/0967b46603924a4517ec36b0ea8a97bd134128a3))
+
 ## [0.20.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.0...v0.20.1) (2026-06-18)
 
 
