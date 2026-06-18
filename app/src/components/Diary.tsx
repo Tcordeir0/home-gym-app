@@ -31,7 +31,7 @@ const Diary: React.FC = () => {
   const [copyMsg, setCopyMsg] = useState('');
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
-  useEffect(() => { setMoveIdx(null); }, [date]);
+  useEffect(() => { setMoveIdx(null); setCopyMsg(''); }, [date]);
   const today = todayISO();
   const isToday = date === today;
   const stepDay = (n: number) => {
@@ -195,14 +195,14 @@ const Diary: React.FC = () => {
             <p className="diary-empty">Nenhum alimento {isToday ? 'hoje' : 'neste dia'}. Busque abaixo ou copie o dia anterior.</p>
           )}
         </div>
-        {food.length === 0 && (
-          <button
-            className="diary-copy"
-            onClick={() => { setCopyMsg(copyDietFromPrev(date) ? '' : 'Nenhum dia anterior com comida pra copiar.'); }}
-          >
-            <IonIcon icon={copyOutline} /> Copiar dia anterior
-          </button>
-        )}
+        {/* repetir o dia anterior: empilha as refeições (some no dia vazio = "copiar",
+            com comida já lançada = "repetir" e adiciona por cima) */}
+        <button
+          className={'diary-copy' + (food.length ? ' diary-copy--add' : '')}
+          onClick={() => { setCopyMsg(copyDietFromPrev(date) ? '' : 'Nenhum dia anterior com comida pra repetir.'); }}
+        >
+          <IonIcon icon={copyOutline} /> {food.length ? 'Repetir dia anterior' : 'Copiar dia anterior'}
+        </button>
         {copyMsg && <p className="diary-copymsg">{copyMsg}</p>}
 
         <button className="food-online-go diary-photo" onClick={() => setPlateOpen(true)}>
