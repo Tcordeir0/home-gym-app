@@ -85,6 +85,7 @@ export interface Profile {
 export interface SetEntry {
   kg?: number | null;
   reps?: number | null;
+  rir?: number; // Reps In Reserve (0–4) registrado na série, quando o usuário marcou
 }
 
 export interface HistoryEntry {
