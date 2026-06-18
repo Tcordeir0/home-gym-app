@@ -1,14 +1,29 @@
-import { memo } from 'react';
+import { lazy, memo, Suspense, type ReactNode } from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
+import { IonContent, IonIcon, IonLabel, IonPage, IonRouterOutlet, IonSpinner, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { barbell, restaurant, trendingUp, sparkles, person } from 'ionicons/icons';
 import { useStore, ownsActive } from '../store/store';
-import Treino from '../pages/Treino';
-import Dieta from '../pages/Dieta';
-import Progresso from '../pages/Progresso';
-import Premios from '../pages/Premios';
-import Perfil from '../pages/Perfil';
+
+// Páginas em LAZY: cada aba vira um chunk separado, carregado só quando visitada.
+// Antes tudo ia no bundle inicial (~2,1 MB) — agora o boot baixa só o essencial.
+const Treino = lazy(() => import('../pages/Treino'));
+const Dieta = lazy(() => import('../pages/Dieta'));
+const Progresso = lazy(() => import('../pages/Progresso'));
+const Premios = lazy(() => import('../pages/Premios'));
+const Perfil = lazy(() => import('../pages/Perfil'));
+
+// Fallback enquanto o chunk da página carrega (1ª visita). É um IonPage de propósito:
+// o IonRouterOutlet espera um IonPage como filho — manter isso evita confundir o
+// StackManager (a mesma engrenagem do bug de sobreposição) durante o carregamento.
+const PageLoading: React.FC = () => (
+  <IonPage>
+    <IonContent className="page-loading">
+      <IonSpinner name="crescent" />
+    </IonContent>
+  </IonPage>
+);
+const lazyPage = (el: ReactNode) => <Suspense fallback={<PageLoading />}>{el}</Suspense>;
 
 /**
  * Casca de navegação (router + tabs) ISOLADA do App.
@@ -31,11 +46,11 @@ const MainTabs: React.FC = memo(function MainTabs() {
       <IonTabs>
         <IonRouterOutlet>
           {/* no modo leitura (!owns) as abas restritas redirecionam pro Progresso */}
-          <Route exact path="/treino" render={() => (owns ? <Treino /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/dieta" render={() => (owns ? <Dieta /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/progresso" render={() => <Progresso />} />
-          <Route exact path="/premios" render={() => (owns ? <Premios /> : <Redirect to="/progresso" />)} />
-          <Route exact path="/perfil" render={() => (owns ? <Perfil /> : <Redirect to="/progresso" />)} />
+          <Route exact path="/treino" render={() => (owns ? lazyPage(<Treino />) : <Redirect to="/progresso" />)} />
+          <Route exact path="/dieta" render={() => (owns ? lazyPage(<Dieta />) : <Redirect to="/progresso" />)} />
+          <Route exact path="/progresso" render={() => lazyPage(<Progresso />)} />
+          <Route exact path="/premios" render={() => (owns ? lazyPage(<Premios />) : <Redirect to="/progresso" />)} />
+          <Route exact path="/perfil" render={() => (owns ? lazyPage(<Perfil />) : <Redirect to="/progresso" />)} />
           <Route exact path="/" render={() => <Redirect to={owns ? '/treino' : '/progresso'} />} />
         </IonRouterOutlet>
         {/* no modo leitura só existe o Progresso → esconde a barra inteira (fica em tela cheia) */}
