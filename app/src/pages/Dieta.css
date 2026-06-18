@@ -227,6 +227,15 @@
   font-weight: 800; font-size: 14px; border-radius: 13px; padding: 12px; cursor: pointer;
 }
 .diary-copy ion-icon { font-size: 17px; }
+/* quando já há comida no dia: variante discreta (secundária), só adiciona por cima */
+.diary-copy--add {
+  border-color: var(--app-line, rgba(255, 255, 255, 0.12));
+  background: transparent;
+  color: var(--app-muted, #9098a4);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px;
+}
 .diary-copymsg { margin: 8px 2px 0; font-size: 12.5px; color: var(--app-muted); }
 .diary-search { width: 100%; margin-top: 12px; text-align: left; padding: 0 14px; }
 .food-results { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
