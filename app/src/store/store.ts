@@ -35,6 +35,7 @@ export interface SetRow {
   kg: string;
   reps: string;
   done: boolean;
+  rir?: number; // Reps In Reserve (0–4) — quão perto da falha (autorregulação). undefined = não marcou
 }
 type Setlog = Record<string, Record<string, Record<number, SetRow[]>>>;
 
@@ -193,6 +194,7 @@ export interface Store extends AppState {
   // Treino
   setSetField: (treino: string, exIdx: number, setIdx: number, field: 'kg' | 'reps', v: string, series: number) => void;
   toggleSetDone: (treino: string, exIdx: number, setIdx: number, series: number) => void;
+  cycleSetRir: (treino: string, exIdx: number, setIdx: number, series: number) => void;
   swapExercise: (treino: string, exIdx: number, ex: Exercise) => void;
   addExerciseToWorkout: (treino: string, ex: Exercise) => void;
   creatinasBalance: () => number;
@@ -369,6 +371,14 @@ export const useStore = create<Store>((set, get) => {
         r.done = !r.done;
       })),
 
+    // RIR (Reps In Reserve) da série: cicla 0→1→2→3→4→(limpa). Autorregulação opcional.
+    cycleSetRir: (treino, exIdx, setIdx, series) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const r = ensureRow(s, s.active, treino, exIdx, series)[setIdx];
+        r.rir = r.rir === undefined ? 0 : r.rir >= 4 ? undefined : r.rir + 1;
+      })),
+
     // saldo de creatinas do perfil ativo = pontos_totais × taxa − já gasto na loja
     creatinasBalance: () => {
       const s = get();
@@ -442,7 +452,7 @@ export const useStore = create<Store>((set, get) => {
         const rows = sl[i] || [];
         const sets = rows
           .filter((r) => r.done)
-          .map((r) => ({ kg: r.kg ? parseFloat(r.kg) : null, reps: r.reps ? parseInt(r.reps, 10) : null }));
+          .map((r) => ({ kg: r.kg ? parseFloat(r.kg) : null, reps: r.reps ? parseInt(r.reps, 10) : null, ...(typeof r.rir === 'number' ? { rir: r.rir } : {}) }));
         doneSets += sets.length;
         return { nome: ex.nome, sets };
       });

@@ -233,3 +233,23 @@
 /* Rotação guiada: treino concluído na rodada → visual de só-leitura */
 .ex-card.locked { opacity: 0.62; }
 .ex-card.locked .set-in { color: var(--app-muted); }
+
+/* RIR (reps em reserva) por série — aparece só na série marcada. Cor pela zona:
+   vermelho = 0-1 (perto da falha), verde = 2 (ideal hipertrofia), âmbar = 3-4 (sobrou). */
+.set-rir {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 9px;
+  border-radius: 10px;
+  border: 1.5px solid var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-muted);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.set-rir.on { color: #0b0c0f; }
+.set-rir.on.rir-hard { background: #ff6b6b; border-color: #ff6b6b; }
+.set-rir.on.rir-mid  { background: var(--brand-lime); border-color: var(--brand-lime); }
+.set-rir.on.rir-easy { background: #e7b73a; border-color: #e7b73a; }

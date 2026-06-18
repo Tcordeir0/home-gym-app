@@ -8,7 +8,7 @@
 //
 // Função PURA e tolerante a campos faltando — fácil de testar e nunca derruba o app.
 
-interface SetEntry { kg?: number | null; reps?: number | null }
+interface SetEntry { kg?: number | null; reps?: number | null; rir?: number }
 interface HistoryEntry {
   date: string;
   w: string;

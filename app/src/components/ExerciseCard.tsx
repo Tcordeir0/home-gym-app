@@ -23,6 +23,7 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo, locked }) =>
   const setlog = useStore((s) => s.setlog);
   const setSetField = useStore((s) => s.setSetField);
   const toggleSetDone = useStore((s) => s.toggleSetDone);
+  const cycleSetRir = useStore((s) => s.cycleSetRir);
   const prevSets = useStore((s) => s.prevSets);
   const exPR = useStore((s) => s.exPR);
   const prefillSets = useStore((s) => s.prefillSets);
@@ -180,6 +181,18 @@ const ExerciseCard: React.FC<Props> = ({ ex, treino, exIdx, onDemo, locked }) =>
               >
                 ✓
               </motion.button>
+              {/* RIR (reps em reserva) só aparece DEPOIS de marcar — é quando faz sentido avaliar a série */}
+              {s.done && (
+                <button
+                  className={'set-rir' + (s.rir !== undefined ? ` on rir-${s.rir <= 1 ? 'hard' : s.rir >= 3 ? 'easy' : 'mid'}` : '')}
+                  disabled={locked}
+                  aria-label="Reps em reserva (RIR) — quão perto da falha"
+                  title="RIR: reps que ainda sobravam (0 = falha total). Toque pra ciclar."
+                  onClick={() => { if (!locked) cycleSetRir(treino, exIdx, i, ex.series); }}
+                >
+                  {s.rir !== undefined ? `RIR ${s.rir}` : 'RIR'}
+                </button>
+              )}
             </div>
           );
         })}
