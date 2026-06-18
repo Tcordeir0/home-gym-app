@@ -31,7 +31,7 @@ const Diary: React.FC = () => {
   const [copyMsg, setCopyMsg] = useState('');
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
-  useEffect(() => { setMoveIdx(null); }, [date]);
+  useEffect(() => { setMoveIdx(null); setCopyMsg(''); }, [date]);
   const today = todayISO();
   const isToday = date === today;
   const stepDay = (n: number) => {
