@@ -14,6 +14,7 @@ import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore, todayISO } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
+import { EXERCISE_LIB } from '../data/exerciseLib';
 import './Anatomia.css';
 
 // Músculos granulares (o usuário pediu separar bíceps/tríceps/antebraço/abdômen/trapézio/panturrilha
@@ -132,7 +133,9 @@ const TIPS: Record<Fine, string> = {
 function exToFine(nome: string, coarse: string): Fine {
   const s = (nome || '').toLowerCase();
   switch (coarse) {
-    case 'chest': return 'chest';
+    case 'chest':
+      if (/pullover|around the world|around-the-world|serrátil|serratil/.test(s)) return 'serratus';
+      return 'chest';
     case 'glutes': return 'glutes';
     case 'shoulders': return 'shoulders';
     case 'back':
@@ -170,8 +173,30 @@ function musToFine(m: string): Fine | null {
   if (s.includes('core') || s.includes('abdô') || s.includes('abdom')) return 'abs';
   if (s.includes('panturrilha')) return 'calves';
   if (s.includes('posterior') || s.includes('isquio')) return 'hamstring';
-  if (s.includes('glúteo') || s.includes('gluteo') || s.includes('adutor')) return 'glutes';
+  if (s.includes('glúteo') || s.includes('gluteo') || s.includes('adutor') || s.includes('abdutor')) return 'glutes';
   if (s.includes('perna') || s.includes('quadr') || s.includes('coxa')) return 'quads';
+  return null;
+}
+
+// Fallback por PALAVRA-CHAVE no nome — pra exercícios que não estão no POOL/biblioteca/planos
+// (variações de nome, ex.: "...militar...", "...(no chão)..."). Robusto a qualquer rename.
+function fineFromName(nome: string): Fine | null {
+  const s = (nome || '').toLowerCase();
+  if (/pullover|around the world|around-the-world|serrátil|serratil/.test(s)) return 'serratus';
+  if (/punho|wrist|antebra/.test(s)) return 'forearm';
+  if (/tríceps|triceps|testa|francês|frances|mergulho|kickback|fechada/.test(s)) return 'triceps';
+  if (/encolhimento|shrug|trapéz|trapez|face pull/.test(s)) return 'trapezius';
+  if (/desenvolvimento|elevação lateral|elevacao lateral|elevação frontal|elevacao frontal|arnold|ombro|pike|remada alta|overhead|shoulder/.test(s)) return 'shoulders';
+  if (/rosca|bíceps|biceps|\bcurl\b/.test(s)) return 'biceps';
+  if (/supino|crucifixo|flex[ãa]o|push.?up|peito|crossover|\bfly\b|voador|bench press|chest/.test(s)) return 'chest';
+  if (/lombar|superman|hiperexten|good morning/.test(s)) return 'lombar';
+  if (/remada|puxada|barra fixa|pull.?up|chin.?up|\blat\b|dorsal|costas|\brow\b/.test(s)) return 'back';
+  if (/obl[íi]qu|russian|woodchopper|twist|prancha lateral|suitcase|inclinação lateral|inclinacao lateral/.test(s)) return 'obliques';
+  if (/abdominal|prancha|crunch|sit.?up|eleva[çc][ãa]o de perna|leg raise|leg pull|mountain|hollow|dead bug|bird dog|canivete|v-up|flutter|heel touch|plank|abdôm|abdom/.test(s)) return 'abs';
+  if (/panturrilha|\bcalf\b|s[óo]leo/.test(s)) return 'calves';
+  if (/stiff|terra romeno|\brdl\b|posterior|isquio|hamstring/.test(s)) return 'hamstring';
+  if (/gl[úu]teo|hip thrust|ponte|coice|abdu[çc][ãa]o|abdutor|sum[ôo]|pélvica|pelvica/.test(s)) return 'glutes';
+  if (/agachamento|afundo|b[úu]lgaro|\bleg\b|cadeira|wall sit|passada|lunge|quadr|coxa|squat|swing/.test(s)) return 'quads';
   return null;
 }
 
@@ -199,7 +224,7 @@ function countRange(
   history.forEach((h) => {
     if (h.date < from || h.date > to) return;
     (h.exercises || []).forEach((ex) => {
-      const f = byName.get(ex.nome);
+      const f = byName.get(ex.nome) ?? fineFromName(ex.nome); // fallback por palavra-chave p/ variações de nome
       if (!f) return;
       const n = ex.sets?.length || 0;
       c[f] += n;
@@ -277,6 +302,9 @@ const Anatomia: React.FC = () => {
     POOL.forEach((p) => m.set(p.n, exToFine(p.n, p.g)));
     const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
     planEx.forEach((ex) => { if (!m.has(ex.nome)) { const f = musToFine(ex.musculo); if (f) m.set(ex.nome, f); } });
+    // BIBLIOTECA (Free Exercise DB, nomes em inglês): mapeia pelo MÚSCULO do próprio DB (campo `m`,
+    // já em PT) — assim exercício da lib (ex.: "...Wrist Curl..." → Antebraço) pinta na Anatomia.
+    EXERCISE_LIB.forEach((e) => { if (!m.has(e.n)) { const f = musToFine(e.m); if (f) m.set(e.n, f); } });
     return m;
   }, []);
 
