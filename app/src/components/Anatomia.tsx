@@ -14,6 +14,7 @@ import { weightFor, shapeGoalById, defaultShape } from '../data/shapeGoals';
 import { useStore, todayISO } from '../store/store';
 import { POOL, GROUP_LABEL } from '../data/pool';
 import { PLANS, AQUECIMENTO } from '../data/plans';
+import { EXERCISE_LIB } from '../data/exerciseLib';
 import './Anatomia.css';
 
 // Músculos granulares (o usuário pediu separar bíceps/tríceps/antebraço/abdômen/trapézio/panturrilha
@@ -170,7 +171,7 @@ function musToFine(m: string): Fine | null {
   if (s.includes('core') || s.includes('abdô') || s.includes('abdom')) return 'abs';
   if (s.includes('panturrilha')) return 'calves';
   if (s.includes('posterior') || s.includes('isquio')) return 'hamstring';
-  if (s.includes('glúteo') || s.includes('gluteo') || s.includes('adutor')) return 'glutes';
+  if (s.includes('glúteo') || s.includes('gluteo') || s.includes('adutor') || s.includes('abdutor')) return 'glutes';
   if (s.includes('perna') || s.includes('quadr') || s.includes('coxa')) return 'quads';
   return null;
 }
@@ -277,6 +278,9 @@ const Anatomia: React.FC = () => {
     POOL.forEach((p) => m.set(p.n, exToFine(p.n, p.g)));
     const planEx = [...Object.values(PLANS).flatMap((p) => Object.values(p.treinos).flat()), ...AQUECIMENTO];
     planEx.forEach((ex) => { if (!m.has(ex.nome)) { const f = musToFine(ex.musculo); if (f) m.set(ex.nome, f); } });
+    // BIBLIOTECA (Free Exercise DB, nomes em inglês): mapeia pelo MÚSCULO do próprio DB (campo `m`,
+    // já em PT) — assim exercício da lib (ex.: "...Wrist Curl..." → Antebraço) pinta na Anatomia.
+    EXERCISE_LIB.forEach((e) => { if (!m.has(e.n)) { const f = musToFine(e.m); if (f) m.set(e.n, f); } });
     return m;
   }, []);
 
