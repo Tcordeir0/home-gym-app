@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.2...v0.21.0) (2026-06-19)
+
+
+### Features
+
+* **dieta:** refeições (café/almoço/lanche/janta) + fix copiar-pra-outro-dia ([#130](https://github.com/Tcordeir0/home-gym-app/issues/130)) ([f83b331](https://github.com/Tcordeir0/home-gym-app/commit/f83b331b43c12ab97fe3961b8a1ecc20004221b0))
+
 ## [0.20.2](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.1...v0.20.2) (2026-06-18)
 
 
