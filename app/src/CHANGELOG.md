@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.1](https://github.com/Tcordeir0/home-gym-app/compare/v0.21.0...v0.21.1) (2026-06-19)
+
+
+### Bug Fixes
+
+* **anatomia:** biblioteca + serrátil + fallback por palavra-chave (0 exercícios sem mapear) ([#132](https://github.com/Tcordeir0/home-gym-app/issues/132)) ([f7dd131](https://github.com/Tcordeir0/home-gym-app/commit/f7dd131b26e5ca7f04229f8d33a28e6f57db0b0c))
+
 ## [0.21.0](https://github.com/Tcordeir0/home-gym-app/compare/v0.20.2...v0.21.0) (2026-06-19)
 
 
