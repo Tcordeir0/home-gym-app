@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { IonCard, IonCardContent, IonIcon } from '@ionic/react';
+import { IonCard, IonCardContent, IonIcon, IonToast } from '@ionic/react';
 import { trashOutline, addOutline, calendarOutline, copyOutline } from 'ionicons/icons';
 import { cloudOutline, cameraOutline, barcodeOutline } from 'ionicons/icons';
 
@@ -59,6 +59,7 @@ const Diary: React.FC = () => {
   const [onlineMsg, setOnlineMsg] = useState('');
   const [plateOpen, setPlateOpen] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
+  const [toast, setToast] = useState('');
 
   const doOnline = async () => {
     setOnline([]);
@@ -85,7 +86,8 @@ const Diary: React.FC = () => {
     }
   };
   const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
-    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags), meal });
+    const added = addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags), meal });
+    if (!added) setToast(`"${it.n}" já está em ${mealLabel(meal).label} 👍`); // dedup: avisa em vez de floodar
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
@@ -313,6 +315,7 @@ const Diary: React.FC = () => {
             <BarcodeScanner open={scanOpen} onClose={() => setScanOpen(false)} onCode={(code) => { setBc(code); void doBarcode(code); }} />
           </Suspense>
         )}
+        <IonToast isOpen={!!toast} message={toast} duration={1800} onDidDismiss={() => setToast('')} />
       </IonCardContent>
     </IonCard>
   );

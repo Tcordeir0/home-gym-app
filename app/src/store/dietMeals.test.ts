@@ -17,10 +17,10 @@ const foodOf = (date: string) => useStore.getState().daily['test-user']?.[date]?
 describe('dieta — refeições + dedup (sem flood)', () => {
   beforeEach(seed);
 
-  it('addFoodOn não cria linha repetida do mesmo item na mesma refeição', () => {
+  it('addFoodOn não cria linha repetida do mesmo item na mesma refeição (e retorna false)', () => {
     const s = useStore.getState();
-    s.addFoodOn('2026-06-19', { n: 'Ovo', k: 155, p: 13, g: 0, meal: 'cafe' });
-    s.addFoodOn('2026-06-19', { n: 'Ovo', k: 155, p: 13, g: 0, meal: 'cafe' }); // repetido
+    expect(s.addFoodOn('2026-06-19', { n: 'Ovo', k: 155, p: 13, g: 0, meal: 'cafe' })).toBe(true);
+    expect(s.addFoodOn('2026-06-19', { n: 'Ovo', k: 155, p: 13, g: 0, meal: 'cafe' })).toBe(false); // repetido → dedup
     expect(foodOf('2026-06-19')).toHaveLength(1);
   });
 

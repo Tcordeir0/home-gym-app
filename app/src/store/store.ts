@@ -219,7 +219,7 @@ export interface Store extends AppState {
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
   // versões por DATA (permitem registrar/editar alimentos em dias retroativos)
-  addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean; meal?: FoodItem['meal'] }) => void;
+  addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean; meal?: FoodItem['meal'] }) => boolean;
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
   setFoodMeal: (date: string, idx: number, meal: FoodItem['meal']) => void;
   removeFoodOn: (date: string, idx: number) => void;
@@ -645,16 +645,19 @@ export const useStore = create<Store>((set, get) => {
         if (f) f.splice(idx, 1);
       })),
 
-    // ---- alimentos por DATA (dias retroativos) ----
-    addFoodOn: (date, item) =>
+    // ---- alimentos por DATA (dias retroativos) ---- retorna se ADICIONOU (false = já existia, deduplicado)
+    addFoodOn: (date, item) => {
+      let added = false;
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[date] = dd[date] || {};
         dd[date].food = dd[date].food || [];
-        if (sameItemIndex(dd[date].food!, item.n, item.meal) < 0) dd[date].food!.push(withMacros(item));
-      })),
+        if (sameItemIndex(dd[date].food!, item.n, item.meal) < 0) { dd[date].food!.push(withMacros(item)); added = true; }
+      }));
+      return added;
+    },
     setFoodGramsOn: (date, idx, g) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
