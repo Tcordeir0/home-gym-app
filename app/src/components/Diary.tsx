@@ -10,6 +10,7 @@ import { useStore, useActiveProfile, todayISO } from '../store/store';
 import { targetsFor, isBeverage } from '../lib/diet';
 import { FOODS } from '../data/foods';
 import { offSearch, offBarcode, type OffHit } from '../lib/off';
+import { MEALS, mealByHour, groupByMeal, mealLabel, type MealKey } from '../lib/meals';
 
 const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -27,12 +28,15 @@ const Diary: React.FC = () => {
   const removeFoodOn = useStore((s) => s.removeFoodOn);
   const copyFoodOn = useStore((s) => s.copyFoodOn);
   const copyDietFromPrev = useStore((s) => s.copyDietFromPrev);
+  const setFoodMeal = useStore((s) => s.setFoodMeal);
   const [moveIdx, setMoveIdx] = useState<number | null>(null);
   const [moveDate, setMoveDate] = useState(''); // destino do "copiar p/ outro dia" (não dispara no onChange — iOS dispara hoje sozinho)
+  const [mealIdx, setMealIdx] = useState<number | null>(null); // item cujo seletor de refeição está aberto
+  const [meal, setMeal] = useState<MealKey>(() => mealByHour(new Date().getHours())); // refeição dos PRÓXIMOS adds (sugerida pela hora)
   const [copyMsg, setCopyMsg] = useState('');
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
-  useEffect(() => { setMoveIdx(null); setCopyMsg(''); setMoveDate(''); }, [date]);
+  useEffect(() => { setMoveIdx(null); setCopyMsg(''); setMoveDate(''); setMealIdx(null); setMeal(mealByHour(new Date().getHours())); }, [date]);
   const today = todayISO();
   const isToday = date === today;
   const stepDay = (n: number) => {
@@ -81,7 +85,7 @@ const Diary: React.FC = () => {
     }
   };
   const pick = (it: { n: string; k: number; p: number; tags?: string }) => {
-    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags) });
+    addFoodOn(date, { n: it.n, k: it.k, p: it.p, g: 0, liq: isBeverage(it.n, it.tags), meal });
     setQ(''); setBc(''); setOnline([]); setOnlineMsg('');
   };
 
@@ -145,59 +149,83 @@ const Diary: React.FC = () => {
 
         <div className="diary-list">
           {food.length ? (
-            food.map((it, i) => (
-              <div className="food-item" key={i}>
-                <div className="food-row">
-                  <div className="food-main">
-                    <div className="food-name">{it.n}</div>
-                    <div className="food-spoons">
-                      {it.liq
-                        ? (it.g >= 1000 ? `≈ ${(it.g / 1000).toFixed(it.g % 1000 === 0 ? 0 : 1)} L` : `${it.g} ml`)
-                        : `≈ ${spoons(it.g)} ${spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa`}
-                    </div>
-                  </div>
-                  <div className="food-g-wrap">
-                    <input
-                      className="food-g"
-                      type="number"
-                      inputMode="numeric"
-                      aria-label={it.liq ? 'Mililitros' : 'Gramas'}
-                      placeholder={it.liq ? 'ml' : 'g'}
-                      value={it.g || ''}
-                      onChange={(e) => { const g = parseFloat(e.target.value); setGramsOn(date, i, isNaN(g) || g < 0 ? 0 : g); }}
-                    />
-                    <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
-                  </div>
-                  <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
-                  <button className={'food-move' + (moveIdx === i ? ' on' : '')} onClick={() => setMoveIdx(moveIdx === i ? null : i)} aria-label="Copiar para outro dia">
-                    <IonIcon icon={calendarOutline} />
-                  </button>
-                  <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
-                    <IonIcon icon={trashOutline} />
-                  </button>
+            groupByMeal(food).map((group) => (
+              <div className="diary-meal" key={group.key}>
+                <div className="diary-meal-h">
+                  <span className="diary-meal-t">{group.emoji} {group.label}</span>
+                  <span className="diary-meal-kcal">{Math.round(group.items.reduce((a, { item }) => a + (item.k * item.g) / 100, 0))} kcal</span>
                 </div>
-                {moveIdx === i && (
-                  <div className="food-movebar">
-                    <span>Copiar <b>{it.n}</b> de <b>{dateLabel.toLowerCase()}</b> para outro dia (mantém aqui):</span>
-                    <div className="food-movebar-row">
-                      {/* o copiar só dispara no botão — no iOS o onChange do date dispara "hoje" sozinho ao abrir */}
-                      <input
-                        type="date"
-                        max={today}
-                        value={moveDate}
-                        onChange={(e) => setMoveDate(e.target.value)}
-                        aria-label="Dia de destino"
-                      />
-                      <button
-                        className="food-move-go"
-                        disabled={!moveDate || moveDate === date}
-                        onClick={() => { copyFoodOn(date, i, moveDate); setMoveIdx(null); setMoveDate(''); }}
-                      >
-                        Copiar
+                {group.items.map(({ item: it, idx: i }) => (
+                  <div className="food-item" key={i}>
+                    <div className="food-row">
+                      <div className="food-main">
+                        <div className="food-name">{it.n}</div>
+                        <div className="food-spoons">
+                          {it.liq
+                            ? (it.g >= 1000 ? `≈ ${(it.g / 1000).toFixed(it.g % 1000 === 0 ? 0 : 1)} L` : `${it.g} ml`)
+                            : `≈ ${spoons(it.g)} ${spoons(it.g) === 1 ? 'colher' : 'colheres'} de sopa`}
+                        </div>
+                      </div>
+                      <div className="food-g-wrap">
+                        <input
+                          className="food-g"
+                          type="number"
+                          inputMode="numeric"
+                          aria-label={it.liq ? 'Mililitros' : 'Gramas'}
+                          placeholder={it.liq ? 'ml' : 'g'}
+                          value={it.g || ''}
+                          onChange={(e) => { const g = parseFloat(e.target.value); setGramsOn(date, i, isNaN(g) || g < 0 ? 0 : g); }}
+                        />
+                        <span className="food-g-unit">{it.liq ? 'ml' : 'g'}</span>
+                      </div>
+                      <div className="food-kcal">{Math.round((it.k * it.g) / 100)}<small>kcal</small></div>
+                      <button className={'food-meal' + (mealIdx === i ? ' on' : '')} onClick={() => { setMoveIdx(null); setMealIdx(mealIdx === i ? null : i); }} aria-label="Mudar refeição">
+                        {mealLabel(it.meal).emoji}
+                      </button>
+                      <button className={'food-move' + (moveIdx === i ? ' on' : '')} onClick={() => { setMealIdx(null); setMoveIdx(moveIdx === i ? null : i); }} aria-label="Copiar para outro dia">
+                        <IonIcon icon={calendarOutline} />
+                      </button>
+                      <button className="food-del" onClick={() => removeFoodOn(date, i)} aria-label="Remover">
+                        <IonIcon icon={trashOutline} />
                       </button>
                     </div>
+                    {mealIdx === i && (
+                      <div className="food-mealbar">
+                        {MEALS.map((m) => (
+                          <button
+                            key={m.key}
+                            className={'ds-chip' + (it.meal === m.key ? ' on' : '')}
+                            onClick={() => { setFoodMeal(date, i, m.key); setMealIdx(null); }}
+                          >
+                            {m.emoji} {m.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {moveIdx === i && (
+                      <div className="food-movebar">
+                        <span>Copiar <b>{it.n}</b> de <b>{dateLabel.toLowerCase()}</b> para outro dia (mantém aqui):</span>
+                        <div className="food-movebar-row">
+                          {/* o copiar só dispara no botão — no iOS o onChange do date dispara "hoje" sozinho ao abrir */}
+                          <input
+                            type="date"
+                            max={today}
+                            value={moveDate}
+                            onChange={(e) => setMoveDate(e.target.value)}
+                            aria-label="Dia de destino"
+                          />
+                          <button
+                            className="food-move-go"
+                            disabled={!moveDate || moveDate === date}
+                            onClick={() => { copyFoodOn(date, i, moveDate); setMoveIdx(null); setMoveDate(''); }}
+                          >
+                            Copiar
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
             ))
           ) : (
@@ -213,6 +241,18 @@ const Diary: React.FC = () => {
           <IonIcon icon={copyOutline} /> {food.length ? 'Repetir dia anterior' : 'Copiar dia anterior'}
         </button>
         {copyMsg && <p className="diary-copymsg">{copyMsg}</p>}
+
+        {/* refeição em que os próximos itens entram (sugerida pela hora) */}
+        <div className="diary-mealpick">
+          <span className="diary-mealpick-l">Adicionar em:</span>
+          <div className="diary-mealpick-chips">
+            {MEALS.map((m) => (
+              <button key={m.key} className={'ds-chip' + (meal === m.key ? ' on' : '')} onClick={() => setMeal(m.key)}>
+                {m.emoji} {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <button className="food-online-go diary-photo" onClick={() => setPlateOpen(true)}>
           <IonIcon icon={cameraOutline} /> Foto do prato
@@ -267,7 +307,7 @@ const Diary: React.FC = () => {
           </div>
         )}
 
-        <PlateSheet open={plateOpen} date={date} onClose={() => setPlateOpen(false)} />
+        <PlateSheet open={plateOpen} date={date} meal={meal} onClose={() => setPlateOpen(false)} />
         {scanOpen && (
           <Suspense fallback={null}>
             <BarcodeScanner open={scanOpen} onClose={() => setScanOpen(false)} onCode={(code) => { setBc(code); void doBarcode(code); }} />

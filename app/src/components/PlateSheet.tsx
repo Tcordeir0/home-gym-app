@@ -12,7 +12,7 @@ const normTxt = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(
 interface PlateItem { n: string; k: number; p: number; g: number; liq?: boolean }
 interface Chip { term: string; score: number; local: Food | null }
 
-const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }> = ({ open, date, onClose }) => {
+const PlateSheet: React.FC<{ open: boolean; date: string; meal?: 'cafe' | 'almoco' | 'lanche' | 'janta'; onClose: () => void }> = ({ open, date, meal, onClose }) => {
   const addFoodOn = useStore((s) => s.addFoodOn);
   const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState('');
@@ -55,7 +55,7 @@ const PlateSheet: React.FC<{ open: boolean; date: string; onClose: () => void }>
   const updGrams = (i: number, g: number) => setPlate((p) => p.map((it, j) => (j === i ? { ...it, g } : it)));
   const removeItem = (i: number) => setPlate((p) => p.filter((_, j) => j !== i));
   // salva no DIA EM FOCO (corrige: antes ia sempre pra hoje, perdendo registros retroativos)
-  const confirm = () => { plate.forEach((it) => addFoodOn(date, it)); close(); };
+  const confirm = () => { plate.forEach((it) => addFoodOn(date, { ...it, meal })); close(); };
 
   const qn = normTxt(q).trim();
   const hits = qn.length >= 2 ? FOODS.filter((f) => normTxt(f.n).includes(qn) || normTxt(f.tags || '').includes(qn)).slice(0, 8) : [];
