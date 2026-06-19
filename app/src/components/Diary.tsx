@@ -28,10 +28,11 @@ const Diary: React.FC = () => {
   const copyFoodOn = useStore((s) => s.copyFoodOn);
   const copyDietFromPrev = useStore((s) => s.copyDietFromPrev);
   const [moveIdx, setMoveIdx] = useState<number | null>(null);
+  const [moveDate, setMoveDate] = useState(''); // destino do "copiar p/ outro dia" (não dispara no onChange — iOS dispara hoje sozinho)
   const [copyMsg, setCopyMsg] = useState('');
   // dia em foco (permite registrar em dias retroativos)
   const [date, setDate] = useState(todayISO());
-  useEffect(() => { setMoveIdx(null); setCopyMsg(''); }, [date]);
+  useEffect(() => { setMoveIdx(null); setCopyMsg(''); setMoveDate(''); }, [date]);
   const today = todayISO();
   const isToday = date === today;
   const stepDay = (n: number) => {
@@ -177,16 +178,24 @@ const Diary: React.FC = () => {
                 </div>
                 {moveIdx === i && (
                   <div className="food-movebar">
-                    <span>Copiar <b>{it.n}</b> para (mantém aqui):</span>
-                    <input
-                      type="date"
-                      max={today}
-                      onChange={(e) => {
-                        const d = e.target.value;
-                        if (d && d !== date) { copyFoodOn(date, i, d); setMoveIdx(null); }
-                      }}
-                      aria-label="Dia de destino"
-                    />
+                    <span>Copiar <b>{it.n}</b> de <b>{dateLabel.toLowerCase()}</b> para outro dia (mantém aqui):</span>
+                    <div className="food-movebar-row">
+                      {/* o copiar só dispara no botão — no iOS o onChange do date dispara "hoje" sozinho ao abrir */}
+                      <input
+                        type="date"
+                        max={today}
+                        value={moveDate}
+                        onChange={(e) => setMoveDate(e.target.value)}
+                        aria-label="Dia de destino"
+                      />
+                      <button
+                        className="food-move-go"
+                        disabled={!moveDate || moveDate === date}
+                        onClick={() => { copyFoodOn(date, i, moveDate); setMoveIdx(null); setMoveDate(''); }}
+                      >
+                        Copiar
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
