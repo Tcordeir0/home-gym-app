@@ -5,6 +5,7 @@ import type { Exercise } from '../data/types';
 import { weekDates } from '../lib/league';
 import { deviceId } from '../lib/device';
 import { mergeExercises } from '../lib/workoutMerge';
+import { sameItemIndex } from '../lib/meals';
 import { pickPrize, PRIZES, type Prize } from '../data/roulette';
 import { themeUnlocked, THEMES } from '../data/themes';
 import { decoUnlocked, DECOS } from '../data/decos';
@@ -20,7 +21,7 @@ import { FOODS } from '../data/foods';
 // QUALQUER caminho de adição (busca, prato, foto) ganha macros sem alterar cada um.
 const _macroIdx = new Map<string, { c?: number; f?: number }>();
 const _normFood = (s: string) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-function withMacros(item: { n: string; k: number; p: number; g: number; liq?: boolean; c?: number; f?: number }): FoodItem {
+function withMacros(item: { n: string; k: number; p: number; g: number; liq?: boolean; c?: number; f?: number; meal?: FoodItem['meal'] }): FoodItem {
   if (item.c != null && item.f != null) return item;
   if (!_macroIdx.size) for (const fd of FOODS) _macroIdx.set(_normFood(fd.n), { c: fd.c, f: fd.f });
   const m = _macroIdx.get(_normFood(item.n));
@@ -214,12 +215,13 @@ export interface Store extends AppState {
   measureSeries: (field: 'weight' | 'arm' | 'chest' | 'waist') => { x: string; y: number }[];
   updateActiveBody: (patch: Partial<Body>) => void;
   addWaterOn: (date: string, ml: number) => void;
-  addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
+  addFoodToday: (item: { n: string; k: number; p: number; g: number; liq?: boolean; meal?: FoodItem['meal'] }) => void;
   setFoodGrams: (idx: number, g: number) => void;
   removeFoodToday: (idx: number) => void;
   // versões por DATA (permitem registrar/editar alimentos em dias retroativos)
-  addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean }) => void;
+  addFoodOn: (date: string, item: { n: string; k: number; p: number; g: number; liq?: boolean; meal?: FoodItem['meal'] }) => boolean;
   setFoodGramsOn: (date: string, idx: number, g: number) => void;
+  setFoodMeal: (date: string, idx: number, meal: FoodItem['meal']) => void;
   removeFoodOn: (date: string, idx: number) => void;
   copyFoodOn: (fromDate: string, idx: number, toDate: string) => void;
   copyDietFromPrev: (toDate: string) => boolean;
@@ -625,7 +627,8 @@ export const useStore = create<Store>((set, get) => {
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[t] = dd[t] || {};
         dd[t].food = dd[t].food || [];
-        dd[t].food!.push(withMacros(item));
+        // dedup: mesmo item na mesma refeição+dia não cria linha nova (sem flood)
+        if (sameItemIndex(dd[t].food!, item.n, item.meal) < 0) dd[t].food!.push(withMacros(item));
       })),
 
     setFoodGrams: (idx, g) =>
@@ -642,21 +645,31 @@ export const useStore = create<Store>((set, get) => {
         if (f) f.splice(idx, 1);
       })),
 
-    // ---- alimentos por DATA (dias retroativos) ----
-    addFoodOn: (date, item) =>
+    // ---- alimentos por DATA (dias retroativos) ---- retorna se ADICIONOU (false = já existia, deduplicado)
+    addFoodOn: (date, item) => {
+      let added = false;
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const uid = s.active;
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[date] = dd[date] || {};
         dd[date].food = dd[date].food || [];
-        dd[date].food!.push(withMacros(item));
-      })),
+        if (sameItemIndex(dd[date].food!, item.n, item.meal) < 0) { dd[date].food!.push(withMacros(item)); added = true; }
+      }));
+      return added;
+    },
     setFoodGramsOn: (date, idx, g) =>
       set(produce((s: Store) => {
         if (!ownsActive(s)) return;
         const f = s.daily[s.active]?.[date]?.food;
         if (f && f[idx]) f[idx].g = g;
+      })),
+    // muda a refeição (café/almoço/lanche/janta) de um item já lançado
+    setFoodMeal: (date, idx, meal) =>
+      set(produce((s: Store) => {
+        if (!ownsActive(s)) return;
+        const f = s.daily[s.active]?.[date]?.food;
+        if (f && f[idx]) f[idx].meal = meal;
       })),
     removeFoodOn: (date, idx) =>
       set(produce((s: Store) => {
@@ -677,7 +690,8 @@ export const useStore = create<Store>((set, get) => {
         const dd = (s.daily[uid] = s.daily[uid] || {});
         dd[toDate] = dd[toDate] || {};
         dd[toDate].food = dd[toDate].food || [];
-        dd[toDate].food!.push(item);
+        // dedup: não duplica se o mesmo item (nome+refeição) já existe no destino
+        if (sameItemIndex(dd[toDate].food!, item.n, item.meal) < 0) dd[toDate].food!.push(item);
       })),
     // copia os alimentos do dia ANTERIOR mais recente com comida → poupa tempo, depois edita
     copyDietFromPrev: (toDate) => {
@@ -693,7 +707,8 @@ export const useStore = create<Store>((set, get) => {
         if (!src.length) return;
         dd[toDate] = dd[toDate] || {};
         dd[toDate].food = dd[toDate].food || [];
-        src.forEach((it) => dd[toDate].food!.push({ ...it }));
+        // dedup: ao repetir, não floda itens iguais (nome+refeição) que já estão no dia
+        src.forEach((it) => { if (sameItemIndex(dd[toDate].food!, it.n, it.meal) < 0) dd[toDate].food!.push({ ...it }); });
         ok = true;
       }));
       return ok;

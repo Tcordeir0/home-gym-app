@@ -116,6 +116,7 @@ export interface FoodItem {
   f?: number; // gordura/100g
   g: number; // quantidade (g, ou ml se liq)
   liq?: boolean; // bebida → exibe em ml (não g)
+  meal?: 'cafe' | 'almoco' | 'lanche' | 'janta'; // refeição (café/almoço/lanche/janta); ausente = legado "sem refeição"
 }
 
 export interface DailyEntry {

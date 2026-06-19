@@ -219,6 +219,10 @@
 .food-movebar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 4px 2px 12px; font-size: 12.5px; color: var(--app-muted); }
 .food-movebar b { color: var(--ion-text-color); }
 .food-movebar input[type="date"] { border: 1.5px solid var(--brand-lime); background: var(--app-surface-2); color: var(--ion-text-color); border-radius: 10px; padding: 7px 10px; font-weight: 700; font-size: 13px; }
+.food-movebar-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+.food-movebar-row input[type="date"] { flex: 1; min-width: 0; }
+.food-move-go { flex: 0 0 auto; border: 0; border-radius: 10px; padding: 8px 16px; background: var(--brand-lime); color: #0b0c0f; font-weight: 800; font-size: 13px; cursor: pointer; }
+.food-move-go:disabled { opacity: 0.4; }
 .diary-empty { margin: 8px 0 0; font-size: 13px; color: var(--app-muted); background: var(--app-surface-2); border-radius: 12px; padding: 10px 12px; }
 .diary-copy {
   width: 100%; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
@@ -321,3 +325,28 @@
 .dmacro-track span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #9be000, var(--brand-lime)); transition: width .35s; }
 .meta-macros { margin-top: 4px; font-size: 12px; color: var(--app-muted); }
 .meta-macros b { color: var(--ion-text-color); }
+
+/* ---- Refeições (café/almoço/lanche/janta) ---- */
+.diary-meal { margin-top: 6px; }
+.diary-meal + .diary-meal { margin-top: 14px; }
+.diary-meal-h {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 2px 2px 4px; border-bottom: 1px solid var(--app-line); margin-bottom: 2px;
+}
+.diary-meal-t { font-size: 13px; font-weight: 800; color: var(--ion-text-color); }
+.diary-meal-kcal { font-size: 11.5px; font-weight: 700; color: var(--app-muted); }
+
+/* botão de refeição por item (emoji) */
+.food-meal {
+  flex: 0 0 auto; width: 32px; height: 32px; border-radius: 9px;
+  border: 1px solid var(--app-line); background: var(--app-surface-2);
+  font-size: 15px; line-height: 1; cursor: pointer; padding: 0;
+}
+.food-meal.on { border-color: var(--brand-lime); }
+/* picker de refeição do item (chips) */
+.food-mealbar { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 2px 12px; }
+
+/* seletor de refeição pros próximos adds */
+.diary-mealpick { margin: 14px 0 6px; }
+.diary-mealpick-l { font-size: 12px; font-weight: 700; color: var(--app-muted); }
+.diary-mealpick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
