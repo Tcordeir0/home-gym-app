@@ -133,7 +133,9 @@ const TIPS: Record<Fine, string> = {
 function exToFine(nome: string, coarse: string): Fine {
   const s = (nome || '').toLowerCase();
   switch (coarse) {
-    case 'chest': return 'chest';
+    case 'chest':
+      if (/pullover|around the world|around-the-world|serrátil|serratil/.test(s)) return 'serratus';
+      return 'chest';
     case 'glutes': return 'glutes';
     case 'shoulders': return 'shoulders';
     case 'back':
@@ -176,6 +178,28 @@ function musToFine(m: string): Fine | null {
   return null;
 }
 
+// Fallback por PALAVRA-CHAVE no nome — pra exercícios que não estão no POOL/biblioteca/planos
+// (variações de nome, ex.: "...militar...", "...(no chão)..."). Robusto a qualquer rename.
+function fineFromName(nome: string): Fine | null {
+  const s = (nome || '').toLowerCase();
+  if (/pullover|around the world|around-the-world|serrátil|serratil/.test(s)) return 'serratus';
+  if (/punho|wrist|antebra/.test(s)) return 'forearm';
+  if (/tríceps|triceps|testa|francês|frances|mergulho|kickback|fechada/.test(s)) return 'triceps';
+  if (/encolhimento|shrug|trapéz|trapez|face pull/.test(s)) return 'trapezius';
+  if (/desenvolvimento|elevação lateral|elevacao lateral|elevação frontal|elevacao frontal|arnold|ombro|pike|remada alta|overhead|shoulder/.test(s)) return 'shoulders';
+  if (/rosca|bíceps|biceps|\bcurl\b/.test(s)) return 'biceps';
+  if (/supino|crucifixo|flex[ãa]o|push.?up|peito|crossover|\bfly\b|voador|bench press|chest/.test(s)) return 'chest';
+  if (/lombar|superman|hiperexten|good morning/.test(s)) return 'lombar';
+  if (/remada|puxada|barra fixa|pull.?up|chin.?up|\blat\b|dorsal|costas|\brow\b/.test(s)) return 'back';
+  if (/obl[íi]qu|russian|woodchopper|twist|prancha lateral|suitcase|inclinação lateral|inclinacao lateral/.test(s)) return 'obliques';
+  if (/abdominal|prancha|crunch|sit.?up|eleva[çc][ãa]o de perna|leg raise|leg pull|mountain|hollow|dead bug|bird dog|canivete|v-up|flutter|heel touch|plank|abdôm|abdom/.test(s)) return 'abs';
+  if (/panturrilha|\bcalf\b|s[óo]leo/.test(s)) return 'calves';
+  if (/stiff|terra romeno|\brdl\b|posterior|isquio|hamstring/.test(s)) return 'hamstring';
+  if (/gl[úu]teo|hip thrust|ponte|coice|abdu[çc][ãa]o|abdutor|sum[ôo]|pélvica|pelvica/.test(s)) return 'glutes';
+  if (/agachamento|afundo|b[úu]lgaro|\bleg\b|cadeira|wall sit|passada|lunge|quadr|coxa|squat|swing/.test(s)) return 'quads';
+  return null;
+}
+
 // mistura dois hex (t=0 → a, t=1 → b)
 function toRGB(c: string): [number, number, number] {
   let h = c.replace('#', '').trim();
@@ -200,7 +224,7 @@ function countRange(
   history.forEach((h) => {
     if (h.date < from || h.date > to) return;
     (h.exercises || []).forEach((ex) => {
-      const f = byName.get(ex.nome);
+      const f = byName.get(ex.nome) ?? fineFromName(ex.nome); // fallback por palavra-chave p/ variações de nome
       if (!f) return;
       const n = ex.sets?.length || 0;
       c[f] += n;
